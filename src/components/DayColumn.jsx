@@ -3,11 +3,12 @@ import { dayLabel } from "../lib/dates.js";
 import { sortTasks } from "../lib/tasks.js";
 import { occursOn, isDoneOn } from "../lib/repeats.js";
 import TaskItem from "./TaskItem.jsx";
-import AddTask from "./AddTask.jsx";
+import TaskModal from "./TaskModal.jsx";
 import OverdueSection from "./OverdueSection.jsx";
 
 export default function DayColumn({ date, isToday, tasks, repeats, overdue, taskActions, repeatActions }) {
   const [dropTarget, setDropTarget] = useState(false);
+  const [creating, setCreating] = useState(false);
   const dayNumber = Number(date.slice(8));
   const className = ["day", isToday && "today", dropTarget && "drop-target"].filter(Boolean).join(" ");
 
@@ -76,7 +77,18 @@ export default function DayColumn({ date, isToday, tasks, repeats, overdue, task
           repeatActions={repeatActions}
         />
       )}
-      <AddTask onAdd={(text, priority, days) => taskActions.add(text, date, priority, days)} />
+      <button className="create-task" onClick={() => setCreating(true)}>
+        + Create new task
+      </button>
+      {creating && (
+        <TaskModal
+          onCancel={() => setCreating(false)}
+          onCreate={(text, priority, days) => {
+            taskActions.add(text, date, priority, days);
+            setCreating(false);
+          }}
+        />
+      )}
     </section>
   );
 }

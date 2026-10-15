@@ -12,6 +12,8 @@
   --card-bg: #ffffff;
   --green: #1f883d;
   --green-text: #ffffff;
+  --blue: #0969da;
+  --blue-text: #ffffff;
   --backdrop: rgba(0, 0, 0, 0.4);
 }
 
@@ -29,6 +31,8 @@
   --card-bg: #161b22;
   --green: #238636;
   --green-text: #ffffff;
+  --blue: #1f6feb;
+  --blue-text: #ffffff;
   --backdrop: rgba(0, 0, 0, 0.6);
 }
 
@@ -104,16 +108,6 @@ body {
   opacity: 1;
 }
 
-.add-task {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.add-task input {
-  flex: 1;
-  min-width: 0;
-}
-
 /* Done style, used by tasks, checklist items and goal cards. */
 .done {
   opacity: 0.45;
@@ -150,10 +144,6 @@ body {
 
 .priority-tag {
   max-width: 4.5rem;
-}
-
-.add-task {
-  flex-wrap: wrap;
 }
 
 .top-bar {
@@ -310,7 +300,8 @@ body {
   padding-left: 0;
 }
 
-.create-goal {
+.create-goal,
+.create-task {
   padding: 0.5rem 0.9rem;
   border: none;
   border-radius: 8px;
@@ -318,6 +309,13 @@ body {
   color: var(--green-text);
   font-weight: 600;
   cursor: pointer;
+}
+
+.create-task {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.85rem;
+  background: var(--blue);
+  color: var(--blue-text);
 }
 
 .modal-backdrop {
@@ -385,6 +383,11 @@ body {
   padding: 0.4rem 0.8rem;
   background: var(--green);
   color: var(--green-text);
+}
+
+.primary.blue {
+  background: var(--blue);
+  color: var(--blue-text);
 }
 
 .primary:disabled {
