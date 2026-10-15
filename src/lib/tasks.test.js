@@ -47,3 +47,18 @@ describe("sortTasks", () => {
     expect(sortTasks([a, b, c, d]).map((x) => x.id)).toEqual(["b", "d", "a", "c"]);
   });
 });
+
+describe("sortTasks with priorities", () => {
+  it("orders unfinished tasks high → medium → low, then done tasks", () => {
+    const low = { ...t, id: "low", priority: "low" };
+    const high = { ...t, id: "high", priority: "high" };
+    const medium = { ...t, id: "medium", priority: "medium" };
+    const doneHigh = { ...t, id: "doneHigh", priority: "high", done: true };
+    expect(sortTasks([low, doneHigh, high, medium]).map((x) => x.id)).toEqual([
+      "high",
+      "medium",
+      "low",
+      "doneHigh",
+    ]);
+  });
+});

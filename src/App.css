@@ -5,6 +5,9 @@
   --day-bg: #f6f8fa;
   --today-bg: #fff4d6;
   --today-border: #e3a008;
+  --high: #cf222e;
+  --medium: #bf8700;
+  --low: #1a7f37;
 }
 
 body {
@@ -102,4 +105,31 @@ body {
 .check {
   text-decoration: none;
   display: inline-block;
+}
+
+.priority {
+  font-size: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid currentColor;
+  background: transparent;
+}
+
+.priority-high {
+  color: var(--high);
+}
+
+.priority-medium {
+  color: var(--medium);
+}
+
+.priority-low {
+  color: var(--low);
+}
+
+.priority-tag {
+  max-width: 4.5rem;
+}
+
+.add-task {
+  flex-wrap: wrap;
 }

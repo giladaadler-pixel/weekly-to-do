@@ -19,7 +19,14 @@ export function editText(tasks, id, newText) {
   return updateTask(tasks, id, { text: trimmed });
 }
 
-// Unfinished tasks first, done tasks last; otherwise keeps the original order.
+export const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
+
+// Unfinished tasks first, sorted high → medium → low; done tasks last.
+// Otherwise keeps the original order.
 export function sortTasks(tasks) {
-  return [...tasks].sort((a, b) => Number(a.done) - Number(b.done));
+  return [...tasks].sort(
+    (a, b) =>
+      Number(a.done) - Number(b.done) ||
+      (a.done ? 0 : PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority])
+  );
 }
