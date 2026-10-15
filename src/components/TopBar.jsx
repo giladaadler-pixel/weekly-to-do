@@ -1,7 +1,19 @@
 import { formatWeekRange } from "../lib/dates.js";
 
 // stats: { done, total } for the viewed week.
-export default function TopBar({ page, onPage, viewWeek, onPrev, onNext, stats, theme, onToggleTheme }) {
+// onToday jumps back to the week holding today; its button only shows when viewing another week.
+export default function TopBar({
+  page,
+  onPage,
+  viewWeek,
+  onPrev,
+  onNext,
+  onToday,
+  isCurrentWeek,
+  stats,
+  theme,
+  onToggleTheme,
+}) {
   return (
     <header className="top-bar">
       <nav className="page-switch">
@@ -21,6 +33,11 @@ export default function TopBar({ page, onPage, viewWeek, onPrev, onNext, stats, 
           <button onClick={onNext} aria-label="Next week">
             ▶
           </button>
+          {!isCurrentWeek && (
+            <button className="today-button" onClick={onToday} aria-label="Go to current week">
+              Today
+            </button>
+          )}
         </nav>
       )}
       {page === "week" && stats.total > 0 && (

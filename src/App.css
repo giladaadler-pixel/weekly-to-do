@@ -207,6 +207,22 @@ body {
   font-weight: 600;
 }
 
+/* Same border, color and padding as the Week/Goals switch, as a pill. */
+.today-button {
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.today-button:hover {
+  background: var(--day-bg);
+}
+
 .overdue {
   margin: 0.5rem 0;
   padding-top: 0.5rem;
