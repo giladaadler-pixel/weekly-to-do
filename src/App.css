@@ -133,3 +133,22 @@ body {
 .add-task {
   flex-wrap: wrap;
 }
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.week-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.week-range {
+  min-width: 13rem;
+  text-align: center;
+  font-weight: 600;
+}

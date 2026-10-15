@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { toISO, weekStart, weekDays, addDays, dayLabel } from "./dates.js";
+import { toISO, weekStart, weekDays, addDays, dayLabel, formatWeekRange } from "./dates.js";
 
 describe("toISO", () => {
   it("uses local time, even just after midnight", () => {
@@ -43,5 +43,19 @@ describe("addDays", () => {
 describe("dayLabel", () => {
   it("returns the short day name", () => {
     expect(dayLabel("2026-10-15")).toBe("Thu");
+  });
+});
+
+describe("formatWeekRange", () => {
+  it("shows one month once", () => {
+    expect(formatWeekRange("2026-10-11")).toBe("Oct 11 – 17, 2026");
+  });
+
+  it("shows both months when the week crosses a month", () => {
+    expect(formatWeekRange("2026-11-29")).toBe("Nov 29 – Dec 5, 2026");
+  });
+
+  it("shows both years when the week crosses a year", () => {
+    expect(formatWeekRange("2026-12-27")).toBe("Dec 27, 2026 – Jan 2, 2027");
   });
 });
