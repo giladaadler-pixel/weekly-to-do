@@ -1,5 +1,46 @@
+:root {
+  --bg: #ffffff;
+  --text: #1f2328;
+  --border: #d0d7de;
+  --day-bg: #f6f8fa;
+  --today-bg: #fff4d6;
+  --today-border: #e3a008;
+}
+
 body {
   margin: 0;
   padding: 1rem;
   font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.day {
+  min-height: 12rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--day-bg);
+}
+
+.day.today {
+  background: var(--today-bg);
+  border-color: var(--today-border);
+}
+
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.day-number {
+  font-weight: normal;
 }
