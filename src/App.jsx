@@ -99,6 +99,8 @@ export default function App() {
         viewWeek={viewWeek}
         onPrev={() => setViewWeek((w) => addDays(w, -7))}
         onNext={() => setViewWeek((w) => addDays(w, 7))}
+        onToday={() => setViewWeek(weekStart(todayIso))}
+        isCurrentWeek={viewWeek === weekStart(todayIso)}
         stats={weekStats(state, viewWeek)}
         theme={state.theme}
         onToggleTheme={() => setState((s) => ({ ...s, theme: s.theme === "dark" ? "light" : "dark" }))}
