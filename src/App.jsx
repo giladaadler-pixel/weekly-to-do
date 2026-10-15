@@ -14,6 +14,7 @@ import {
 } from "./lib/repeats.js";
 import { makeGoal, updateGoal, makeGoalRepeat, deleteGoalAndRepeats } from "./lib/goals.js";
 import WeekView from "./components/WeekView.jsx";
+import { weekStats } from "./lib/stats.js";
 import TopBar from "./components/TopBar.jsx";
 import GoalsPage from "./components/GoalsPage.jsx";
 
@@ -94,6 +95,7 @@ export default function App() {
         viewWeek={viewWeek}
         onPrev={() => setViewWeek((w) => addDays(w, -7))}
         onNext={() => setViewWeek((w) => addDays(w, 7))}
+        stats={weekStats(state, viewWeek)}
       />
       {page === "goals" ? (
         <GoalsPage goals={state.goals} todayIso={todayIso} goalActions={goalActions} />

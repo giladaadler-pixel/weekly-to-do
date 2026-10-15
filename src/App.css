@@ -417,3 +417,7 @@ body {
 .empty {
   opacity: 0.6;
 }
+
+.stats {
+  font-size: 0.95rem;
+}

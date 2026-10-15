@@ -1,6 +1,7 @@
 import { formatWeekRange } from "../lib/dates.js";
 
-export default function TopBar({ page, onPage, viewWeek, onPrev, onNext }) {
+// stats: { done, total } for the viewed week.
+export default function TopBar({ page, onPage, viewWeek, onPrev, onNext, stats }) {
   return (
     <header className="top-bar">
       <nav className="page-switch">
@@ -21,6 +22,11 @@ export default function TopBar({ page, onPage, viewWeek, onPrev, onNext }) {
             ▶
           </button>
         </nav>
+      )}
+      {page === "week" && stats.total > 0 && (
+        <span className="stats">
+          ✅ {stats.done} of {stats.total} done this week
+        </span>
       )}
     </header>
   );
