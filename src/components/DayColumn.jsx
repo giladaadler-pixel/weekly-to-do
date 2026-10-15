@@ -56,7 +56,7 @@ export default function DayColumn({ date, isToday, tasks, repeats, overdue, task
               key={row.id}
               task={row}
               actions={repeatDayActions}
-              mark="🔁"
+              mark={row.repeat.goalId ? "🎯" : "🔁"}
               deleteChoices={[
                 { label: "Just this day", onClick: () => repeatActions.deleteOne(row.id, date) },
                 { label: "This and all future days", onClick: () => repeatActions.deleteFuture(row.id, date) },

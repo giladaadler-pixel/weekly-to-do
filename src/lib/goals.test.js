@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { resolveDueDate, makeGoal, goalsForMonth, convertStyle, updateGoal, deleteGoal } from "./goals.js";
+import { resolveDueDate, makeGoal, goalsForMonth, convertStyle, updateGoal, deleteGoal, deleteGoalAndRepeats, makeGoalRepeat } from "./goals.js";
 
 describe("resolveDueDate", () => {
   it("handles every 'Done by' choice", () => {
@@ -90,5 +90,43 @@ describe("updateGoal / deleteGoal", () => {
 
   it("deletes one goal", () => {
     expect(deleteGoal([g], "g")).toEqual([]);
+  });
+});
+
+describe("deleteGoalAndRepeats", () => {
+  it("removes the goal and every repeat for it", () => {
+    const state = {
+      tasks: [],
+      theme: "light",
+      goals: [{ id: "g1" }, { id: "g2" }],
+      repeats: [
+        { id: "r1", goalId: "g1" },
+        { id: "r2", goalId: "g2" },
+        { id: "r3", goalId: null },
+        { id: "r4", goalId: "g1" },
+      ],
+    };
+    const next = deleteGoalAndRepeats(state, "g1");
+    expect(next.goals.map((g) => g.id)).toEqual(["g2"]);
+    expect(next.repeats.map((x) => x.id)).toEqual(["r2", "r3"]);
+  });
+});
+
+describe("makeGoalRepeat", () => {
+  it("shows the goal on its days until its deadline", () => {
+    const goal = makeGoal({ title: "Run", priority: "high", dueDate: "2026-10-31" }, "2026-10-15");
+    expect(makeGoalRepeat(goal, [2], "2026-10-15")).toMatchObject({
+      text: "Run",
+      days: [2],
+      priority: "high",
+      startDate: "2026-10-15",
+      endDate: "2026-10-31",
+      goalId: goal.id,
+    });
+  });
+
+  it("returns null when no days are picked", () => {
+    const goal = makeGoal({ title: "Run" }, "2026-10-15");
+    expect(makeGoalRepeat(goal, [], "2026-10-15")).toBeNull();
   });
 });

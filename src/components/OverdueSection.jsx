@@ -29,7 +29,7 @@ export default function OverdueSection({ tasks, repeats, todayIso, taskActions, 
               aria-label={`Make up one: ${repeat.text}`}
             />
             <span className="task-text">
-              <span className="task-mark">🔁 </span>
+              <span className="task-mark">{repeat.goalId ? "🎯" : "🔁"} </span>
               {repeat.text} <span className="missed-count">{count}×</span>
             </span>
             <button className="clear-all" onClick={() => repeatActions.clearAll(repeat.id)}>

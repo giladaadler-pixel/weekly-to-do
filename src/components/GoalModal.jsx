@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { convertStyle, resolveDueDate } from "../lib/goals.js";
 import PrioritySelect from "./PrioritySelect.jsx";
 import StyleSelect from "./StyleSelect.jsx";
+import DayPicker from "./DayPicker.jsx";
 
 function ItemsEditor({ items, onChange }) {
   function setText(i, text) {
@@ -30,6 +31,7 @@ export default function GoalModal({ todayIso, onCreate, onCancel }) {
   const [priority, setPriority] = useState("medium");
   const [doneBy, setDoneBy] = useState("none");
   const [pickedDate, setPickedDate] = useState("");
+  const [days, setDays] = useState([]);
 
   useEffect(() => {
     function onKey(e) {
@@ -42,7 +44,7 @@ export default function GoalModal({ todayIso, onCreate, onCancel }) {
   function onSubmit(e) {
     e.preventDefault();
     if (!title.trim()) return;
-    onCreate({ title, ...description, priority, dueDate: resolveDueDate(doneBy, todayIso, pickedDate) });
+    onCreate({ title, ...description, priority, dueDate: resolveDueDate(doneBy, todayIso, pickedDate), days });
   }
 
   return (
@@ -85,6 +87,10 @@ export default function GoalModal({ todayIso, onCreate, onCancel }) {
         {doneBy === "date" && (
           <input type="date" value={pickedDate} min={todayIso} onChange={(e) => setPickedDate(e.target.value)} aria-label="Due date" />
         )}
+        <div className="field">
+          Show on days
+          <DayPicker days={days} onChange={setDays} />
+        </div>
         <div className="modal-buttons">
           <button type="button" onClick={onCancel}>
             Cancel
