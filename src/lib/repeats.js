@@ -1,5 +1,8 @@
-// Repeating tasks (and goal days). days are numbers: 0 = Sun … 6 = Sat.
+// Repeating tasks (and goal days). days are numbers: 0 = Sun … 5 = Fri.
+// The week has no Saturday, so a repeat never occurs on one (even old data with 6 in days).
 import { addDays } from "./dates.js";
+
+const SATURDAY = 6;
 
 function weekday(iso) {
   const [y, m, d] = iso.split("-").map(Number);
@@ -27,6 +30,7 @@ export function occursOn(repeat, iso) {
   return (
     iso >= repeat.startDate &&
     (repeat.endDate === null || iso <= repeat.endDate) &&
+    weekday(iso) !== SATURDAY &&
     repeat.days.includes(weekday(iso)) &&
     !repeat.skipDates.includes(iso)
   );

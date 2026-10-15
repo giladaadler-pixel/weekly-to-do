@@ -41,33 +41,37 @@ A switch at the top moves between two pages:
 ### 3.1 Week page
 
 ```
-Top bar:     ◀  Oct 11 – 17, 2026  ▶     ✅ 12 of 15 done this week     🌙
+Top bar:     ◀  Oct 11 – 16, 2026  ▶     ✅ 12 of 15 done this week     🌙
 Goals band:  this month's goal cards, full width, above the days
-Day grid:    Sun | Mon | Tue | Wed | Thu | Fri | Sat
+Day grid:    Sun | Mon
+             Tue | Wed
+             Thu | Fri
 ```
 
 **Week**
-- Weeks run **Sunday → Saturday**.
+- Weeks run **Sunday → Friday**. There is no Saturday anywhere in the app.
+- The six day boxes sit in a 2-column × 3-row grid.
+- The whole week page (top bar, goals band, all six days) fits on one laptop screen with no page scrolling. A day with many tasks scrolls inside its own box.
 - ◀ ▶ moves to the previous or next week.
-- Today's column is highlighted (only when viewing the current week).
+- Today's box is highlighted (only when viewing the current week).
 
-**Tasks** (in each day column)
+**Tasks** (in each day box)
 - Add, check off, edit, delete.
 - A small blue **"+ Create new task"** button in each day opens a pop-up (**modal**), styled like the goal modal, with:
   - **Title** (a blank title can't be created)
   - **Priority**: Low / Medium / High (default Medium)
-  - **Repeat on** (optional): ☐ Sun ☐ Mon … ☐ Sat
+  - **Repeat on** (optional): ☐ Sun ☐ Mon … ☐ Fri
   - **Cancel** / **Create task** (blue) buttons. Esc = Cancel.
 - The new task goes on the day whose button was clicked.
 - Priority tag: high, medium, or low (each a different color). Default is medium.
 - Order within a day: unfinished tasks first, sorted high → medium → low; completed tasks at the bottom.
-- Drag a task onto another day's column to move it to that day.
+- Drag a task onto another day's box to move it to that day.
 
-**Overdue section** (today's column only)
+**Overdue section** (today's box only)
 - Below today's tasks, under the heading **"Overdue"**.
 - Shows every unfinished task from any earlier day, labeled with its original day (e.g. "Email Ari (Tue)").
 - Checking it off marks the task done everywhere.
-- The task also still appears in its original day's column.
+- The task also still appears in its original day's box.
 
 **Stats** (top bar)
 - "X of Y done this week" for the week being viewed.
@@ -76,7 +80,7 @@ Day grid:    Sun | Mon | Tue | Wed | Thu | Fri | Sat
 - 🌙 button toggles light/dark. The choice is saved.
 
 **Repeating tasks**
-- In the Create task modal, optionally pick **Repeat on** days: ☐ Sun ☐ Mon … ☐ Sat.
+- In the Create task modal, optionally pick **Repeat on** days: ☐ Sun ☐ Mon … ☐ Fri.
 - The task then appears on those days every week, starting from the week it was created.
 - Each day's copy is checked off separately.
 - Deleting a repeating task asks: **"Just this day"** or **"This and all future days."**
@@ -99,7 +103,7 @@ Day grid:    Sun | Mon | Tue | Wed | Thu | Fri | Sat
   - **Description** with a style picker (checklist / bullets / paragraph)
   - **Priority**: Low / Medium / High (default Medium)
   - **Done by** (optional): No deadline / End of this week / End of this month / Pick a date…
-  - **Show on days** (optional): ☐ Sun ☐ Mon … ☐ Sat
+  - **Show on days** (optional): ☐ Sun ☐ Mon … ☐ Fri
   - **Cancel** / **Create goal** buttons
 - A new goal belongs to the month it's created in.
 
@@ -191,7 +195,7 @@ theme = "light" | "dark"
   - A new goal's month = the month it was created in.
   - A repeating task appears only on its chosen days, between its start and end dates, minus skipped days.
   - The missed counter is correct, goes down by 1 per check, and resets with "clear all".
-  - "End of this week" = the coming Saturday; "End of this month" = the month's last day.
+  - "End of this week" = the coming Friday (on a Saturday, the next Friday); "End of this month" = the month's last day.
 
 ## 8. Build order
 
@@ -200,12 +204,12 @@ Each row is one GitHub Issue, built on its own branch and merged with its own pu
 | # | Feature |
 |---|---|
 | 0 | Setup: React + Vite app, GitHub Actions deploy workflow, Pages source switched to Actions |
-| 1 | Sun–Sat week grid + highlight today |
+| 1 | Sun–Fri week grid + highlight today |
 | 2 | Add / check / edit / delete tasks, saved to localStorage |
 | 3 | "Done" style: ✓, crossed out, faded, moved to bottom |
 | 4 | Priorities |
 | 5 | Week navigation ◀ ▶ |
-| 6 | Overdue section in today's column |
+| 6 | Overdue section in today's box |
 | 7 | Drag tasks between days |
 | 8 | Repeating tasks (pick days when adding a task) |
 | 9 | Goals band + "Create new goal" modal: title, description style, priority, done by, done, month |

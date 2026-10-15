@@ -4,7 +4,7 @@ import { resolveDueDate, makeGoal, goalsForMonth, convertStyle, updateGoal, dele
 describe("resolveDueDate", () => {
   it("handles every 'Done by' choice", () => {
     expect(resolveDueDate("none", "2026-10-15")).toBeNull();
-    expect(resolveDueDate("week", "2026-10-15")).toBe("2026-10-17");
+    expect(resolveDueDate("week", "2026-10-15")).toBe("2026-10-16");
     expect(resolveDueDate("month", "2026-10-15")).toBe("2026-10-31");
     expect(resolveDueDate("date", "2026-10-15", "2026-11-03")).toBe("2026-11-03");
   });

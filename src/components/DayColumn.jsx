@@ -50,33 +50,35 @@ export default function DayColumn({ date, isToday, tasks, repeats, overdue, task
         <span className="day-label">{dayLabel(date)}</span>
         <span className="day-number">{dayNumber}</span>
       </h2>
-      <ul className="task-list">
-        {rows.map((row) =>
-          row.repeat ? (
-            <TaskItem
-              key={row.id}
-              task={row}
-              actions={repeatDayActions}
-              mark={row.repeat.goalId ? "🎯" : "🔁"}
-              deleteChoices={[
-                { label: "Just this day", onClick: () => repeatActions.deleteOne(row.id, date) },
-                { label: "This and all future days", onClick: () => repeatActions.deleteFuture(row.id, date) },
-              ]}
-            />
-          ) : (
-            <TaskItem key={row.id} task={row} actions={taskActions} draggable />
-          )
+      <div className="day-body">
+        <ul className="task-list">
+          {rows.map((row) =>
+            row.repeat ? (
+              <TaskItem
+                key={row.id}
+                task={row}
+                actions={repeatDayActions}
+                mark={row.repeat.goalId ? "🎯" : "🔁"}
+                deleteChoices={[
+                  { label: "Just this day", onClick: () => repeatActions.deleteOne(row.id, date) },
+                  { label: "This and all future days", onClick: () => repeatActions.deleteFuture(row.id, date) },
+                ]}
+              />
+            ) : (
+              <TaskItem key={row.id} task={row} actions={taskActions} draggable />
+            )
+          )}
+        </ul>
+        {isToday && (
+          <OverdueSection
+            tasks={overdue}
+            repeats={repeats}
+            todayIso={date}
+            taskActions={taskActions}
+            repeatActions={repeatActions}
+          />
         )}
-      </ul>
-      {isToday && (
-        <OverdueSection
-          tasks={overdue}
-          repeats={repeats}
-          todayIso={date}
-          taskActions={taskActions}
-          repeatActions={repeatActions}
-        />
-      )}
+      </div>
       <button className="create-task" onClick={() => setCreating(true)}>
         + Create new task
       </button>

@@ -37,6 +37,7 @@
 }
 
 body {
+  box-sizing: border-box;
   margin: 0;
   padding: 1rem;
   font-family: system-ui, sans-serif;
@@ -44,14 +45,34 @@ body {
   color: var(--text);
 }
 
+/* The week page fills exactly one screen: top bar, goals band, then the day grid
+   takes what's left. A day with many tasks scrolls inside its own box. */
+#root {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 2rem);
+}
+
+.week-page {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .week {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
   gap: 0.5rem;
 }
 
 .day {
-  min-height: 12rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   padding: 0.5rem;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -72,6 +93,16 @@ body {
 
 .day-number {
   font-weight: normal;
+}
+
+.day-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.day .create-task {
+  align-self: flex-start;
 }
 
 .task-list {
@@ -234,8 +265,11 @@ body {
 .goals-band {
   display: flex;
   flex-wrap: wrap;
+  flex-shrink: 0;
   align-items: flex-start;
   gap: 0.75rem;
+  max-height: 30vh;
+  overflow-y: auto;
   margin-bottom: 1rem;
 }
 

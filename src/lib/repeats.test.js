@@ -96,3 +96,17 @@ describe("activeRepeats", () => {
     ]);
   });
 });
+
+describe("Saturday", () => {
+  // Saturday is not part of the week, so a repeat never lands on it (or goes Overdue for it).
+  const everyDay = makeRepeat({ text: "Read", days: [0, 1, 2, 3, 4, 5, 6], startDate: "2026-10-11" });
+
+  it("never occurs on a Saturday", () => {
+    expect(occursOn(everyDay, "2026-10-16")).toBe(true);
+    expect(occursOn(everyDay, "2026-10-17")).toBe(false);
+  });
+
+  it("is never missed", () => {
+    expect(missedDates(everyDay, "2026-10-19")).not.toContain("2026-10-17");
+  });
+});

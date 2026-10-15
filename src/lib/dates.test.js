@@ -16,7 +16,7 @@ describe("weekStart", () => {
 });
 
 describe("weekDays", () => {
-  it("returns the 7 days from Sunday to Saturday", () => {
+  it("returns the 6 days from Sunday to Friday", () => {
     expect(weekDays("2026-10-11")).toEqual([
       "2026-10-11",
       "2026-10-12",
@@ -24,7 +24,6 @@ describe("weekDays", () => {
       "2026-10-14",
       "2026-10-15",
       "2026-10-16",
-      "2026-10-17",
     ]);
   });
 });
@@ -48,15 +47,15 @@ describe("dayLabel", () => {
 
 describe("formatWeekRange", () => {
   it("shows one month once", () => {
-    expect(formatWeekRange("2026-10-11")).toBe("Oct 11 – 17, 2026");
+    expect(formatWeekRange("2026-10-11")).toBe("Oct 11 – 16, 2026");
   });
 
   it("shows both months when the week crosses a month", () => {
-    expect(formatWeekRange("2026-11-29")).toBe("Nov 29 – Dec 5, 2026");
+    expect(formatWeekRange("2026-11-29")).toBe("Nov 29 – Dec 4, 2026");
   });
 
   it("shows both years when the week crosses a year", () => {
-    expect(formatWeekRange("2026-12-27")).toBe("Dec 27, 2026 – Jan 2, 2027");
+    expect(formatWeekRange("2026-12-27")).toBe("Dec 27, 2026 – Jan 1, 2027");
   });
 });
 
@@ -67,9 +66,13 @@ describe("monthKey", () => {
 });
 
 describe("endOfWeek", () => {
-  it("returns the coming Saturday", () => {
-    expect(endOfWeek("2026-10-15")).toBe("2026-10-17");
-    expect(endOfWeek("2026-10-17")).toBe("2026-10-17");
+  it("returns the coming Friday", () => {
+    expect(endOfWeek("2026-10-15")).toBe("2026-10-16");
+    expect(endOfWeek("2026-10-16")).toBe("2026-10-16");
+  });
+
+  it("rolls a Saturday forward to the next Friday", () => {
+    expect(endOfWeek("2026-10-17")).toBe("2026-10-23");
   });
 });
 
