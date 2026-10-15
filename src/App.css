@@ -1,4 +1,5 @@
 :root {
+  color-scheme: light;
   --bg: #ffffff;
   --text: #1f2328;
   --border: #d0d7de;
@@ -12,6 +13,23 @@
   --green: #1f883d;
   --green-text: #ffffff;
   --backdrop: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0d1117;
+  --text: #e6edf3;
+  --border: #30363d;
+  --day-bg: #161b22;
+  --today-bg: #2d2611;
+  --today-border: #d29922;
+  --high: #ff7b72;
+  --medium: #e3b341;
+  --low: #56d364;
+  --card-bg: #161b22;
+  --green: #238636;
+  --green-text: #ffffff;
+  --backdrop: rgba(0, 0, 0, 0.6);
 }
 
 body {
@@ -420,4 +438,13 @@ body {
 
 .stats {
   font-size: 0.95rem;
+}
+
+.theme-button {
+  margin-left: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: none;
+  font-size: 1.1rem;
+  cursor: pointer;
 }
