@@ -1,7 +1,7 @@
 import { formatWeekRange } from "../lib/dates.js";
 
 // stats: { done, total } for the viewed week.
-export default function TopBar({ page, onPage, viewWeek, onPrev, onNext, stats }) {
+export default function TopBar({ page, onPage, viewWeek, onPrev, onNext, stats, theme, onToggleTheme }) {
   return (
     <header className="top-bar">
       <nav className="page-switch">
@@ -28,6 +28,13 @@ export default function TopBar({ page, onPage, viewWeek, onPrev, onNext, stats }
           ✅ {stats.done} of {stats.total} done this week
         </span>
       )}
+      <button
+        className="theme-button"
+        onClick={onToggleTheme}
+        aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      >
+        {theme === "dark" ? "☀️" : "🌙"}
+      </button>
     </header>
   );
 }

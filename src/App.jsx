@@ -30,6 +30,10 @@ export default function App() {
     saveState(state);
   }, [state]);
 
+  useEffect(() => {
+    document.documentElement.dataset.theme = state.theme;
+  }, [state.theme]);
+
   function setTasks(change) {
     setState((s) => ({ ...s, tasks: change(s.tasks) }));
   }
@@ -96,6 +100,8 @@ export default function App() {
         onPrev={() => setViewWeek((w) => addDays(w, -7))}
         onNext={() => setViewWeek((w) => addDays(w, 7))}
         stats={weekStats(state, viewWeek)}
+        theme={state.theme}
+        onToggleTheme={() => setState((s) => ({ ...s, theme: s.theme === "dark" ? "light" : "dark" }))}
       />
       {page === "goals" ? (
         <GoalsPage goals={state.goals} todayIso={todayIso} goalActions={goalActions} />

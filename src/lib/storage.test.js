@@ -52,3 +52,16 @@ describe("saveState", () => {
     expect(loadState(f)).toEqual(s);
   });
 });
+
+describe("theme", () => {
+  it("round-trips a dark theme", () => {
+    const f = fake({});
+    saveState({ ...DEFAULT_STATE, theme: "dark" }, f);
+    expect(loadState(f).theme).toBe("dark");
+  });
+
+  it("loads an old saved state without a theme as light", () => {
+    const old = { tasks: [], repeats: [], goals: [] };
+    expect(loadState(fake({ [STORAGE_KEY]: JSON.stringify(old) })).theme).toBe("light");
+  });
+});
