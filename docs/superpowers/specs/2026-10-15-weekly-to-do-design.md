@@ -57,7 +57,7 @@ Day grid:    Sun | Mon
 
 **Tasks** (in each day box)
 - Add, check off, edit, delete.
-- A small blue **"+ Create new task"** button in each day opens a pop-up (**modal**), styled like the goal modal, with:
+- A blue **"Create new task+"** button in each day (same size as the green goal button) opens a pop-up (**modal**), styled like the goal modal, with:
   - **Title** (a blank title can't be created)
   - **Priority**: Low / Medium / High (default Medium)
   - **Repeat on** (optional): ☐ Sun ☐ Mon … ☐ Fri
@@ -98,7 +98,7 @@ Day grid:    Sun | Mon
     - **Checklist**: items with checkboxes
     - **Bullets**: plain bullet points
     - **Paragraph**: free text
-- A green **"+ Create new goal"** button opens a pop-up (**modal**) with:
+- A green **"Create new goal+"** button opens a pop-up (**modal**) with:
   - **Title**
   - **Description** with a style picker (checklist / bullets / paragraph)
   - **Priority**: Low / Medium / High (default Medium)

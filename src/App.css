@@ -334,20 +334,28 @@ body {
   padding-left: 0;
 }
 
-.create-goal,
-.create-task {
+/* Shared by "Create new goal+" and "Create new task+" so both are the same size.
+   The fixed width keeps them equal even though "goal" and "task" differ in width. */
+.create-button {
+  box-sizing: border-box;
+  width: 10.5rem;
   padding: 0.5rem 0.9rem;
   border: none;
   border-radius: 8px;
-  background: var(--green);
-  color: var(--green-text);
+  font-size: 0.9rem;
   font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
   cursor: pointer;
 }
 
+.create-goal {
+  background: var(--green);
+  color: var(--green-text);
+}
+
 .create-task {
-  padding: 0.3rem 0.7rem;
-  font-size: 0.85rem;
   background: var(--blue);
   color: var(--blue-text);
 }
