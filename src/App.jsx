@@ -3,6 +3,14 @@ import "./App.css";
 import { todayISO, weekStart, addDays } from "./lib/dates.js";
 import { loadState, saveState } from "./lib/storage.js";
 import { makeTask, updateTask, deleteTask, editText, moveTask } from "./lib/tasks.js";
+import {
+  makeRepeat,
+  toggleDoneOn,
+  makeUpOne,
+  clearAll,
+  deleteOne,
+  deleteFuture,
+} from "./lib/repeats.js";
 import WeekView from "./components/WeekView.jsx";
 import TopBar from "./components/TopBar.jsx";
 
@@ -20,8 +28,18 @@ export default function App() {
     setState((s) => ({ ...s, tasks: change(s.tasks) }));
   }
 
+  function setRepeat(id, change) {
+    setState((s) => ({ ...s, repeats: s.repeats.map((r) => (r.id === id ? change(r) : r)) }));
+  }
+
   const taskActions = {
-    add: (text, date, priority) => {
+    // With days picked, adds a repeating task starting on this date instead.
+    add: (text, date, priority, days = []) => {
+      if (days.length > 0) {
+        const repeat = makeRepeat({ text, days, priority, startDate: date });
+        if (repeat) setState((s) => ({ ...s, repeats: [...s.repeats, repeat] }));
+        return;
+      }
       const task = makeTask(text, date, priority);
       if (task) setTasks((tasks) => [...tasks, task]);
     },
@@ -30,6 +48,16 @@ export default function App() {
     edit: (id, text) => setTasks((tasks) => editText(tasks, id, text)),
     move: (id, date) => setTasks((tasks) => moveTask(tasks, id, date)),
     remove: (id) => setTasks((tasks) => deleteTask(tasks, id)),
+  };
+
+  const repeatActions = {
+    toggle: (id, date) => setRepeat(id, (r) => toggleDoneOn(r, date)),
+    setPriority: (id, priority) => setRepeat(id, (r) => ({ ...r, priority })),
+    edit: (id, text) => setRepeat(id, (r) => (text.trim() ? { ...r, text: text.trim() } : r)),
+    deleteOne: (id, date) => setRepeat(id, (r) => deleteOne(r, date)),
+    deleteFuture: (id, date) => setRepeat(id, (r) => deleteFuture(r, date)),
+    makeUp: (id) => setRepeat(id, (r) => makeUpOne(r, todayIso)),
+    clearAll: (id) => setRepeat(id, (r) => clearAll(r, todayIso)),
   };
 
   return (
@@ -43,7 +71,9 @@ export default function App() {
         weekStartIso={viewWeek}
         todayIso={todayIso}
         tasks={state.tasks}
+        repeats={state.repeats}
         taskActions={taskActions}
+        repeatActions={repeatActions}
       />
     </>
   );
