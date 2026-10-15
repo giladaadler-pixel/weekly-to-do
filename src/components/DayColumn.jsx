@@ -79,8 +79,8 @@ export default function DayColumn({ date, isToday, tasks, repeats, overdue, task
           />
         )}
       </div>
-      <button className="create-task" onClick={() => setCreating(true)}>
-        + Create new task
+      <button className="create-button create-task" onClick={() => setCreating(true)}>
+        Create new task+
       </button>
       {creating && (
         <TaskModal

@@ -9,8 +9,8 @@ export default function GoalsBand({ goals, todayIso, goalActions }) {
       {goals.map((goal) => (
         <GoalCard key={goal.id} goal={goal} actions={goalActions} />
       ))}
-      <button className="create-goal" onClick={() => setCreating(true)}>
-        + Create new goal
+      <button className="create-button create-goal" onClick={() => setCreating(true)}>
+        Create new goal+
       </button>
       {creating && (
         <GoalModal
