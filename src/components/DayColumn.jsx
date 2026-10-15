@@ -1,6 +1,8 @@
 import { dayLabel } from "../lib/dates.js";
+import TaskItem from "./TaskItem.jsx";
+import AddTask from "./AddTask.jsx";
 
-export default function DayColumn({ date, isToday, children }) {
+export default function DayColumn({ date, isToday, tasks, taskActions }) {
   const dayNumber = Number(date.slice(8));
   return (
     <section className={isToday ? "day today" : "day"}>
@@ -8,7 +10,12 @@ export default function DayColumn({ date, isToday, children }) {
         <span className="day-label">{dayLabel(date)}</span>
         <span className="day-number">{dayNumber}</span>
       </h2>
-      {children}
+      <ul className="task-list">
+        {tasks.map((task) => (
+          <TaskItem key={task.id} task={task} actions={taskActions} />
+        ))}
+      </ul>
+      <AddTask onAdd={(text) => taskActions.add(text, date)} />
     </section>
   );
 }

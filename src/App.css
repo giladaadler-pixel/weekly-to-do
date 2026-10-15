@@ -44,3 +44,47 @@ body {
 .day-number {
   font-weight: normal;
 }
+
+.task-list {
+  list-style: none;
+  margin: 0 0 0.5rem;
+  padding: 0;
+}
+
+.task {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0;
+  font-size: 0.9rem;
+}
+
+.task-text,
+.task-edit {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.icon-button {
+  padding: 0 0.15rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+.icon-button:hover {
+  opacity: 1;
+}
+
+.add-task {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.add-task input {
+  flex: 1;
+  min-width: 0;
+}
