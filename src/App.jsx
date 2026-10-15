@@ -11,6 +11,7 @@ import {
   deleteOne,
   deleteFuture,
 } from "./lib/repeats.js";
+import { makeGoal, updateGoal, deleteGoal } from "./lib/goals.js";
 import WeekView from "./components/WeekView.jsx";
 import TopBar from "./components/TopBar.jsx";
 
@@ -60,6 +61,20 @@ export default function App() {
     clearAll: (id) => setRepeat(id, (r) => clearAll(r, todayIso)),
   };
 
+  function setGoals(change) {
+    setState((s) => ({ ...s, goals: change(s.goals) }));
+  }
+
+  const goalActions = {
+    create: (fields) => {
+      const goal = makeGoal(fields, todayIso);
+      if (goal) setGoals((goals) => [...goals, goal]);
+    },
+    update: (id, changes) => setGoals((goals) => updateGoal(goals, id, changes)),
+    replace: (goal) => setGoals((goals) => updateGoal(goals, goal.id, goal)),
+    remove: (id) => setGoals((goals) => deleteGoal(goals, id)),
+  };
+
   return (
     <>
       <TopBar
@@ -72,8 +87,10 @@ export default function App() {
         todayIso={todayIso}
         tasks={state.tasks}
         repeats={state.repeats}
+        goals={state.goals}
         taskActions={taskActions}
         repeatActions={repeatActions}
+        goalActions={goalActions}
       />
     </>
   );
