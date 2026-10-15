@@ -53,6 +53,12 @@ Day grid:    Sun | Mon | Tue | Wed | Thu | Fri | Sat
 
 **Tasks** (in each day column)
 - Add, check off, edit, delete.
+- A small blue **"+ Create new task"** button in each day opens a pop-up (**modal**), styled like the goal modal, with:
+  - **Title** (a blank title can't be created)
+  - **Priority**: Low / Medium / High (default Medium)
+  - **Repeat on** (optional): ☐ Sun ☐ Mon … ☐ Sat
+  - **Cancel** / **Create task** (blue) buttons. Esc = Cancel.
+- The new task goes on the day whose button was clicked.
 - Priority tag: high, medium, or low (each a different color). Default is medium.
 - Order within a day: unfinished tasks first, sorted high → medium → low; completed tasks at the bottom.
 - Drag a task onto another day's column to move it to that day.
@@ -70,7 +76,7 @@ Day grid:    Sun | Mon | Tue | Wed | Thu | Fri | Sat
 - 🌙 button toggles light/dark. The choice is saved.
 
 **Repeating tasks**
-- When adding a task, optionally pick days: ☐ Sun ☐ Mon … ☐ Sat.
+- In the Create task modal, optionally pick **Repeat on** days: ☐ Sun ☐ Mon … ☐ Sat.
 - The task then appears on those days every week, starting from the week it was created.
 - Each day's copy is checked off separately.
 - Deleting a repeating task asks: **"Just this day"** or **"This and all future days."**
