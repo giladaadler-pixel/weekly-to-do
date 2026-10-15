@@ -5,8 +5,11 @@ export const STORAGE_KEY = "weekly-to-do:v1";
 
 export const DEFAULT_STATE = { tasks: [], repeats: [], goals: [], theme: "light" };
 
-export function loadState(storage = window.localStorage) {
+// storage defaults to window.localStorage, read inside the try: some browsers
+// throw just for touching it when site data is blocked.
+export function loadState(storage) {
   try {
+    storage ??= window.localStorage;
     const saved = JSON.parse(storage.getItem(STORAGE_KEY));
     if (saved && typeof saved === "object") return { ...DEFAULT_STATE, ...saved };
   } catch {
@@ -15,8 +18,9 @@ export function loadState(storage = window.localStorage) {
   return { ...DEFAULT_STATE };
 }
 
-export function saveState(state, storage = window.localStorage) {
+export function saveState(state, storage) {
   try {
+    storage ??= window.localStorage;
     storage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch {
     // Storage blocked or full: keep going without saving.

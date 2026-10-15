@@ -65,3 +65,21 @@ describe("theme", () => {
     expect(loadState(fake({ [STORAGE_KEY]: JSON.stringify(old) })).theme).toBe("light");
   });
 });
+
+describe("when the browser blocks localStorage itself", () => {
+  it("still loads and saves without throwing", () => {
+    const original = Object.getOwnPropertyDescriptor(window, "localStorage");
+    Object.defineProperty(window, "localStorage", {
+      configurable: true,
+      get() {
+        throw new Error("SecurityError");
+      },
+    });
+    try {
+      expect(loadState()).toEqual(DEFAULT_STATE);
+      expect(() => saveState(DEFAULT_STATE)).not.toThrow();
+    } finally {
+      Object.defineProperty(window, "localStorage", original);
+    }
+  });
+});
