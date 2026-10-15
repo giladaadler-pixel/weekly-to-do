@@ -46,10 +46,14 @@ export default function DayColumn({ date, isToday, tasks, repeats, overdue, task
       }}
       onDrop={onDrop}
     >
-      <h2 className="day-header">
-        <span className="day-label">{dayLabel(date)}</span>
-        <span className="day-number">{dayNumber}</span>
-      </h2>
+      <div className="day-header">
+        <h2 className="day-title">
+          <span className="day-label">{dayLabel(date)}</span> <span className="day-number">{dayNumber}</span>
+        </h2>
+        <button className="create-button create-task" onClick={() => setCreating(true)}>
+          Create new task+
+        </button>
+      </div>
       <div className="day-body">
         <ul className="task-list">
           {rows.map((row) =>
@@ -79,9 +83,6 @@ export default function DayColumn({ date, isToday, tasks, repeats, overdue, task
           />
         )}
       </div>
-      <button className="create-button create-task" onClick={() => setCreating(true)}>
-        Create new task+
-      </button>
       {creating && (
         <TaskModal
           onCancel={() => setCreating(false)}
