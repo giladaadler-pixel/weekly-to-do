@@ -74,3 +74,12 @@ export function deleteOne(repeat, iso) {
 export function deleteFuture(repeat, iso) {
   return { ...repeat, endDate: addDays(iso, -1) };
 }
+
+// Drops goal-day repeats whose goal is done or no longer exists.
+export function activeRepeats(repeats, goals) {
+  return repeats.filter((r) => {
+    if (r.goalId === null || r.goalId === undefined) return true;
+    const goal = goals.find((g) => g.id === r.goalId);
+    return Boolean(goal) && !goal.done;
+  });
+}

@@ -1,5 +1,6 @@
 import { monthKey, endOfWeek, endOfMonth } from "./dates.js";
 import { PRIORITY_ORDER } from "./tasks.js";
+import { makeRepeat } from "./repeats.js";
 
 // choice: "none" | "week" | "month" | "date" (the "Done by" select).
 export function resolveDueDate(choice, todayIso, pickedIso) {
@@ -66,4 +67,24 @@ export function updateGoal(goals, id, changes) {
 
 export function deleteGoal(goals, id) {
   return goals.filter((g) => g.id !== id);
+}
+
+// A goal's "Show on days": a repeat from today until the goal's deadline.
+export function makeGoalRepeat(goal, days, todayIso) {
+  return makeRepeat({
+    text: goal.title,
+    days,
+    priority: goal.priority,
+    startDate: todayIso,
+    endDate: goal.dueDate,
+    goalId: goal.id,
+  });
+}
+
+export function deleteGoalAndRepeats(state, goalId) {
+  return {
+    ...state,
+    goals: deleteGoal(state.goals, goalId),
+    repeats: state.repeats.filter((r) => r.goalId !== goalId),
+  };
 }

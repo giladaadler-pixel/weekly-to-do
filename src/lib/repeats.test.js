@@ -8,6 +8,7 @@ import {
   clearAll,
   deleteOne,
   deleteFuture,
+  activeRepeats,
 } from "./repeats.js";
 
 // Tue and Thu, starting Sunday Oct 11.
@@ -75,5 +76,23 @@ describe("missed counter", () => {
 
   it("resets with clear all", () => {
     expect(missedDates(clearAll(r2, "2026-10-22"), "2026-10-22")).toEqual([]);
+  });
+});
+
+describe("activeRepeats", () => {
+  const goals = [
+    { id: "open", done: false },
+    { id: "finished", done: true },
+  ];
+  const plain = { ...r, id: "plain" };
+  const forOpen = { ...r, id: "forOpen", goalId: "open" };
+  const forFinished = { ...r, id: "forFinished", goalId: "finished" };
+  const forMissing = { ...r, id: "forMissing", goalId: "deleted" };
+
+  it("keeps normal repeats and repeats of unfinished goals only", () => {
+    expect(activeRepeats([plain, forOpen, forFinished, forMissing], goals).map((x) => x.id)).toEqual([
+      "plain",
+      "forOpen",
+    ]);
   });
 });

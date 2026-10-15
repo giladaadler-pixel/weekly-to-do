@@ -10,8 +10,9 @@ import {
   clearAll,
   deleteOne,
   deleteFuture,
+  activeRepeats,
 } from "./lib/repeats.js";
-import { makeGoal, updateGoal, deleteGoal } from "./lib/goals.js";
+import { makeGoal, updateGoal, makeGoalRepeat, deleteGoalAndRepeats } from "./lib/goals.js";
 import WeekView from "./components/WeekView.jsx";
 import TopBar from "./components/TopBar.jsx";
 
@@ -66,13 +67,20 @@ export default function App() {
   }
 
   const goalActions = {
-    create: (fields) => {
+    // fields.days ("Show on days") also adds a 🎯 repeat for the goal.
+    create: ({ days = [], ...fields }) => {
       const goal = makeGoal(fields, todayIso);
-      if (goal) setGoals((goals) => [...goals, goal]);
+      if (!goal) return;
+      const repeat = makeGoalRepeat(goal, days, todayIso);
+      setState((s) => ({
+        ...s,
+        goals: [...s.goals, goal],
+        repeats: repeat ? [...s.repeats, repeat] : s.repeats,
+      }));
     },
     update: (id, changes) => setGoals((goals) => updateGoal(goals, id, changes)),
     replace: (goal) => setGoals((goals) => updateGoal(goals, goal.id, goal)),
-    remove: (id) => setGoals((goals) => deleteGoal(goals, id)),
+    remove: (id) => setState((s) => deleteGoalAndRepeats(s, id)),
   };
 
   return (
@@ -86,7 +94,7 @@ export default function App() {
         weekStartIso={viewWeek}
         todayIso={todayIso}
         tasks={state.tasks}
-        repeats={state.repeats}
+        repeats={activeRepeats(state.repeats, state.goals)}
         goals={state.goals}
         taskActions={taskActions}
         repeatActions={repeatActions}
