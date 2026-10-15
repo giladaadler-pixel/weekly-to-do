@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PrioritySelect from "./PrioritySelect.jsx";
 
 export default function TaskItem({ task, actions }) {
   const [editing, setEditing] = useState(false);
@@ -41,6 +42,11 @@ export default function TaskItem({ task, actions }) {
           {task.text}
         </span>
       )}
+      <PrioritySelect
+        className="priority-tag"
+        value={task.priority}
+        onChange={(priority) => actions.setPriority(task.id, priority)}
+      />
       <button className="icon-button" onClick={startEdit} aria-label="Edit">
         ✏️
       </button>

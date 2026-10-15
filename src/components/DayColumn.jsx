@@ -16,7 +16,7 @@ export default function DayColumn({ date, isToday, tasks, taskActions }) {
           <TaskItem key={task.id} task={task} actions={taskActions} />
         ))}
       </ul>
-      <AddTask onAdd={(text) => taskActions.add(text, date)} />
+      <AddTask onAdd={(text, priority) => taskActions.add(text, date, priority)} />
     </section>
   );
 }

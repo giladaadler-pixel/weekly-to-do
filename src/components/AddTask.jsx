@@ -1,12 +1,15 @@
 import { useState } from "react";
+import PrioritySelect from "./PrioritySelect.jsx";
 
 export default function AddTask({ onAdd }) {
   const [text, setText] = useState("");
+  const [priority, setPriority] = useState("medium");
 
   function onSubmit(e) {
     e.preventDefault();
-    onAdd(text);
+    onAdd(text, priority);
     setText("");
+    setPriority("medium");
   }
 
   return (
@@ -17,6 +20,7 @@ export default function AddTask({ onAdd }) {
         placeholder="New task"
         aria-label="New task"
       />
+      <PrioritySelect value={priority} onChange={setPriority} />
       <button type="submit">Add</button>
     </form>
   );

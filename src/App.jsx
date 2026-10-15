@@ -18,11 +18,12 @@ export default function App() {
   }
 
   const taskActions = {
-    add: (text, date) => {
-      const task = makeTask(text, date);
+    add: (text, date, priority) => {
+      const task = makeTask(text, date, priority);
       if (task) setTasks((tasks) => [...tasks, task]);
     },
     toggle: (id, done) => setTasks((tasks) => updateTask(tasks, id, { done })),
+    setPriority: (id, priority) => setTasks((tasks) => updateTask(tasks, id, { priority })),
     edit: (id, text) => setTasks((tasks) => editText(tasks, id, text)),
     remove: (id) => setTasks((tasks) => deleteTask(tasks, id)),
   };
