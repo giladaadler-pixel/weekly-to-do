@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { makeTask, updateTask, deleteTask, editText, sortTasks } from "./tasks.js";
+import { makeTask, updateTask, deleteTask, editText, sortTasks, overdueTasks, overdueLabel } from "./tasks.js";
 
 const t = { id: "t1", text: "Gym", date: "2026-10-15", done: false, priority: "medium" };
 
@@ -60,5 +60,28 @@ describe("sortTasks with priorities", () => {
       "low",
       "doneHigh",
     ]);
+  });
+});
+
+describe("overdueTasks", () => {
+  it("returns unfinished tasks from before today, oldest first", () => {
+    const tasks = [
+      { ...t, id: "1", date: "2026-10-14" },
+      { ...t, id: "2", date: "2026-10-13", done: true },
+      { ...t, id: "3", date: "2026-10-15" },
+      { ...t, id: "4", date: "2026-10-20" },
+      { ...t, id: "5", date: "2026-10-01" },
+    ];
+    expect(overdueTasks(tasks, "2026-10-15").map((x) => x.date)).toEqual(["2026-10-01", "2026-10-14"]);
+  });
+});
+
+describe("overdueLabel", () => {
+  it("uses the day name within the last 6 days", () => {
+    expect(overdueLabel("2026-10-13", "2026-10-15")).toBe("Tue");
+  });
+
+  it("uses month and day for older dates", () => {
+    expect(overdueLabel("2026-10-05", "2026-10-15")).toBe("Oct 5");
   });
 });

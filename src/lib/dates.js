@@ -52,3 +52,9 @@ export function formatWeekRange(startIso) {
   const endPart = startMonth === endMonth ? end.getDate() : `${endMonth} ${end.getDate()}`;
   return `${startMonth} ${start.getDate()} – ${endPart}, ${end.getFullYear()}`;
 }
+
+// "Oct 5"
+export function formatShort(iso) {
+  const date = fromISO(iso);
+  return `${MONTH_SHORT[date.getMonth()]} ${date.getDate()}`;
+}

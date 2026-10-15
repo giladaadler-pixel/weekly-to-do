@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PrioritySelect from "./PrioritySelect.jsx";
 
-export default function TaskItem({ task, actions }) {
+export default function TaskItem({ task, actions, label }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(task.text);
 
@@ -40,6 +40,7 @@ export default function TaskItem({ task, actions }) {
         <span className="task-text">
           {task.done && <span className="check">✓ </span>}
           {task.text}
+          {label && <span className="task-label"> ({label})</span>}
         </span>
       )}
       <PrioritySelect
