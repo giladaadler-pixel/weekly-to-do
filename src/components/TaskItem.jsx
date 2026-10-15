@@ -1,8 +1,10 @@
 import { useState } from "react";
 import PrioritySelect from "./PrioritySelect.jsx";
 
-export default function TaskItem({ task, actions, label, draggable = false }) {
+// deleteChoices (for repeats): [{ label, onClick }] shown instead of deleting right away.
+export default function TaskItem({ task, actions, label, mark, deleteChoices, draggable = false }) {
   const [editing, setEditing] = useState(false);
+  const [choosingDelete, setChoosingDelete] = useState(false);
   const [draft, setDraft] = useState(task.text);
 
   function startEdit() {
@@ -46,6 +48,7 @@ export default function TaskItem({ task, actions, label, draggable = false }) {
       ) : (
         <span className="task-text">
           {task.done && <span className="check">✓ </span>}
+          {mark && <span className="task-mark">{mark} </span>}
           {task.text}
           {label && <span className="task-label"> ({label})</span>}
         </span>
@@ -58,9 +61,29 @@ export default function TaskItem({ task, actions, label, draggable = false }) {
       <button className="icon-button" onClick={startEdit} aria-label="Edit">
         ✏️
       </button>
-      <button className="icon-button" onClick={() => actions.remove(task.id)} aria-label="Delete">
+      <button
+        className="icon-button"
+        onClick={() => (deleteChoices ? setChoosingDelete(true) : actions.remove(task.id))}
+        aria-label="Delete"
+      >
         🗑
       </button>
+      {choosingDelete && (
+        <div className="delete-choices">
+          {deleteChoices.map((choice) => (
+            <button
+              key={choice.label}
+              onClick={() => {
+                setChoosingDelete(false);
+                choice.onClick();
+              }}
+            >
+              {choice.label}
+            </button>
+          ))}
+          <button onClick={() => setChoosingDelete(false)}>Cancel</button>
+        </div>
+      )}
     </li>
   );
 }
