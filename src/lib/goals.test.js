@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { resolveDueDate, makeGoal, goalsForMonth, convertStyle, updateGoal, deleteGoal, deleteGoalAndRepeats, makeGoalRepeat } from "./goals.js";
+import { resolveDueDate, makeGoal, openGoals, setGoalDone, accomplishments, convertStyle, updateGoal, deleteGoal, deleteGoalAndRepeats, makeGoalRepeat } from "./goals.js";
 
 describe("resolveDueDate", () => {
   it("handles every 'Done by' choice", () => {
@@ -69,15 +69,41 @@ describe("convertStyle", () => {
   });
 });
 
-describe("goalsForMonth", () => {
-  it("returns the month's goals: unfinished by priority, then done", () => {
+describe("openGoals", () => {
+  it("returns unfinished goals from every month by priority, leaving out done ones", () => {
     const goals = [
       { id: "low", month: "2026-10", priority: "low", done: false },
       { id: "doneHigh", month: "2026-10", priority: "high", done: true },
       { id: "high", month: "2026-10", priority: "high", done: false },
       { id: "nov", month: "2026-11", priority: "high", done: false },
     ];
-    expect(goalsForMonth(goals, "2026-10").map((g) => g.id)).toEqual(["high", "low", "doneHigh"]);
+    expect(openGoals(goals).map((g) => g.id)).toEqual(["high", "nov", "low"]);
+  });
+});
+
+describe("setGoalDone", () => {
+  const g = { id: "g", title: "Run", done: false };
+
+  it("saves when the goal was done", () => {
+    expect(setGoalDone([g], "g", true, 1000)).toEqual([{ ...g, done: true, completedAt: 1000 }]);
+  });
+
+  it("clears the completion time when marked not done", () => {
+    const done = { ...g, done: true, completedAt: 1000 };
+    expect(setGoalDone([done], "g", false, 2000)).toEqual([{ ...g, done: false, completedAt: null }]);
+  });
+});
+
+describe("accomplishments", () => {
+  it("returns done goals newest first, ones without a date last", () => {
+    const goals = [
+      { id: "old", done: true, completedAt: 100 },
+      { id: "open", done: false },
+      { id: "undated", done: true },
+      { id: "new", done: true, completedAt: 300 },
+      { id: "mid", done: true, completedAt: 200 },
+    ];
+    expect(accomplishments(goals).map((g) => g.id)).toEqual(["new", "mid", "old", "undated"]);
   });
 });
 

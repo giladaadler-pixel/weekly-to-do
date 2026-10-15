@@ -1,5 +1,5 @@
-import { weekDays, monthKey } from "../lib/dates.js";
-import { goalsForMonth } from "../lib/goals.js";
+import { weekDays } from "../lib/dates.js";
+import { openGoals } from "../lib/goals.js";
 import { overdueTasks } from "../lib/tasks.js";
 import DayColumn from "./DayColumn.jsx";
 import GoalsBand from "./GoalsBand.jsx";
@@ -16,7 +16,7 @@ export default function WeekView({
 }) {
   return (
     <main className="week-page">
-      <GoalsBand goals={goalsForMonth(goals, monthKey(todayIso))} todayIso={todayIso} goalActions={goalActions} />
+      <GoalsBand goals={openGoals(goals)} todayIso={todayIso} goalActions={goalActions} />
       <div className="week">
       {weekDays(weekStartIso).map((date) => (
         <DayColumn
