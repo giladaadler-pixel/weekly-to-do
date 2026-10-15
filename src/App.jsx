@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { todayISO, weekStart } from "./lib/dates.js";
+import { todayISO, weekStart, addDays } from "./lib/dates.js";
 import { loadState, saveState } from "./lib/storage.js";
 import { makeTask, updateTask, deleteTask, editText } from "./lib/tasks.js";
 import WeekView from "./components/WeekView.jsx";
+import TopBar from "./components/TopBar.jsx";
 
 export default function App() {
   const [state, setState] = useState(() => loadState());
   const todayIso = todayISO();
+  // The Sunday of the week being viewed. Not saved: the app always opens on this week.
+  const [viewWeek, setViewWeek] = useState(() => weekStart(todayIso));
 
   useEffect(() => {
     saveState(state);
@@ -30,9 +33,13 @@ export default function App() {
 
   return (
     <>
-      <h1>My Week</h1>
+      <TopBar
+        viewWeek={viewWeek}
+        onPrev={() => setViewWeek((w) => addDays(w, -7))}
+        onNext={() => setViewWeek((w) => addDays(w, 7))}
+      />
       <WeekView
-        weekStartIso={weekStart(todayIso)}
+        weekStartIso={viewWeek}
         todayIso={todayIso}
         tasks={state.tasks}
         taskActions={taskActions}

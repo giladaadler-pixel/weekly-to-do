@@ -37,3 +37,18 @@ export function weekDays(startIso) {
 export function dayLabel(iso) {
   return DAY_LABELS[fromISO(iso).getDay()];
 }
+
+const MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+// "Oct 11 – 17, 2026", "Nov 29 – Dec 5, 2026", "Dec 27, 2026 – Jan 2, 2027"
+export function formatWeekRange(startIso) {
+  const start = fromISO(startIso);
+  const end = fromISO(addDays(startIso, 6));
+  const startMonth = MONTH_SHORT[start.getMonth()];
+  const endMonth = MONTH_SHORT[end.getMonth()];
+  if (start.getFullYear() !== end.getFullYear()) {
+    return `${startMonth} ${start.getDate()}, ${start.getFullYear()} – ${endMonth} ${end.getDate()}, ${end.getFullYear()}`;
+  }
+  const endPart = startMonth === endMonth ? end.getDate() : `${endMonth} ${end.getDate()}`;
+  return `${startMonth} ${start.getDate()} – ${endPart}, ${end.getFullYear()}`;
+}
