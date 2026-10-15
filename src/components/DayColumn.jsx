@@ -2,8 +2,9 @@ import { dayLabel } from "../lib/dates.js";
 import { sortTasks } from "../lib/tasks.js";
 import TaskItem from "./TaskItem.jsx";
 import AddTask from "./AddTask.jsx";
+import OverdueSection from "./OverdueSection.jsx";
 
-export default function DayColumn({ date, isToday, tasks, taskActions }) {
+export default function DayColumn({ date, isToday, tasks, overdue, taskActions }) {
   const dayNumber = Number(date.slice(8));
   return (
     <section className={isToday ? "day today" : "day"}>
@@ -16,6 +17,7 @@ export default function DayColumn({ date, isToday, tasks, taskActions }) {
           <TaskItem key={task.id} task={task} actions={taskActions} />
         ))}
       </ul>
+      {isToday && <OverdueSection tasks={overdue} todayIso={date} taskActions={taskActions} />}
       <AddTask onAdd={(text, priority) => taskActions.add(text, date, priority)} />
     </section>
   );

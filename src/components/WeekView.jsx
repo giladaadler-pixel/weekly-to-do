@@ -1,4 +1,5 @@
 import { weekDays } from "../lib/dates.js";
+import { overdueTasks } from "../lib/tasks.js";
 import DayColumn from "./DayColumn.jsx";
 
 export default function WeekView({ weekStartIso, todayIso, tasks, taskActions }) {
@@ -10,6 +11,7 @@ export default function WeekView({ weekStartIso, todayIso, tasks, taskActions })
           date={date}
           isToday={date === todayIso}
           tasks={tasks.filter((t) => t.date === date)}
+          overdue={overdueTasks(tasks, todayIso)}
           taskActions={taskActions}
         />
       ))}

@@ -1,3 +1,5 @@
+import { addDays, dayLabel, formatShort } from "./dates.js";
+
 export function makeTask(text, date, priority = "medium") {
   const trimmed = text.trim();
   if (!trimmed) return null;
@@ -29,4 +31,16 @@ export function sortTasks(tasks) {
       Number(a.done) - Number(b.done) ||
       (a.done ? 0 : PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority])
   );
+}
+
+// Unfinished tasks dated before today, oldest first.
+export function overdueTasks(tasks, todayIso) {
+  return tasks
+    .filter((t) => !t.done && t.date < todayIso)
+    .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+}
+
+// "Tue" for the last 6 days, "Oct 5" for anything older.
+export function overdueLabel(date, todayIso) {
+  return date >= addDays(todayIso, -6) ? dayLabel(date) : formatShort(date);
 }
