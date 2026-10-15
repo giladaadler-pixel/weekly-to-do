@@ -372,3 +372,48 @@ body {
 .primary:disabled {
   opacity: 0.5;
 }
+
+.page-switch {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.page-switch button {
+  padding: 0.35rem 0.9rem;
+  border: none;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.page-switch button.active {
+  background: var(--day-bg);
+  font-weight: 600;
+}
+
+.month-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.month-header {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.goals-list {
+  list-style: none;
+  padding: 0;
+  font-size: 1.1rem;
+}
+
+.goals-list li {
+  padding: 0.25rem 0;
+}
+
+.empty {
+  opacity: 0.6;
+}

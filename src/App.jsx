@@ -15,12 +15,15 @@ import {
 import { makeGoal, updateGoal, makeGoalRepeat, deleteGoalAndRepeats } from "./lib/goals.js";
 import WeekView from "./components/WeekView.jsx";
 import TopBar from "./components/TopBar.jsx";
+import GoalsPage from "./components/GoalsPage.jsx";
 
 export default function App() {
   const [state, setState] = useState(() => loadState());
   const todayIso = todayISO();
   // The Sunday of the week being viewed. Not saved: the app always opens on this week.
   const [viewWeek, setViewWeek] = useState(() => weekStart(todayIso));
+  // "week" | "goals". Not saved.
+  const [page, setPage] = useState("week");
 
   useEffect(() => {
     saveState(state);
@@ -86,20 +89,26 @@ export default function App() {
   return (
     <>
       <TopBar
+        page={page}
+        onPage={setPage}
         viewWeek={viewWeek}
         onPrev={() => setViewWeek((w) => addDays(w, -7))}
         onNext={() => setViewWeek((w) => addDays(w, 7))}
       />
-      <WeekView
-        weekStartIso={viewWeek}
-        todayIso={todayIso}
-        tasks={state.tasks}
-        repeats={activeRepeats(state.repeats, state.goals)}
-        goals={state.goals}
-        taskActions={taskActions}
-        repeatActions={repeatActions}
-        goalActions={goalActions}
-      />
+      {page === "goals" ? (
+        <GoalsPage goals={state.goals} todayIso={todayIso} goalActions={goalActions} />
+      ) : (
+        <WeekView
+          weekStartIso={viewWeek}
+          todayIso={todayIso}
+          tasks={state.tasks}
+          repeats={activeRepeats(state.repeats, state.goals)}
+          goals={state.goals}
+          taskActions={taskActions}
+          repeatActions={repeatActions}
+          goalActions={goalActions}
+        />
+      )}
     </>
   );
 }
