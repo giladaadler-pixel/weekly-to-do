@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { makeTask, updateTask, deleteTask, editText, sortTasks, overdueTasks, overdueLabel } from "./tasks.js";
+import { makeTask, updateTask, deleteTask, editText, sortTasks, overdueTasks, overdueLabel, moveTask } from "./tasks.js";
 
 const t = { id: "t1", text: "Gym", date: "2026-10-15", done: false, priority: "medium" };
 
@@ -83,5 +83,11 @@ describe("overdueLabel", () => {
 
   it("uses month and day for older dates", () => {
     expect(overdueLabel("2026-10-05", "2026-10-15")).toBe("Oct 5");
+  });
+});
+
+describe("moveTask", () => {
+  it("changes only the date", () => {
+    expect(moveTask([t], t.id, "2026-10-17")).toEqual([{ ...t, date: "2026-10-17" }]);
   });
 });

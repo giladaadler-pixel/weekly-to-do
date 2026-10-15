@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PrioritySelect from "./PrioritySelect.jsx";
 
-export default function TaskItem({ task, actions, label }) {
+export default function TaskItem({ task, actions, label, draggable = false }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(task.text);
 
@@ -20,7 +20,14 @@ export default function TaskItem({ task, actions, label }) {
   }
 
   return (
-    <li className={task.done ? "task done" : "task"}>
+    <li
+      className={task.done ? "task done" : "task"}
+      draggable={draggable && !editing}
+      onDragStart={(e) => {
+        e.dataTransfer.setData("text/plain", task.id);
+        e.dataTransfer.effectAllowed = "move";
+      }}
+    >
       <input
         type="checkbox"
         checked={task.done}

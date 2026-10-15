@@ -44,3 +44,7 @@ export function overdueTasks(tasks, todayIso) {
 export function overdueLabel(date, todayIso) {
   return date >= addDays(todayIso, -6) ? dayLabel(date) : formatShort(date);
 }
+
+export function moveTask(tasks, id, newDate) {
+  return updateTask(tasks, id, { date: newDate });
+}
