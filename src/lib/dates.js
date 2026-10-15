@@ -73,3 +73,19 @@ export function endOfMonth(iso) {
   const date = fromISO(iso);
   return toISO(new Date(date.getFullYear(), date.getMonth() + 1, 0));
 }
+
+const MONTH_LONG = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+// month is "YYYY-MM"
+export function addMonths(month, n) {
+  const [y, m] = month.split("-").map(Number);
+  const date = new Date(y, m - 1 + n, 1);
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}`;
+}
+
+export function monthHeader(month) {
+  return `${MONTH_LONG[Number(month.slice(5)) - 1]} Goals:`;
+}

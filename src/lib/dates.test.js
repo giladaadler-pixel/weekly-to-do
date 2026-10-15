@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { toISO, weekStart, weekDays, addDays, dayLabel, formatWeekRange, monthKey, endOfWeek, endOfMonth, formatShort } from "./dates.js";
+import { toISO, weekStart, weekDays, addDays, dayLabel, formatWeekRange, monthKey, endOfWeek, endOfMonth, formatShort, addMonths, monthHeader } from "./dates.js";
 
 describe("toISO", () => {
   it("uses local time, even just after midnight", () => {
@@ -83,5 +83,18 @@ describe("endOfMonth", () => {
 describe("formatShort", () => {
   it("returns month and day", () => {
     expect(formatShort("2026-10-31")).toBe("Oct 31");
+  });
+});
+
+describe("addMonths", () => {
+  it("crosses years both ways", () => {
+    expect(addMonths("2026-12", 1)).toBe("2027-01");
+    expect(addMonths("2026-01", -1)).toBe("2025-12");
+  });
+});
+
+describe("monthHeader", () => {
+  it("names the month", () => {
+    expect(monthHeader("2026-10")).toBe("October Goals:");
   });
 });
