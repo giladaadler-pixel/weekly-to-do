@@ -1,5 +1,6 @@
 import { formatShort } from "../lib/dates.js";
 import { convertStyle } from "../lib/goals.js";
+import { celebrate } from "../lib/celebrate.js";
 import PrioritySelect from "./PrioritySelect.jsx";
 import StyleSelect from "./StyleSelect.jsx";
 
@@ -38,16 +39,20 @@ function GoalDescription({ goal, onChange }) {
   );
 }
 
+// Only unfinished goals get a card: marking one done sends it to Accomplishments.
 export default function GoalCard({ goal, actions }) {
   const update = (changes) => actions.update(goal.id, changes);
   return (
-    <article className={goal.done ? "goal-card done" : "goal-card"}>
+    <article className="goal-card">
       <header className="goal-header">
-        <h3 className="goal-title done-text">{goal.title}</h3>
+        <h3 className="goal-title">{goal.title}</h3>
         <button
-          className={goal.done ? "goal-check checked" : "goal-check"}
-          onClick={() => update({ done: !goal.done })}
-          aria-label={goal.done ? "Mark goal not done" : "Mark goal done"}
+          className="goal-check"
+          onClick={(e) => {
+            celebrate(e.currentTarget);
+            actions.setDone(goal.id, true);
+          }}
+          aria-label="Mark goal done"
         >
           ✓
         </button>

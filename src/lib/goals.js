@@ -33,15 +33,22 @@ export function makeGoal(
   };
 }
 
-// The month's goals: unfinished sorted high → low, then done ones.
-export function goalsForMonth(goals, month) {
+// Every unfinished goal, from any month, high → low. Done goals live on Accomplishments.
+export function openGoals(goals) {
   return goals
-    .filter((g) => g.month === month)
-    .sort(
-      (a, b) =>
-        Number(a.done) - Number(b.done) ||
-        (a.done ? 0 : PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority])
-    );
+    .filter((g) => !g.done)
+    .sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]);
+}
+
+// completedAt is a timestamp (ms) so goals done on the same day still sort right.
+// Goals marked done before completedAt existed have none.
+export function setGoalDone(goals, id, done, now = Date.now()) {
+  return updateGoal(goals, id, { done, completedAt: done ? now : null });
+}
+
+// Every done goal, newest first. Ones with no completedAt go last.
+export function accomplishments(goals) {
+  return goals.filter((g) => g.done).sort((a, b) => (b.completedAt ?? -1) - (a.completedAt ?? -1));
 }
 
 // Checklist ↔ bullets keep items; to or from paragraph converts lines ↔ items.

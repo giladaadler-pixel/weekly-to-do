@@ -12,18 +12,18 @@ import {
   deleteFuture,
   activeRepeats,
 } from "./lib/repeats.js";
-import { makeGoal, updateGoal, makeGoalRepeat, deleteGoalAndRepeats } from "./lib/goals.js";
+import { makeGoal, updateGoal, setGoalDone, makeGoalRepeat, deleteGoalAndRepeats } from "./lib/goals.js";
 import WeekView from "./components/WeekView.jsx";
 import { weekStats } from "./lib/stats.js";
 import TopBar from "./components/TopBar.jsx";
-import GoalsPage from "./components/GoalsPage.jsx";
+import AccomplishmentsPage from "./components/AccomplishmentsPage.jsx";
 
 export default function App() {
   const [state, setState] = useState(() => loadState());
   const todayIso = todayISO();
   // The Sunday of the week being viewed. Not saved: the app always opens on this week.
   const [viewWeek, setViewWeek] = useState(() => weekStart(todayIso));
-  // "week" | "goals". Not saved.
+  // "week" | "accomplishments". Not saved.
   const [page, setPage] = useState("week");
 
   useEffect(() => {
@@ -87,6 +87,7 @@ export default function App() {
       }));
     },
     update: (id, changes) => setGoals((goals) => updateGoal(goals, id, changes)),
+    setDone: (id, done) => setGoals((goals) => setGoalDone(goals, id, done)),
     replace: (goal) => setGoals((goals) => updateGoal(goals, goal.id, goal)),
     remove: (id) => setState((s) => deleteGoalAndRepeats(s, id)),
   };
@@ -105,8 +106,8 @@ export default function App() {
         theme={state.theme}
         onToggleTheme={() => setState((s) => ({ ...s, theme: s.theme === "dark" ? "light" : "dark" }))}
       />
-      {page === "goals" ? (
-        <GoalsPage goals={state.goals} todayIso={todayIso} goalActions={goalActions} />
+      {page === "accomplishments" ? (
+        <AccomplishmentsPage goals={state.goals} onMarkNotDone={(id) => goalActions.setDone(id, false)} />
       ) : (
         <WeekView
           weekStartIso={viewWeek}

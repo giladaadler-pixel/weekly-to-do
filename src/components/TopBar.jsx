@@ -20,8 +20,11 @@ export default function TopBar({
         <button className={page === "week" ? "active" : undefined} onClick={() => onPage("week")}>
           Week
         </button>
-        <button className={page === "goals" ? "active" : undefined} onClick={() => onPage("goals")}>
-          Goals
+        <button
+          className={page === "accomplishments" ? "active" : undefined}
+          onClick={() => onPage("accomplishments")}
+        >
+          Accomplishments
         </button>
       </nav>
       {page === "week" && (
