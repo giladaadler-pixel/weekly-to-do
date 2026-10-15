@@ -18,3 +18,8 @@ export function editText(tasks, id, newText) {
   if (!trimmed) return tasks;
   return updateTask(tasks, id, { text: trimmed });
 }
+
+// Unfinished tasks first, done tasks last; otherwise keeps the original order.
+export function sortTasks(tasks) {
+  return [...tasks].sort((a, b) => Number(a.done) - Number(b.done));
+}
