@@ -1,10 +1,23 @@
-import { weekDays } from "../lib/dates.js";
+import { weekDays, monthKey } from "../lib/dates.js";
+import { goalsForMonth } from "../lib/goals.js";
 import { overdueTasks } from "../lib/tasks.js";
 import DayColumn from "./DayColumn.jsx";
+import GoalsBand from "./GoalsBand.jsx";
 
-export default function WeekView({ weekStartIso, todayIso, tasks, repeats, taskActions, repeatActions }) {
+export default function WeekView({
+  weekStartIso,
+  todayIso,
+  tasks,
+  repeats,
+  goals,
+  taskActions,
+  repeatActions,
+  goalActions,
+}) {
   return (
-    <div className="week">
+    <>
+      <GoalsBand goals={goalsForMonth(goals, monthKey(todayIso))} todayIso={todayIso} goalActions={goalActions} />
+      <div className="week">
       {weekDays(weekStartIso).map((date) => (
         <DayColumn
           key={date}
@@ -17,6 +30,7 @@ export default function WeekView({ weekStartIso, todayIso, tasks, repeats, taskA
           repeatActions={repeatActions}
         />
       ))}
-    </div>
+      </div>
+    </>
   );
 }

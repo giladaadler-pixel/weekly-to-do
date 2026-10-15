@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { toISO, weekStart, weekDays, addDays, dayLabel, formatWeekRange } from "./dates.js";
+import { toISO, weekStart, weekDays, addDays, dayLabel, formatWeekRange, monthKey, endOfWeek, endOfMonth, formatShort } from "./dates.js";
 
 describe("toISO", () => {
   it("uses local time, even just after midnight", () => {
@@ -57,5 +57,31 @@ describe("formatWeekRange", () => {
 
   it("shows both years when the week crosses a year", () => {
     expect(formatWeekRange("2026-12-27")).toBe("Dec 27, 2026 – Jan 2, 2027");
+  });
+});
+
+describe("monthKey", () => {
+  it("returns YYYY-MM", () => {
+    expect(monthKey("2026-10-15")).toBe("2026-10");
+  });
+});
+
+describe("endOfWeek", () => {
+  it("returns the coming Saturday", () => {
+    expect(endOfWeek("2026-10-15")).toBe("2026-10-17");
+    expect(endOfWeek("2026-10-17")).toBe("2026-10-17");
+  });
+});
+
+describe("endOfMonth", () => {
+  it("returns the month's last day", () => {
+    expect(endOfMonth("2026-02-10")).toBe("2026-02-28");
+    expect(endOfMonth("2026-10-15")).toBe("2026-10-31");
+  });
+});
+
+describe("formatShort", () => {
+  it("returns month and day", () => {
+    expect(formatShort("2026-10-31")).toBe("Oct 31");
   });
 });

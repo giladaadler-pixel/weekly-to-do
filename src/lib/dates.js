@@ -58,3 +58,18 @@ export function formatShort(iso) {
   const date = fromISO(iso);
   return `${MONTH_SHORT[date.getMonth()]} ${date.getDate()}`;
 }
+
+// "YYYY-MM"
+export function monthKey(iso) {
+  return iso.slice(0, 7);
+}
+
+// The coming Saturday (the day itself if it is a Saturday).
+export function endOfWeek(iso) {
+  return addDays(weekStart(iso), 6);
+}
+
+export function endOfMonth(iso) {
+  const date = fromISO(iso);
+  return toISO(new Date(date.getFullYear(), date.getMonth() + 1, 0));
+}
