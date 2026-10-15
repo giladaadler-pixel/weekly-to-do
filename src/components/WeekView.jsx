@@ -15,7 +15,7 @@ export default function WeekView({
   goalActions,
 }) {
   return (
-    <>
+    <main className="week-page">
       <GoalsBand goals={goalsForMonth(goals, monthKey(todayIso))} todayIso={todayIso} goalActions={goalActions} />
       <div className="week">
       {weekDays(weekStartIso).map((date) => (
@@ -31,6 +31,6 @@ export default function WeekView({
         />
       ))}
       </div>
-    </>
+    </main>
   );
 }

@@ -30,8 +30,11 @@ export function weekStart(iso) {
   return addDays(iso, -fromISO(iso).getDay());
 }
 
+// The week is Sunday to Friday. There is no Saturday.
+export const WEEK_LENGTH = 6;
+
 export function weekDays(startIso) {
-  return Array.from({ length: 7 }, (_, i) => addDays(startIso, i));
+  return Array.from({ length: WEEK_LENGTH }, (_, i) => addDays(startIso, i));
 }
 
 export function dayLabel(iso) {
@@ -40,10 +43,10 @@ export function dayLabel(iso) {
 
 const MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-// "Oct 11 – 17, 2026", "Nov 29 – Dec 5, 2026", "Dec 27, 2026 – Jan 2, 2027"
+// "Oct 11 – 16, 2026", "Nov 29 – Dec 4, 2026", "Dec 27, 2026 – Jan 1, 2027"
 export function formatWeekRange(startIso) {
   const start = fromISO(startIso);
-  const end = fromISO(addDays(startIso, 6));
+  const end = fromISO(addDays(startIso, WEEK_LENGTH - 1));
   const startMonth = MONTH_SHORT[start.getMonth()];
   const endMonth = MONTH_SHORT[end.getMonth()];
   if (start.getFullYear() !== end.getFullYear()) {
@@ -64,9 +67,9 @@ export function monthKey(iso) {
   return iso.slice(0, 7);
 }
 
-// The coming Saturday (the day itself if it is a Saturday).
+// The coming Friday (the day itself if it is a Friday; a Saturday rolls to the next one).
 export function endOfWeek(iso) {
-  return addDays(weekStart(iso), 6);
+  return addDays(weekStart(addDays(iso, 1)), WEEK_LENGTH - 1);
 }
 
 export function endOfMonth(iso) {
