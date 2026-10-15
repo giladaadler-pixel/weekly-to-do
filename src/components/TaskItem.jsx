@@ -19,7 +19,7 @@ export default function TaskItem({ task, actions }) {
   }
 
   return (
-    <li className="task">
+    <li className={task.done ? "task done" : "task"}>
       <input
         type="checkbox"
         checked={task.done}
@@ -36,7 +36,10 @@ export default function TaskItem({ task, actions }) {
           onBlur={() => setEditing(false)}
         />
       ) : (
-        <span className="task-text">{task.text}</span>
+        <span className="task-text">
+          {task.done && <span className="check">✓ </span>}
+          {task.text}
+        </span>
       )}
       <button className="icon-button" onClick={startEdit} aria-label="Edit">
         ✏️

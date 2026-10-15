@@ -88,3 +88,18 @@ body {
   flex: 1;
   min-width: 0;
 }
+
+/* Done style, used by tasks, checklist items and goal cards. */
+.done {
+  opacity: 0.45;
+}
+
+.done .task-text,
+.done .done-text {
+  text-decoration: line-through;
+}
+
+.check {
+  text-decoration: none;
+  display: inline-block;
+}

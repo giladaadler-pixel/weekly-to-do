@@ -1,4 +1,5 @@
 import { dayLabel } from "../lib/dates.js";
+import { sortTasks } from "../lib/tasks.js";
 import TaskItem from "./TaskItem.jsx";
 import AddTask from "./AddTask.jsx";
 
@@ -11,7 +12,7 @@ export default function DayColumn({ date, isToday, tasks, taskActions }) {
         <span className="day-number">{dayNumber}</span>
       </h2>
       <ul className="task-list">
-        {tasks.map((task) => (
+        {sortTasks(tasks).map((task) => (
           <TaskItem key={task.id} task={task} actions={taskActions} />
         ))}
       </ul>
