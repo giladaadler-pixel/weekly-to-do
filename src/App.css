@@ -169,3 +169,12 @@ body {
   font-size: 0.8rem;
   opacity: 0.7;
 }
+
+.task[draggable="true"] {
+  cursor: grab;
+}
+
+.day.drop-target {
+  outline: 2px dashed var(--today-border);
+  outline-offset: -2px;
+}

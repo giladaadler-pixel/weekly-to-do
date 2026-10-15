@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { todayISO, weekStart, addDays } from "./lib/dates.js";
 import { loadState, saveState } from "./lib/storage.js";
-import { makeTask, updateTask, deleteTask, editText } from "./lib/tasks.js";
+import { makeTask, updateTask, deleteTask, editText, moveTask } from "./lib/tasks.js";
 import WeekView from "./components/WeekView.jsx";
 import TopBar from "./components/TopBar.jsx";
 
@@ -28,6 +28,7 @@ export default function App() {
     toggle: (id, done) => setTasks((tasks) => updateTask(tasks, id, { done })),
     setPriority: (id, priority) => setTasks((tasks) => updateTask(tasks, id, { priority })),
     edit: (id, text) => setTasks((tasks) => editText(tasks, id, text)),
+    move: (id, date) => setTasks((tasks) => moveTask(tasks, id, date)),
     remove: (id) => setTasks((tasks) => deleteTask(tasks, id)),
   };
 
