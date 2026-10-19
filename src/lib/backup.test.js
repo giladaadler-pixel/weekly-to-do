@@ -5,6 +5,10 @@ import { DEFAULT_STATE } from "./storage.js";
 const state = {
   ...DEFAULT_STATE,
   tasks: [{ id: "1", text: "Gym", date: "2026-10-19", done: false, priority: "high" }],
+  notes: [
+    { id: "n1", goalId: "g1", text: "Ran 5k\nfelt good", date: "2026-10-19" },
+    { id: "n2", goalId: null, text: "Idea", date: "2026-10-18" },
+  ],
   theme: "dark",
 };
 
@@ -17,8 +21,14 @@ describe("exportBackup", () => {
 });
 
 describe("parseBackup", () => {
-  it("round-trips an exported backup", () => {
-    expect(parseBackup(exportBackup(state))).toEqual(state);
+  it("round-trips an exported backup, notes included", () => {
+    const parsed = parseBackup(exportBackup(state));
+    expect(parsed).toEqual(state);
+    expect(parsed.notes).toHaveLength(2);
+  });
+
+  it("gives an old backup without notes an empty notes list", () => {
+    expect(parseBackup(JSON.stringify({ tasks: [] })).notes).toEqual([]);
   });
 
   it("fills missing keys from the defaults, like loading saved data", () => {

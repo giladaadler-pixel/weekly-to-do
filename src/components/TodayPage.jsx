@@ -58,7 +58,7 @@ export default function TodayPage({ state, todayIso, taskActions, repeatActions,
         repeatActions={repeatActions}
       />
 
-      <GoalsBand goals={openGoals(state.goals)} todayIso={todayIso} goalActions={goalActions} />
+      <GoalsBand goals={openGoals(state.goals)} notes={state.notes} todayIso={todayIso} goalActions={goalActions} />
 
       <section className="this-week" aria-label="This week">
         <h2 className="this-week-title">This week</h2>

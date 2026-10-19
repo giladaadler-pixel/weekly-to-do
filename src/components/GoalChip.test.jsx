@@ -28,16 +28,16 @@ const read = {
 };
 
 function makeActions() {
-  return { create: vi.fn(), update: vi.fn(), setDone: vi.fn(), replace: vi.fn(), remove: vi.fn() };
+  return { create: vi.fn(), update: vi.fn(), setDone: vi.fn(), replace: vi.fn(), remove: vi.fn(), openNotes: vi.fn() };
 }
 
 // Chips are tested inside GoalsBand, which decides which one is expanded.
-function render(goals = [run, read]) {
+function render(goals = [run, read], notes = []) {
   const actions = makeActions();
   container = document.createElement("div");
   document.body.appendChild(container);
   root = createRoot(container);
-  act(() => root.render(<GoalsBand goals={goals} todayIso="2026-10-19" goalActions={actions} />));
+  act(() => root.render(<GoalsBand goals={goals} notes={notes} todayIso="2026-10-19" goalActions={actions} />));
   return actions;
 }
 
@@ -151,5 +151,32 @@ describe("GoalChip delete", () => {
     act(() => chip("Run a 10k").querySelector("button[aria-label='Delete goal']").click());
     act(() => button(chip("Run a 10k"), "Delete").click());
     expect(actions.remove).toHaveBeenCalledWith("g1");
+  });
+});
+
+describe("GoalChip 📝 notes count", () => {
+  const notes = [
+    { id: "n1", goalId: "g1", text: "a", date: "2026-10-19" },
+    { id: "n2", goalId: "g1", text: "b", date: "2026-10-19" },
+  ];
+
+  it("shows the count only when there are notes", () => {
+    render([run, read], notes);
+    expect(chip("Run a 10k").querySelector(".goal-chip-notes").textContent).toBe("📝 2");
+    expect(chip("Read 12 books").querySelector(".goal-chip-notes")).toBeNull();
+  });
+
+  it("opens Notes with that goal selected, without expanding the chip", () => {
+    const actions = render([run, read], notes);
+    act(() => chip("Run a 10k").querySelector(".goal-chip-notes").click());
+    expect(actions.openNotes).toHaveBeenCalledWith("g1");
+    expect(isExpanded("Run a 10k")).toBe(false);
+  });
+
+  it("the delete question mentions how many notes go too", () => {
+    render([run, read], notes);
+    act(() => header("Run a 10k").click());
+    act(() => chip("Run a 10k").querySelector("button[aria-label='Delete goal']").click());
+    expect(chip("Run a 10k").textContent).toContain("Delete this goal? This also deletes its 2 notes.");
   });
 });

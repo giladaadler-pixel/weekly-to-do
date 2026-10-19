@@ -66,6 +66,13 @@ describe("theme", () => {
   });
 });
 
+describe("notes", () => {
+  it("loads an old saved state without notes as an empty list", () => {
+    const old = { tasks: [], repeats: [], goals: [], theme: "light" };
+    expect(loadState(fake({ [STORAGE_KEY]: JSON.stringify(old) })).notes).toEqual([]);
+  });
+});
+
 describe("sidebar pinned", () => {
   it("loads an old saved state without ui as not pinned", () => {
     const old = { tasks: [], repeats: [], goals: [], theme: "light" };

@@ -5,6 +5,7 @@ export const PAGES = [
   { id: "today", icon: "📅", label: "Today" },
   { id: "week", icon: "🗓", label: "Week" },
   { id: "accomplishments", icon: "🏆", label: "Accomplishments" },
+  { id: "notes", icon: "📝", label: "Notes" },
 ];
 
 // Below a divider: backup tools. onImport(file) gets the picked file.

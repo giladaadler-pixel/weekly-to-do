@@ -1063,3 +1063,303 @@ body {
     font-size: 16px;
   }
 }
+
+/* Notes page: goal list on the left, the chosen goal's notes on the right.
+   On a phone they take turns full screen. Each side scrolls on its own. */
+.notes-page {
+  display: flex;
+  flex: 1;
+  gap: 1.25rem;
+  min-height: 0;
+}
+
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 0.1rem;
+  width: 14rem;
+  overflow-y: auto;
+}
+
+.notes-page.phone .notes-list {
+  width: 100%;
+}
+
+.notes-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.notes-item:hover {
+  background: var(--day-bg);
+}
+
+.notes-item[aria-current="true"] {
+  background: var(--day-bg);
+  box-shadow: inset 3px 0 0 var(--blue);
+  font-weight: 600;
+}
+
+.notes-item .priority-dot {
+  margin-top: 0;
+}
+
+.notes-item-title {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.notes-item-count {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+.notes-done-mark {
+  width: 0.5rem;
+  color: var(--gold);
+  font-size: 0.75rem;
+}
+
+.notes-general-mark {
+  font-size: 0.8rem;
+}
+
+.notes-finished {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin: 0.5rem 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.notes-finished-toggle {
+  padding: 0.25rem 0.6rem;
+  border: none;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8rem;
+  text-align: left;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.notes-finished-toggle::before {
+  content: "▸ ";
+}
+
+.notes-finished-toggle[aria-expanded="true"]::before {
+  content: "▾ ";
+}
+
+.notes-finished + .notes-item,
+.notes-list > .notes-item:last-child {
+  margin-top: 0.5rem;
+}
+
+.notes-panel {
+  flex: 1;
+  min-width: 0;
+  max-width: 40rem;
+  overflow-y: auto;
+}
+
+.notes-back {
+  margin-bottom: 0.5rem;
+  padding: 0.3rem 0;
+  border: none;
+  background: none;
+  color: var(--blue);
+  font: inherit;
+  cursor: pointer;
+}
+
+.notes-panel-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+}
+
+.notes-panel-title {
+  margin: 0;
+  font-size: 1.4rem;
+  overflow-wrap: anywhere;
+}
+
+.notes-due {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.notes-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.notes-progress-bar {
+  flex: 1;
+  max-width: 14rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.notes-progress-bar span {
+  display: block;
+  height: 100%;
+  background: var(--green);
+}
+
+.notes-invite,
+.notes-empty {
+  font-size: 0.9rem;
+  opacity: 0.65;
+}
+
+.note-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+  margin: 0.9rem 0 1rem;
+}
+
+.note-box textarea,
+.note-edit textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+}
+
+/* Timeline: newest first, date above the text, a thin line down the left. */
+.note-timeline {
+  /* Room on the left for each note's dot, which sits on the line. */
+  margin: 0 0 0 0.35rem;
+  padding: 0 0 0 0.9rem;
+  border-left: 2px solid var(--border);
+  list-style: none;
+}
+
+.note {
+  position: relative;
+  margin-bottom: 0.9rem;
+}
+
+.note::before {
+  content: "";
+  position: absolute;
+  top: 0.35rem;
+  left: calc(-0.9rem - 5px);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--blue);
+}
+
+.note-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.note-date {
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.65;
+}
+
+.note-text {
+  margin: 0.15rem 0 0;
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.note-text:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+}
+
+.note-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
+}
+
+.note-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.note-confirm {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--high);
+}
+
+.note-confirm .danger {
+  border: 1px solid var(--high);
+  border-radius: 6px;
+  background: var(--high);
+  color: var(--bg);
+}
+
+/* "📝 N" on goal chips and finished goals: opens that goal's notes. */
+.goal-chip-notes,
+.goal-notes-link {
+  flex-shrink: 0;
+  padding: 0.05rem 0.35rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.goal-chip-notes:hover,
+.goal-notes-link:hover {
+  border-color: var(--border);
+  background: var(--day-bg);
+}
+
+.goal-chip-notes + .goal-check {
+  margin-left: 0;
+}
+
+.goal-chip-notes {
+  margin-left: auto;
+}

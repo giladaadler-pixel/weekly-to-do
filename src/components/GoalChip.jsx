@@ -10,8 +10,8 @@ import GoalDescription from "./GoalDescription.jsx";
 // One unfinished goal in the goals band. Collapsed it's one line:
 // [dot] title · Due Jun 1 · ✓. Clicking the header expands it in place to show the
 // description and edit controls; GoalsBand keeps only one expanded at a time.
-// Marking it done sends it to Accomplishments.
-export default function GoalChip({ goal, actions, expanded, onToggle }) {
+// Marking it done sends it to Accomplishments. "📝 N" (when it has notes) opens its notes.
+export default function GoalChip({ goal, actions, expanded, onToggle, noteCount = 0 }) {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const update = (changes) => actions.update(goal.id, changes);
 
@@ -48,7 +48,18 @@ export default function GoalChip({ goal, actions, expanded, onToggle }) {
         <PriorityDot priority={goal.priority} />
         <span className="goal-chip-title">{goal.title}</span>
         {goal.dueDate && <span className="goal-chip-due">Due {formatShort(goal.dueDate)}</span>}
-        {/* Spot for the "📝 N" notes count, once goal notes exist. */}
+        {noteCount > 0 && (
+          <button
+            className="goal-chip-notes"
+            onClick={(e) => {
+              e.stopPropagation();
+              actions.openNotes(goal.id);
+            }}
+            aria-label={`${noteCount} ${noteCount === 1 ? "note" : "notes"}: open in Notes`}
+          >
+            📝 {noteCount}
+          </button>
+        )}
         <button
           className="goal-check"
           onClick={(e) => {
@@ -69,7 +80,11 @@ export default function GoalChip({ goal, actions, expanded, onToggle }) {
           <GoalDescription goal={goal} onChange={update} />
           {confirmingDelete ? (
             <div className="goal-confirm">
-              <span>Delete this goal? Its 🎯 repeating tasks go too.</span>
+              <span>
+                {noteCount > 0
+                  ? `Delete this goal? This also deletes its ${noteCount} ${noteCount === 1 ? "note" : "notes"}.`
+                  : "Delete this goal? Its 🎯 repeating tasks go too."}
+              </span>
               <div className="goal-confirm-buttons">
                 <button onClick={() => setConfirmingDelete(false)}>Cancel</button>
                 <button className="danger" onClick={() => actions.remove(goal.id)}>

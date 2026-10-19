@@ -88,10 +88,12 @@ export function makeGoalRepeat(goal, days, todayIso) {
   });
 }
 
+// Deleting a goal also deletes its 🎯 repeats and its notes.
 export function deleteGoalAndRepeats(state, goalId) {
   return {
     ...state,
     goals: deleteGoal(state.goals, goalId),
     repeats: state.repeats.filter((r) => r.goalId !== goalId),
+    notes: (state.notes ?? []).filter((n) => n.goalId !== goalId),
   };
 }

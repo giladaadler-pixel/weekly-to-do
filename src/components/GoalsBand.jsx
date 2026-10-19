@@ -1,8 +1,9 @@
 import { useState } from "react";
 import GoalChip from "./GoalChip.jsx";
 import GoalModal from "./GoalModal.jsx";
+import { countFor } from "../lib/notes.js";
 
-export default function GoalsBand({ goals, todayIso, goalActions }) {
+export default function GoalsBand({ goals, notes = [], todayIso, goalActions }) {
   const [creating, setCreating] = useState(false);
   // The one expanded chip's goal id, or null. Not saved: chips start collapsed.
   const [expandedId, setExpandedId] = useState(null);
@@ -13,6 +14,7 @@ export default function GoalsBand({ goals, todayIso, goalActions }) {
           key={goal.id}
           goal={goal}
           actions={goalActions}
+          noteCount={countFor(notes, goal.id)}
           expanded={goal.id === expandedId}
           onToggle={() => setExpandedId((id) => (id === goal.id ? null : goal.id))}
         />

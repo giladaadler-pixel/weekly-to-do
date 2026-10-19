@@ -9,6 +9,8 @@ export const DEFAULT_STATE = {
   goals: [],
   theme: "light",
   ui: { sidebarPinned: false },
+  // { id, goalId (null for general notes), text, date "YYYY-MM-DD" }
+  notes: [],
 };
 
 // Saved data from an older version may be missing newer keys: fill them from the defaults.

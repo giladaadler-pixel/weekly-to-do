@@ -56,3 +56,22 @@ describe("AccomplishmentsPage", () => {
     expect(onMarkNotDone).toHaveBeenCalledWith("g");
   });
 });
+
+describe("AccomplishmentsPage notes", () => {
+  it("shows 📝 N on a finished goal and opens its notes", () => {
+    const onOpenNotes = vi.fn();
+    render({
+      goals: [
+        { id: "g", title: "Run", done: true, completedAt: 1, style: "paragraph", text: "" },
+        { id: "h", title: "Swim", done: true, completedAt: 2, style: "paragraph", text: "" },
+      ],
+      notes: [{ id: "n1", goalId: "g", text: "a", date: "2026-10-19" }],
+      onOpenNotes,
+    });
+    const notesButtons = [...container.querySelectorAll(".goal-notes-link")];
+    expect(notesButtons).toHaveLength(1);
+    expect(notesButtons[0].textContent).toBe("📝 1");
+    act(() => notesButtons[0].click());
+    expect(onOpenNotes).toHaveBeenCalledWith("g");
+  });
+});

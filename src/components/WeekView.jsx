@@ -10,13 +10,14 @@ export default function WeekView({
   tasks,
   repeats,
   goals,
+  notes,
   taskActions,
   repeatActions,
   goalActions,
 }) {
   return (
     <main className="week-page">
-      <GoalsBand goals={openGoals(goals)} todayIso={todayIso} goalActions={goalActions} />
+      <GoalsBand goals={openGoals(goals)} notes={notes} todayIso={todayIso} goalActions={goalActions} />
       <div className="week">
       {weekDays(weekStartIso).map((date) => (
         <DayColumn

@@ -30,6 +30,11 @@ Live at https://giladaadler-pixel.github.io/weekly-to-do/
 - A 🏆 page listing every finished goal, newest first, with the date it was finished
 - **Mark not done** sends a goal back to the Week page
 
+### Notes
+- Dated notes for each goal, plus general notes, newest first
+- Each goal shows its progress (for checklists) and a "📝 N" count on its chip that opens its notes
+- Click a note to edit it; deleting asks first. Deleting a goal deletes its notes too
+
 ### Sidebar
 - Pages live in a sidebar on the left, with ☰ at the top left of the screen
 - ☰ opens and closes it (there's no ✕)

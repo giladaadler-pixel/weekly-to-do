@@ -156,3 +156,24 @@ describe("makeGoalRepeat", () => {
     expect(makeGoalRepeat(goal, [], "2026-10-15")).toBeNull();
   });
 });
+
+describe("deleteGoalAndRepeats and notes", () => {
+  it("also deletes the goal's notes, keeping others and general notes", () => {
+    const state = {
+      tasks: [],
+      repeats: [],
+      goals: [{ id: "g1" }, { id: "g2" }],
+      notes: [
+        { id: "n1", goalId: "g1" },
+        { id: "n2", goalId: "g2" },
+        { id: "n3", goalId: null },
+      ],
+    };
+    expect(deleteGoalAndRepeats(state, "g1").notes.map((n) => n.id)).toEqual(["n2", "n3"]);
+  });
+
+  it("works on old state without notes", () => {
+    const state = { tasks: [], repeats: [], goals: [{ id: "g1" }] };
+    expect(deleteGoalAndRepeats(state, "g1").notes).toEqual([]);
+  });
+});

@@ -20,6 +20,8 @@ import AccomplishmentsPage from "./components/AccomplishmentsPage.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import TodayPage from "./components/TodayPage.jsx";
 import { exportBackup, parseBackup, backupFileName } from "./lib/backup.js";
+import { makeNote, editNote, deleteNote } from "./lib/notes.js";
+import NotesPage from "./components/NotesPage.jsx";
 
 const PHONE_QUERY = "(max-width: 700px)";
 
@@ -51,8 +53,10 @@ export default function App() {
   const todayIso = todayISO();
   // The Sunday of the week being viewed. Not saved: the app always opens on this week.
   const [viewWeek, setViewWeek] = useState(() => weekStart(todayIso));
-  // "today" | "week" | "accomplishments". Not saved.
+  // "today" | "week" | "accomplishments" | "notes". Not saved.
   const [page, setPage] = useState(startingPage);
+  // Notes page selection: a goal id, "general", or null for its default. Not saved.
+  const [notesSelected, setNotesSelected] = useState(null);
   const isPhone = useIsPhone();
   // Phone only: whether ☰ has slid the sidebar in. Not saved.
   const [phoneOpen, setPhoneOpen] = useState(false);
@@ -149,7 +153,32 @@ export default function App() {
     setDone: (id, done) => setGoals((goals) => setGoalDone(goals, id, done)),
     replace: (goal) => setGoals((goals) => updateGoal(goals, goal.id, goal)),
     remove: (id) => setState((s) => deleteGoalAndRepeats(s, id)),
+    openNotes: (id) => openNotes(id),
   };
+
+  function openNotes(goalId) {
+    setNotesSelected(goalId);
+    setPage("notes");
+  }
+
+  function setNotes(change) {
+    setState((s) => ({ ...s, notes: change(s.notes) }));
+  }
+
+  const noteActions = {
+    add: (text, goalId) => {
+      const note = makeNote(text, goalId, todayIso);
+      if (note) setNotes((notes) => [...notes, note]);
+    },
+    edit: (id, text) => setNotes((notes) => editNote(notes, id, text)),
+    remove: (id) => setNotes((notes) => deleteNote(notes, id)),
+  };
+
+  // From the sidebar, Notes opens on its default selection.
+  function goToPage(next) {
+    if (next === "notes") setNotesSelected(null);
+    setPage(next);
+  }
 
   return (
     <>
@@ -172,8 +201,22 @@ export default function App() {
           repeatActions={repeatActions}
           goalActions={goalActions}
         />
+      ) : page === "notes" ? (
+        <NotesPage
+          goals={state.goals}
+          notes={state.notes}
+          selected={notesSelected}
+          onSelect={setNotesSelected}
+          noteActions={noteActions}
+          isPhone={isPhone}
+        />
       ) : page === "accomplishments" ? (
-        <AccomplishmentsPage goals={state.goals} onMarkNotDone={(id) => goalActions.setDone(id, false)} />
+        <AccomplishmentsPage
+          goals={state.goals}
+          notes={state.notes}
+          onMarkNotDone={(id) => goalActions.setDone(id, false)}
+          onOpenNotes={openNotes}
+        />
       ) : (
         <WeekView
           weekStartIso={viewWeek}
@@ -181,6 +224,7 @@ export default function App() {
           tasks={state.tasks}
           repeats={activeRepeats(state.repeats, state.goals)}
           goals={state.goals}
+          notes={state.notes}
           taskActions={taskActions}
           repeatActions={repeatActions}
           goalActions={goalActions}
@@ -188,7 +232,7 @@ export default function App() {
       )}
       <Sidebar
         page={page}
-        onPage={setPage}
+        onPage={goToPage}
         pinned={pinned}
         onPin={() => setPinned(true)}
         onTuck={() => setPinned(false)}
