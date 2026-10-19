@@ -1,7 +1,6 @@
 import { useState } from "react";
 import TaskSheet from "./TaskSheet.jsx";
-
-const PRIORITY_NAMES = { high: "High", medium: "Medium", low: "Low" };
+import PriorityDot from "./PriorityDot.jsx";
 
 // A compact row: [checkbox] [priority dot] text. Tapping the text opens the TaskSheet
 // to edit, move or delete it.
@@ -31,11 +30,7 @@ export default function TaskItem({ task, actions, label, mark, deleteChoices, dr
         onChange={(e) => actions.toggle(task.id, e.target.checked)}
         aria-label={`Done: ${task.text}`}
       />
-      <span
-        className={`priority-dot priority-dot-${task.priority}`}
-        role="img"
-        aria-label={`${PRIORITY_NAMES[task.priority]} priority`}
-      />
+      <PriorityDot priority={task.priority} />
       {/* A span, not a <button>, so dragging the row by its text still works in every browser. */}
       <span className="task-text" role="button" tabIndex={0} onClick={() => setOpen(true)} onKeyDown={onTextKey}>
         {task.done && <span className="check">✓ </span>}

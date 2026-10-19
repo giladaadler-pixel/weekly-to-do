@@ -1,13 +1,21 @@
 import { useState } from "react";
-import GoalCard from "./GoalCard.jsx";
+import GoalChip from "./GoalChip.jsx";
 import GoalModal from "./GoalModal.jsx";
 
 export default function GoalsBand({ goals, todayIso, goalActions }) {
   const [creating, setCreating] = useState(false);
+  // The one expanded chip's goal id, or null. Not saved: chips start collapsed.
+  const [expandedId, setExpandedId] = useState(null);
   return (
     <section className="goals-band">
       {goals.map((goal) => (
-        <GoalCard key={goal.id} goal={goal} actions={goalActions} />
+        <GoalChip
+          key={goal.id}
+          goal={goal}
+          actions={goalActions}
+          expanded={goal.id === expandedId}
+          onToggle={() => setExpandedId((id) => (id === goal.id ? null : goal.id))}
+        />
       ))}
       <button className="create-button create-goal" onClick={() => setCreating(true)}>
         Create new goal+
