@@ -1,30 +1,25 @@
 import { useState } from "react";
-import PrioritySelect from "./PrioritySelect.jsx";
+import TaskSheet from "./TaskSheet.jsx";
 
-// deleteChoices (for repeats): [{ label, onClick }] shown instead of deleting right away.
+const PRIORITY_NAMES = { high: "High", medium: "Medium", low: "Low" };
+
+// A compact row: [checkbox] [priority dot] text. Tapping the text opens the TaskSheet
+// to edit, move or delete it.
+// deleteChoices (for repeats): [{ label, onClick }] the sheet shows instead of deleting right away.
 export default function TaskItem({ task, actions, label, mark, deleteChoices, draggable = false }) {
-  const [editing, setEditing] = useState(false);
-  const [choosingDelete, setChoosingDelete] = useState(false);
-  const [draft, setDraft] = useState(task.text);
+  const [open, setOpen] = useState(false);
 
-  function startEdit() {
-    setDraft(task.text);
-    setEditing(true);
-  }
-
-  function onKeyDown(e) {
-    if (e.key === "Enter") {
-      actions.edit(task.id, draft);
-      setEditing(false);
-    } else if (e.key === "Escape") {
-      setEditing(false);
+  function onTextKey(e) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      setOpen(true);
     }
   }
 
   return (
     <li
       className={task.done ? "task done" : "task"}
-      draggable={draggable && !editing}
+      draggable={draggable && !open}
       onDragStart={(e) => {
         e.dataTransfer.setData("text/plain", task.id);
         e.dataTransfer.effectAllowed = "move";
@@ -36,53 +31,20 @@ export default function TaskItem({ task, actions, label, mark, deleteChoices, dr
         onChange={(e) => actions.toggle(task.id, e.target.checked)}
         aria-label={`Done: ${task.text}`}
       />
-      {editing ? (
-        <input
-          className="task-edit"
-          value={draft}
-          autoFocus
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={onKeyDown}
-          onBlur={() => setEditing(false)}
-        />
-      ) : (
-        <span className="task-text">
-          {task.done && <span className="check">✓ </span>}
-          {mark && <span className="task-mark">{mark} </span>}
-          {task.text}
-          {label && <span className="task-label"> ({label})</span>}
-        </span>
-      )}
-      <PrioritySelect
-        className="priority-tag"
-        value={task.priority}
-        onChange={(priority) => actions.setPriority(task.id, priority)}
+      <span
+        className={`priority-dot priority-dot-${task.priority}`}
+        role="img"
+        aria-label={`${PRIORITY_NAMES[task.priority]} priority`}
       />
-      <button className="icon-button" onClick={startEdit} aria-label="Edit">
-        ✏️
-      </button>
-      <button
-        className="icon-button"
-        onClick={() => (deleteChoices ? setChoosingDelete(true) : actions.remove(task.id))}
-        aria-label="Delete"
-      >
-        🗑
-      </button>
-      {choosingDelete && (
-        <div className="delete-choices">
-          {deleteChoices.map((choice) => (
-            <button
-              key={choice.label}
-              onClick={() => {
-                setChoosingDelete(false);
-                choice.onClick();
-              }}
-            >
-              {choice.label}
-            </button>
-          ))}
-          <button onClick={() => setChoosingDelete(false)}>Cancel</button>
-        </div>
+      {/* A span, not a <button>, so dragging the row by its text still works in every browser. */}
+      <span className="task-text" role="button" tabIndex={0} onClick={() => setOpen(true)} onKeyDown={onTextKey}>
+        {task.done && <span className="check">✓ </span>}
+        {mark && <span className="task-mark">{mark} </span>}
+        {task.text}
+        {label && <span className="task-label"> ({label})</span>}
+      </span>
+      {open && (
+        <TaskSheet task={task} actions={actions} deleteChoices={deleteChoices} onClose={() => setOpen(false)} />
       )}
     </li>
   );

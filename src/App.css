@@ -94,7 +94,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.35rem;
 }
 
 .day-title {
@@ -122,23 +122,63 @@ body {
 
 .task-list {
   list-style: none;
-  margin: 0 0 0.5rem;
+  margin: 0;
   padding: 0;
 }
 
+/* Compact row: [checkbox] [priority dot] text. Long text wraps; the checkbox and dot
+   stay level with the first line. */
 .task {
   display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.2rem 0;
-  font-size: 0.9rem;
+  align-items: flex-start;
+  gap: 0.35rem;
+  padding: 0;
+  font-size: 0.85rem;
+  line-height: 1.2;
 }
 
-.task-text,
-.task-edit {
+/* Touch screens: taller rows so they're easy to tap. Day boxes scroll there anyway. */
+@media (pointer: coarse) {
+  .task {
+    padding: 0.3rem 0;
+  }
+}
+
+.task input[type="checkbox"] {
+  flex-shrink: 0;
+  margin: 0.1rem 0 0;
+}
+
+.task-text {
   flex: 1;
   min-width: 0;
   overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.task-text:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+}
+
+.priority-dot {
+  flex-shrink: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-top: 0.32rem;
+  border-radius: 50%;
+}
+
+.priority-dot-high {
+  background: var(--high);
+}
+
+.priority-dot-medium {
+  background: var(--medium);
+}
+
+.priority-dot-low {
+  background: var(--low);
 }
 
 .icon-button {
@@ -186,10 +226,6 @@ body {
 
 .priority-low {
   color: var(--low);
-}
-
-.priority-tag {
-  max-width: 4.5rem;
 }
 
 .top-bar {
@@ -270,16 +306,23 @@ body {
   gap: 0.1rem;
 }
 
-.task {
-  flex-wrap: wrap;
-}
-
+/* Task sheet: the repeat "Delete which?" choices replace the button row. */
 .delete-choices {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem;
-  width: 100%;
-  font-size: 0.75rem;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.delete-choices span {
+  margin-right: auto;
+  color: var(--high);
+}
+
+.modal-buttons .delete-button {
+  margin-right: auto;
+  color: var(--high);
 }
 
 .missed-count {
@@ -388,6 +431,8 @@ body {
 
 .modal-backdrop {
   position: fixed;
+  /* Above the sidebar (50–60). */
+  z-index: 100;
   inset: 0;
   display: flex;
   align-items: center;
