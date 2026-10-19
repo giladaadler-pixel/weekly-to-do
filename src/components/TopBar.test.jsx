@@ -16,7 +16,6 @@ function render(props) {
     root.render(
       <TopBar
         page="week"
-        onMenu={() => {}}
         viewWeek="2026-10-11"
         onPrev={() => {}}
         onNext={() => {}}
@@ -53,21 +52,18 @@ describe("TopBar This week button", () => {
   });
 });
 
-describe("TopBar menu", () => {
-  const menuButton = () => container.querySelector("button[aria-label='Open sidebar']");
-
-  it("☰ calls onMenu", () => {
-    const onMenu = vi.fn();
-    render({ onMenu });
-    act(() => menuButton().click());
-    expect(onMenu).toHaveBeenCalledOnce();
+describe("TopBar layout", () => {
+  it("has no ☰ or ✕ button (☰ lives in the sidebar now)", () => {
+    render();
+    expect(container.querySelector(".menu-button")).toBeNull();
+    expect(container.textContent).not.toContain("☰");
+    expect(container.textContent).not.toContain("✕");
   });
 
-  it("☰ comes after the theme button, at the far right", () => {
+  it("keeps the theme button last, at the far right", () => {
     render();
     const buttons = [...container.querySelectorAll(".top-bar > button")];
-    expect(buttons.at(-1)).toBe(menuButton());
-    expect(buttons.at(-2).className).toBe("theme-button");
+    expect(buttons.at(-1).className).toBe("theme-button");
   });
 
   it("no longer has the Week | Accomplishments switch", () => {
