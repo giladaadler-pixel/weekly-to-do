@@ -26,9 +26,10 @@ Live at https://giladaadler-pixel.github.io/weekly-to-do/
 - **Mark not done** sends a goal back to the Week page
 
 ### Sidebar
-- Pages live in a sidebar on the right
-- On a laptop it's a thin icon strip: hover to peek, click to pin it open (it stays pinned next visit), ✕ to tuck it away
-- On a phone, ☰ slides it in; pick a page or tap ✕ to close it
+- Pages live in a sidebar on the left, with ☰ at the top left of the screen
+- ☰ opens and closes it (there's no ✕)
+- On a laptop it's a thin icon strip: hover to peek, click anywhere on it or ☰ to pin it open (it stays pinned next visit), ☰ again to tuck it away
+- On a phone, ☰ slides it in from the left; ☰ again, tapping outside it, Escape, or picking a page closes it
 
 ### Everything else
 - Light and dark mode

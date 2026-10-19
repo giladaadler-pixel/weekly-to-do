@@ -22,6 +22,7 @@ function render(props) {
         onTuck={() => {}}
         isPhone={false}
         phoneOpen={false}
+        onPhoneOpen={() => {}}
         onPhoneClose={() => {}}
         {...props}
       />
@@ -37,7 +38,8 @@ afterEach(() => {
 const sidebar = () => container.querySelector(".sidebar");
 const pageButton = (name) =>
   [...container.querySelectorAll(".sidebar-page")].find((b) => b.textContent.includes(name));
-const closeButton = () => container.querySelector("button[aria-label='Close sidebar']");
+const menuButton = () => container.querySelector(".menu-button");
+const backdrop = () => container.querySelector(".sidebar-backdrop");
 
 // React's mouseenter/mouseleave are built from mouseover/mouseout.
 function hover() {
@@ -45,6 +47,9 @@ function hover() {
 }
 function unhover() {
   act(() => sidebar().dispatchEvent(new MouseEvent("mouseout", { bubbles: true, relatedTarget: document.body })));
+}
+function pressEscape() {
+  act(() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
 }
 
 describe("Sidebar on a laptop", () => {
@@ -84,19 +89,57 @@ describe("Sidebar on a laptop", () => {
     expect(sidebar().classList.contains("pinned")).toBe(true);
   });
 
-  it("✕ tucks it without pinning", () => {
-    const onPin = vi.fn();
-    const onTuck = vi.fn();
-    render({ pinned: true, onPin, onTuck });
-    act(() => closeButton().click());
-    expect(onTuck).toHaveBeenCalledOnce();
-    expect(onPin).not.toHaveBeenCalled();
-  });
-
   it("marks the current page", () => {
     render({ page: "accomplishments" });
     expect(pageButton("Accomplishments").getAttribute("aria-current")).toBe("page");
     expect(pageButton("Week").getAttribute("aria-current")).toBeNull();
+  });
+
+  it("has no ✕ button", () => {
+    render({ pinned: true });
+    expect(container.querySelector(".sidebar-close")).toBeNull();
+    expect(container.textContent).not.toContain("✕");
+  });
+
+  it("puts ☰ first, above the page icons", () => {
+    render();
+    const buttons = [...sidebar().querySelectorAll("button")];
+    expect(buttons[0]).toBe(menuButton());
+  });
+
+  it("☰ pins it when tucked", () => {
+    const onPin = vi.fn();
+    const onTuck = vi.fn();
+    render({ onPin, onTuck });
+    expect(menuButton().getAttribute("aria-expanded")).toBe("false");
+    expect(menuButton().getAttribute("aria-label")).toBe("Open sidebar");
+    act(() => menuButton().click());
+    expect(onPin).toHaveBeenCalledOnce();
+    expect(onTuck).not.toHaveBeenCalled();
+  });
+
+  it("☰ pins it while peeking", () => {
+    const onPin = vi.fn();
+    render({ onPin });
+    hover();
+    act(() => menuButton().click());
+    expect(onPin).toHaveBeenCalledOnce();
+  });
+
+  it("☰ tucks it when pinned, without pinning again", () => {
+    const onPin = vi.fn();
+    const onTuck = vi.fn();
+    render({ pinned: true, onPin, onTuck });
+    expect(menuButton().getAttribute("aria-expanded")).toBe("true");
+    expect(menuButton().getAttribute("aria-label")).toBe("Close sidebar");
+    act(() => menuButton().click());
+    expect(onTuck).toHaveBeenCalledOnce();
+    expect(onPin).not.toHaveBeenCalled();
+  });
+
+  it("has no backdrop", () => {
+    render({ pinned: true });
+    expect(backdrop()).toBeNull();
   });
 });
 
@@ -104,8 +147,41 @@ describe("Sidebar on a phone", () => {
   it("is hidden until opened", () => {
     render({ isPhone: true });
     expect(sidebar().classList.contains("open")).toBe(false);
-    act(() => root.render(<Sidebar page="week" onPage={() => {}} isPhone phoneOpen onPhoneClose={() => {}} />));
+    act(() =>
+      root.render(
+        <Sidebar page="week" onPage={() => {}} isPhone phoneOpen onPhoneOpen={() => {}} onPhoneClose={() => {}} />
+      )
+    );
     expect(sidebar().classList.contains("open")).toBe(true);
+  });
+
+  it("☰ opens it when closed", () => {
+    const onPhoneOpen = vi.fn();
+    const onPhoneClose = vi.fn();
+    render({ isPhone: true, onPhoneOpen, onPhoneClose });
+    expect(menuButton().getAttribute("aria-expanded")).toBe("false");
+    expect(menuButton().getAttribute("aria-label")).toBe("Open sidebar");
+    act(() => menuButton().click());
+    expect(onPhoneOpen).toHaveBeenCalledOnce();
+    expect(onPhoneClose).not.toHaveBeenCalled();
+  });
+
+  it("☰ closes it when open", () => {
+    const onPhoneOpen = vi.fn();
+    const onPhoneClose = vi.fn();
+    render({ isPhone: true, phoneOpen: true, onPhoneOpen, onPhoneClose });
+    expect(menuButton().getAttribute("aria-expanded")).toBe("true");
+    expect(menuButton().getAttribute("aria-label")).toBe("Close sidebar");
+    act(() => menuButton().click());
+    expect(onPhoneClose).toHaveBeenCalledOnce();
+    expect(onPhoneOpen).not.toHaveBeenCalled();
+  });
+
+  it("☰ never pins on a phone", () => {
+    const onPin = vi.fn();
+    render({ isPhone: true, onPin });
+    act(() => menuButton().click());
+    expect(onPin).not.toHaveBeenCalled();
   });
 
   it("closes after picking a page, without pinning", () => {
@@ -125,10 +201,30 @@ describe("Sidebar on a phone", () => {
     expect(sidebar().classList.contains("peek")).toBe(false);
   });
 
-  it("✕ closes it", () => {
+  it("shows a backdrop only while open, and tapping it closes", () => {
+    const onPhoneClose = vi.fn();
+    render({ isPhone: true, onPhoneClose });
+    expect(backdrop()).toBeNull();
+    act(() =>
+      root.render(
+        <Sidebar page="week" onPage={() => {}} isPhone phoneOpen onPhoneOpen={() => {}} onPhoneClose={onPhoneClose} />
+      )
+    );
+    act(() => backdrop().click());
+    expect(onPhoneClose).toHaveBeenCalledOnce();
+  });
+
+  it("Escape closes it when open", () => {
     const onPhoneClose = vi.fn();
     render({ isPhone: true, phoneOpen: true, onPhoneClose });
-    act(() => closeButton().click());
+    pressEscape();
     expect(onPhoneClose).toHaveBeenCalledOnce();
+  });
+
+  it("Escape does nothing when closed", () => {
+    const onPhoneClose = vi.fn();
+    render({ isPhone: true, onPhoneClose });
+    pressEscape();
+    expect(onPhoneClose).not.toHaveBeenCalled();
   });
 });

@@ -621,8 +621,12 @@ body {
   font-size: 0.95rem;
 }
 
+/* Same height, so ☰ (in the sidebar) and ☀️ line up with the top bar's row. */
 .theme-button,
 .menu-button {
+  box-sizing: border-box;
+  height: 2rem;
+  min-width: 2rem;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: none;
@@ -635,66 +639,68 @@ body {
   margin-left: auto;
 }
 
-/* Sidebar on the right. Tucked shows only the icon strip; peek slides the full
-   sidebar over the page; pinned pushes the page over so nothing hides behind it. */
+/* Sidebar on the left. Tucked shows only the icon strip; peek slides the full
+   sidebar over the page; pinned pushes the page right so nothing hides behind it.
+   ☰ stays fixed in the top-left corner, level with the top bar (body padding is 1rem),
+   so it's the first thing in the strip and sits just left of the ◀ week arrow. */
 :root {
   --sidebar-strip: 3rem;
   --sidebar-full: 14rem;
 }
 
+/* Body padding adds 1rem on top of these. */
 [data-sidebar="tucked"] #root {
-  margin-right: var(--sidebar-strip);
+  margin-left: calc(var(--sidebar-strip) - 0.5rem);
 }
 
 [data-sidebar="pinned"] #root {
-  margin-right: var(--sidebar-full);
+  margin-left: var(--sidebar-full);
 }
 
+/* Phones have no strip: only the top bar makes room for ☰ at its left. */
+[data-sidebar="phone"] .top-bar {
+  padding-left: calc(var(--sidebar-strip) - 1rem);
+}
+
+/* The <aside> only groups ☰, the backdrop and the panel; each places itself. */
 .sidebar {
+  display: contents;
+}
+
+.sidebar .menu-button {
+  position: fixed;
+  z-index: 60;
+  top: 1rem;
+  left: 0.5rem;
+}
+
+.sidebar-panel {
   position: fixed;
   z-index: 50;
   top: 0;
-  right: 0;
+  left: 0;
   bottom: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
   box-sizing: border-box;
   width: var(--sidebar-full);
-  padding: 0.5rem;
-  border-left: 1px solid var(--border);
+  /* Room at the top for ☰. */
+  padding: 3.5rem 0.5rem 0.5rem;
+  border-right: 1px solid var(--border);
   background: var(--card-bg);
   overflow: hidden;
   transition: width 0.15s ease, translate 0.2s ease;
 }
 
-.sidebar.tucked {
+.sidebar.tucked .sidebar-panel {
   width: var(--sidebar-strip);
   cursor: pointer;
 }
 
-.sidebar.peek {
-  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.15);
+.sidebar.peek .sidebar-panel {
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.15);
 }
 
-.sidebar-close {
-  align-self: flex-end;
-  padding: 0.2rem 0.45rem;
-  border: none;
-  border-radius: 6px;
-  background: none;
-  color: var(--text);
-  font-size: 0.9rem;
-  cursor: pointer;
-  opacity: 0.6;
-}
-
-.sidebar-close:hover {
-  background: var(--day-bg);
-  opacity: 1;
-}
-
-.sidebar.tucked .sidebar-close,
 .sidebar.tucked .sidebar-label {
   display: none;
 }
@@ -738,23 +744,30 @@ body {
   font-size: 1.1rem;
 }
 
-/* Phones: no strip. ☰ slides the sidebar in over the page. */
-.sidebar.phone {
+/* Phones: no strip. ☰ slides the panel in from the left over a dim backdrop. */
+.sidebar.phone .sidebar-panel {
   width: min(16rem, 85vw);
-  translate: 100% 0;
-  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.2);
+  translate: -100% 0;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.2);
 }
 
-.sidebar.phone.open {
+.sidebar.phone.open .sidebar-panel {
   translate: 0 0;
 }
 
-.sidebar.phone:not(.open) {
+.sidebar.phone:not(.open) .sidebar-panel {
   visibility: hidden;
   transition: translate 0.2s ease, visibility 0s 0.2s;
 }
 
-/* Phones: tighten the top bar so ☰ stays on screen. */
+.sidebar-backdrop {
+  position: fixed;
+  z-index: 45;
+  inset: 0;
+  background: var(--backdrop);
+}
+
+/* Phones: tighten the top bar so it fits beside ☰. */
 @media (max-width: 700px) {
   .top-bar {
     flex-wrap: wrap;

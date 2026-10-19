@@ -26,7 +26,7 @@ Turn the weekly to-do site into a free, installable **home-screen app** that any
 
 The `Week | Accomplishments` switch in the top bar is replaced by a sidebar.
 
-**Top bar (slimmer):** `◀  dates  ▶  This week` · `✅ X of Y done` · `☀️` · `☰` (☰ at the far top right, next to the theme button). The week arrows, dates, **This week** button (renamed from "Today" so it isn't confused with the new Today page) and the done count show only on the Week page. Other pages show the page name on the left.
+**Top bar (slimmer):** `☰ | ◀  dates  ▶  This week` · `✅ X of Y done` · `☀️`. ☰ belongs to the sidebar (the first thing in its strip) and lines up with the top bar's row, just left of the ◀ week arrow; on pages without the arrows it is still in that top-left spot. The ☀️/🌙 theme button stays at the far top right. The week arrows, dates, **This week** button (renamed from "Today" so it isn't confused with the new Today page) and the done count show only on the Week page. Other pages show the page name on the left.
 
 **Sidebar pages (in order):** 📅 Today · 🗓 Week · 🏆 Accomplishments · 📝 Notes. Below a divider: ⏰ Daily reminder · 🔔 Enable badge · ⬇️ Export backup · ⬆️ Import backup. The page list is built from one array so future pages (Journal, Gym) are a one-line addition.
 
@@ -34,15 +34,16 @@ The `Week | Accomplishments` switch in the top bar is replaced by a sidebar.
 
 | State | Looks like | How you get there |
 |---|---|---|
-| Tucked | Thin icon strip along the right edge | Default; ✕ button; moving the mouse away while not pinned |
+| Tucked | Thin icon strip along the **left** edge, ☰ at the top | Default; ☰ while pinned; moving the mouse away while not pinned |
 | Peek | Full sidebar with page names, slid over the content | Mouse hovers over the strip |
-| Pinned | Full sidebar, stays open after the mouse leaves | Clicking **anywhere** on the sidebar (strip, page name, ☰ button) |
+| Pinned | Full sidebar, stays open after the mouse leaves | ☰ while tucked or peeking; clicking **anywhere** on the sidebar (strip, page name) |
 
-- Peek slides **over** the content. Pinned **pushes** the content over (the page gets narrower) so nothing is hidden behind it. Tucked reserves only the strip's width.
-- A **✕** button in the sidebar's top corner returns it to Tucked.
+- Peek slides **over** the content. Pinned **pushes** the content to the right (the page gets narrower) so nothing is hidden behind it. Tucked reserves only the strip's width on the left.
+- **☰ toggles:** pinned → tucked, otherwise → pinned. There is **no ✕ button**; ☰ is the only open/close button.
+- ☰ has `aria-expanded` (true when pinned) and its label switches between "Open sidebar" and "Close sidebar".
 - Pinned state is **saved** (`ui.sidebarPinned`) so it reopens the same way.
 
-**Phone behavior (700px and narrower):** no strip. ☰ slides the sidebar in over the page; it stays until you tap ✕ or pick a page.
+**Phone behavior (700px and narrower):** no strip. ☰ stays visible at the top left of the top bar. It slides the sidebar in from the left over a dim backdrop, and ☰ then sits at the top of the sidebar. ☰ again, tapping the backdrop, pressing Escape, or picking a page closes it. `aria-expanded` is true while it's open.
 
 ## 3. Pages
 

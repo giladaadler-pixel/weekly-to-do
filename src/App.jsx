@@ -125,7 +125,6 @@ export default function App() {
     <>
       <TopBar
         page={page}
-        onMenu={() => (isPhone ? setPhoneOpen(true) : setPinned(true))}
         viewWeek={viewWeek}
         onPrev={() => setViewWeek((w) => addDays(w, -7))}
         onNext={() => setViewWeek((w) => addDays(w, 7))}
@@ -157,6 +156,7 @@ export default function App() {
         onTuck={() => setPinned(false)}
         isPhone={isPhone}
         phoneOpen={phoneOpen}
+        onPhoneOpen={() => setPhoneOpen(true)}
         onPhoneClose={() => setPhoneOpen(false)}
       />
     </>
