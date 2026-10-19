@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // Every page in the sidebar, in order. A new page is one more line here.
 export const PAGES = [
@@ -7,6 +7,7 @@ export const PAGES = [
   { id: "accomplishments", icon: "🏆", label: "Accomplishments" },
 ];
 
+// Below a divider: backup tools. onImport(file) gets the picked file.
 // Laptop: a thin icon strip on the left ("tucked"), with ☰ at the top. Hovering slides
 // it open over the page ("peek"); clicking anywhere on it keeps it open ("pinned", saved
 // by the parent). ☰ toggles between pinned and tucked.
@@ -22,8 +23,11 @@ export default function Sidebar({
   phoneOpen,
   onPhoneOpen,
   onPhoneClose,
+  onExport,
+  onImport,
 }) {
   const [peek, setPeek] = useState(false);
+  const fileInput = useRef(null);
   const expanded = isPhone ? phoneOpen : pinned;
 
   useEffect(() => {
@@ -40,6 +44,19 @@ export default function Sidebar({
   function pickPage(id) {
     onPage(id);
     if (isPhone) onPhoneClose();
+  }
+
+  // Like picking a page, a tool closes the phone sidebar.
+  function pickTool(run) {
+    run();
+    if (isPhone) onPhoneClose();
+  }
+
+  function onFilePicked(e) {
+    const [file] = e.target.files;
+    if (file) onImport(file);
+    // Let the same file be picked again later.
+    e.target.value = "";
   }
 
   // ☰ handles itself, so the click mustn't also reach the "click anywhere pins" handler.
@@ -92,6 +109,33 @@ export default function Sidebar({
             </button>
           ))}
         </nav>
+        <hr className="sidebar-divider" />
+        <div className="sidebar-pages sidebar-tools">
+          <button className="sidebar-page sidebar-tool" onClick={() => pickTool(onExport)} title="Export backup">
+            <span className="sidebar-icon" aria-hidden="true">
+              ⬇️
+            </span>
+            <span className="sidebar-label">Export backup</span>
+          </button>
+          <button
+            className="sidebar-page sidebar-tool"
+            onClick={() => pickTool(() => fileInput.current.click())}
+            title="Import backup"
+          >
+            <span className="sidebar-icon" aria-hidden="true">
+              ⬆️
+            </span>
+            <span className="sidebar-label">Import backup</span>
+          </button>
+          <input
+            ref={fileInput}
+            type="file"
+            accept="application/json,.json"
+            hidden
+            onChange={onFilePicked}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
       </div>
     </aside>
   );

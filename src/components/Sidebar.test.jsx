@@ -24,6 +24,8 @@ function render(props) {
         phoneOpen={false}
         onPhoneOpen={() => {}}
         onPhoneClose={() => {}}
+        onExport={() => {}}
+        onImport={() => {}}
         {...props}
       />
     )
@@ -91,7 +93,7 @@ describe("Sidebar on a laptop", () => {
 
   it("lists Today first, then Week and Accomplishments", () => {
     render();
-    const labels = [...container.querySelectorAll(".sidebar-page")].map((b) => b.textContent);
+    const labels = [...container.querySelectorAll("nav .sidebar-page")].map((b) => b.textContent);
     expect(labels).toEqual(["📅Today", "🗓Week", "🏆Accomplishments"]);
   });
 
@@ -146,6 +148,48 @@ describe("Sidebar on a laptop", () => {
   it("has no backdrop", () => {
     render({ pinned: true });
     expect(backdrop()).toBeNull();
+  });
+});
+
+describe("Sidebar backup tools", () => {
+  const tool = (name) => [...container.querySelectorAll(".sidebar-tool")].find((b) => b.textContent.includes(name));
+  const fileInput = () => container.querySelector("input[type='file']");
+
+  it("shows Export and Import below the pages", () => {
+    render();
+    expect(tool("Export backup")).toBeTruthy();
+    expect(tool("Import backup")).toBeTruthy();
+    expect(container.querySelector(".sidebar-divider")).not.toBeNull();
+  });
+
+  it("Export calls onExport", () => {
+    const onExport = vi.fn();
+    render({ onExport });
+    act(() => tool("Export backup").click());
+    expect(onExport).toHaveBeenCalledOnce();
+  });
+
+  it("Import opens the file picker, and a picked file goes to onImport", () => {
+    const onImport = vi.fn();
+    render({ onImport });
+    const pick = vi.spyOn(fileInput(), "click");
+    act(() => tool("Import backup").click());
+    expect(pick).toHaveBeenCalledOnce();
+    const file = new File(["{}"], "backup.json", { type: "application/json" });
+    Object.defineProperty(fileInput(), "files", { value: [file], configurable: true });
+    act(() => fileInput().dispatchEvent(new Event("change", { bubbles: true })));
+    expect(onImport).toHaveBeenCalledWith(file);
+  });
+
+  it("on a phone, picking a tool closes the sidebar", () => {
+    const onPhoneClose = vi.fn();
+    const onExport = vi.fn();
+    render({ isPhone: true, phoneOpen: true, onPhoneClose, onExport });
+    act(() => tool("Export backup").click());
+    expect(onExport).toHaveBeenCalledOnce();
+    expect(onPhoneClose).toHaveBeenCalledOnce();
+    act(() => tool("Import backup").click());
+    expect(onPhoneClose).toHaveBeenCalledTimes(2);
   });
 });
 

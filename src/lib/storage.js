@@ -11,13 +11,19 @@ export const DEFAULT_STATE = {
   ui: { sidebarPinned: false },
 };
 
+// Saved data from an older version may be missing newer keys: fill them from the defaults.
+// Also used when importing a backup.
+export function withDefaults(saved) {
+  return { ...DEFAULT_STATE, ...saved };
+}
+
 // storage defaults to window.localStorage, read inside the try: some browsers
 // throw just for touching it when site data is blocked.
 export function loadState(storage) {
   try {
     storage ??= window.localStorage;
     const saved = JSON.parse(storage.getItem(STORAGE_KEY));
-    if (saved && typeof saved === "object") return { ...DEFAULT_STATE, ...saved };
+    if (saved && typeof saved === "object") return withDefaults(saved);
   } catch {
     // Broken or blocked storage: start empty.
   }

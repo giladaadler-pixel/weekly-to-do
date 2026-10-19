@@ -19,6 +19,7 @@ import TopBar from "./components/TopBar.jsx";
 import AccomplishmentsPage from "./components/AccomplishmentsPage.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import TodayPage from "./components/TodayPage.jsx";
+import { exportBackup, parseBackup, backupFileName } from "./lib/backup.js";
 
 const PHONE_QUERY = "(max-width: 700px)";
 
@@ -72,6 +73,24 @@ export default function App() {
 
   function setPinned(sidebarPinned) {
     setState((s) => ({ ...s, ui: { ...s.ui, sidebarPinned } }));
+  }
+
+  function downloadBackup() {
+    const url = URL.createObjectURL(new Blob([exportBackup(state)], { type: "application/json" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = backupFileName(todayIso);
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function importBackup(file) {
+    const backup = parseBackup(await file.text());
+    if (!backup) {
+      window.alert("That file isn't a Weekly To-Do backup.");
+      return;
+    }
+    if (window.confirm("Replace everything on this device with this backup?")) setState(backup);
   }
 
   function setTasks(change) {
@@ -177,6 +196,8 @@ export default function App() {
         phoneOpen={phoneOpen}
         onPhoneOpen={() => setPhoneOpen(true)}
         onPhoneClose={() => setPhoneOpen(false)}
+        onExport={downloadBackup}
+        onImport={importBackup}
       />
     </>
   );

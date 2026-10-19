@@ -40,10 +40,23 @@
   --gold-soft: rgba(227, 179, 65, 0.12);
 }
 
+/* Page padding. On iPhones it grows to clear the notch, status bar and home bar
+   (env(safe-area-inset-*) is 0 everywhere else). */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --pad-top: max(1rem, var(--safe-top));
+  --pad-right: max(1rem, var(--safe-right));
+  --pad-bottom: max(1rem, var(--safe-bottom));
+  --pad-left: max(1rem, var(--safe-left));
+}
+
 body {
   box-sizing: border-box;
   margin: 0;
-  padding: 1rem;
+  padding: var(--pad-top) var(--pad-right) var(--pad-bottom) var(--pad-left);
   font-family: system-ui, sans-serif;
   background: var(--bg);
   color: var(--text);
@@ -54,7 +67,7 @@ body {
 #root {
   display: flex;
   flex-direction: column;
-  height: calc(100dvh - 2rem);
+  height: calc(100dvh - var(--pad-top) - var(--pad-bottom));
 }
 
 .week-page {
@@ -760,22 +773,23 @@ body {
    ☰ stays fixed in the top-left corner, level with the top bar (body padding is 1rem),
    so it's the first thing in the strip and sits just left of the ◀ week arrow. */
 :root {
-  --sidebar-strip: 3rem;
-  --sidebar-full: 14rem;
+  /* Both include the left safe area (a notch in landscape), which the panel pads. */
+  --sidebar-strip: calc(3rem + var(--safe-left));
+  --sidebar-full: calc(14rem + var(--safe-left));
 }
 
 /* Body padding adds 1rem on top of these. */
 [data-sidebar="tucked"] #root {
-  margin-left: calc(var(--sidebar-strip) - 0.5rem);
+  margin-left: calc(var(--sidebar-strip) + 0.5rem - var(--pad-left));
 }
 
 [data-sidebar="pinned"] #root {
-  margin-left: var(--sidebar-full);
+  margin-left: calc(var(--sidebar-full) + 1rem - var(--pad-left));
 }
 
 /* Phones have no strip: only the top bar makes room for ☰ at its left. */
 [data-sidebar="phone"] .top-bar {
-  padding-left: calc(var(--sidebar-strip) - 1rem);
+  padding-left: calc(var(--sidebar-strip) - var(--pad-left));
 }
 
 /* The <aside> only groups ☰, the backdrop and the panel; each places itself. */
@@ -786,8 +800,8 @@ body {
 .sidebar .menu-button {
   position: fixed;
   z-index: 60;
-  top: 1rem;
-  left: 0.5rem;
+  top: var(--pad-top);
+  left: calc(0.5rem + var(--safe-left));
 }
 
 .sidebar-panel {
@@ -801,7 +815,7 @@ body {
   box-sizing: border-box;
   width: var(--sidebar-full);
   /* Room at the top for ☰. */
-  padding: 3.5rem 0.5rem 0.5rem;
+  padding: calc(var(--pad-top) + 2.5rem) 0.5rem calc(0.5rem + var(--safe-bottom)) calc(0.5rem + var(--safe-left));
   border-right: 1px solid var(--border);
   background: var(--card-bg);
   overflow: hidden;
@@ -862,7 +876,7 @@ body {
 
 /* Phones: no strip. ☰ slides the panel in from the left over a dim backdrop. */
 .sidebar.phone .sidebar-panel {
-  width: min(16rem, 85vw);
+  width: calc(min(16rem, 85vw) + var(--safe-left));
   translate: -100% 0;
   box-shadow: 4px 0 16px rgba(0, 0, 0, 0.2);
 }
@@ -1032,4 +1046,20 @@ body {
 .week-dot-future::before {
   background: var(--border);
   opacity: 0.6;
+}
+
+/* Backup tools sit below a divider under the pages. */
+.sidebar-divider {
+  margin: 0.5rem 0.25rem;
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+/* Phones: 16px text in fields so iPhone Safari doesn't zoom in when one is tapped. */
+@media (max-width: 700px), (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
 }

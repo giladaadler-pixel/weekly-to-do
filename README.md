@@ -37,8 +37,19 @@ Live at https://giladaadler-pixel.github.io/weekly-to-do/
 - On a phone, ☰ slides it in from the left; ☰ again, tapping outside it, Escape, or picking a page closes it
 
 ### Everything else
+- **⬇️ Export backup** / **⬆️ Import backup** in the sidebar save everything to a file and load it back
 - Light and dark mode
 - Everything is saved in your browser, so it's still there next visit
+
+## Install on your phone
+It installs as a home-screen app that opens full screen and works offline.
+
+- **iPhone:** open the site in Safari → Share → **Add to Home Screen**
+- **Android:** open the site in Chrome → ⋮ menu → **Install app**
+
+The installed app keeps its own copy of your tasks, separate from the browser's. To bring existing
+tasks over: in the browser, open the sidebar and tap **⬇️ Export backup**; then in the installed app,
+tap **⬆️ Import backup** and pick that file.
 
 ## Running it locally
 ```
