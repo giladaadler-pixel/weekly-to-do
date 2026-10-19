@@ -3,7 +3,13 @@
 
 export const STORAGE_KEY = "weekly-to-do:v1";
 
-export const DEFAULT_STATE = { tasks: [], repeats: [], goals: [], theme: "light" };
+export const DEFAULT_STATE = {
+  tasks: [],
+  repeats: [],
+  goals: [],
+  theme: "light",
+  ui: { sidebarPinned: false },
+};
 
 // storage defaults to window.localStorage, read inside the try: some browsers
 // throw just for touching it when site data is blocked.
