@@ -2,9 +2,10 @@ import { formatWeekRange } from "../lib/dates.js";
 
 // stats: { done, total } for the viewed week.
 // onToday jumps back to the week holding today; its button only shows when viewing another week.
+// onMenu is the ☰ button, which opens the sidebar.
 export default function TopBar({
   page,
-  onPage,
+  onMenu,
   viewWeek,
   onPrev,
   onNext,
@@ -16,17 +17,6 @@ export default function TopBar({
 }) {
   return (
     <header className="top-bar">
-      <nav className="page-switch">
-        <button className={page === "week" ? "active" : undefined} onClick={() => onPage("week")}>
-          Week
-        </button>
-        <button
-          className={page === "accomplishments" ? "active" : undefined}
-          onClick={() => onPage("accomplishments")}
-        >
-          Accomplishments
-        </button>
-      </nav>
       {page === "week" && (
         <nav className="week-nav">
           <button onClick={onPrev} aria-label="Previous week">
@@ -38,7 +28,7 @@ export default function TopBar({
           </button>
           {!isCurrentWeek && (
             <button className="today-button" onClick={onToday} aria-label="Go to current week">
-              Today
+              This week
             </button>
           )}
         </nav>
@@ -54,6 +44,9 @@ export default function TopBar({
         aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
       >
         {theme === "dark" ? "☀️" : "🌙"}
+      </button>
+      <button className="menu-button" onClick={onMenu} aria-label="Open sidebar">
+        ☰
       </button>
     </header>
   );

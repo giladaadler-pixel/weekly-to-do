@@ -66,6 +66,19 @@ describe("theme", () => {
   });
 });
 
+describe("sidebar pinned", () => {
+  it("loads an old saved state without ui as not pinned", () => {
+    const old = { tasks: [], repeats: [], goals: [], theme: "light" };
+    expect(loadState(fake({ [STORAGE_KEY]: JSON.stringify(old) })).ui).toEqual({ sidebarPinned: false });
+  });
+
+  it("round-trips a pinned sidebar", () => {
+    const f = fake({});
+    saveState({ ...DEFAULT_STATE, ui: { sidebarPinned: true } }, f);
+    expect(loadState(f).ui.sidebarPinned).toBe(true);
+  });
+});
+
 describe("when the browser blocks localStorage itself", () => {
   it("still loads and saves without throwing", () => {
     const original = Object.getOwnPropertyDescriptor(window, "localStorage");

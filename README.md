@@ -7,7 +7,7 @@ Live at https://giladaadler-pixel.github.io/weekly-to-do/
 
 ### Week page
 - Sunday to Friday, laid out as a 2×3 grid that fits on one screen
-- ◀ / ▶ to move between weeks, and a **Today** button to jump back to this week
+- ◀ / ▶ to move between weeks, and a **This week** button to jump back to this week
 - A "✅ X of Y done this week" count in the top bar
 
 ### Tasks
@@ -24,6 +24,11 @@ Live at https://giladaadler-pixel.github.io/weekly-to-do/
 ### Accomplishments
 - A 🏆 page listing every finished goal, newest first, with the date it was finished
 - **Mark not done** sends a goal back to the Week page
+
+### Sidebar
+- Pages live in a sidebar on the right
+- On a laptop it's a thin icon strip: hover to peek, click to pin it open (it stays pinned next visit), ✕ to tuck it away
+- On a phone, ☰ slides it in; pick a page or tap ✕ to close it
 
 ### Everything else
 - Light and dark mode

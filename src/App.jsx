@@ -17,6 +17,22 @@ import WeekView from "./components/WeekView.jsx";
 import { weekStats } from "./lib/stats.js";
 import TopBar from "./components/TopBar.jsx";
 import AccomplishmentsPage from "./components/AccomplishmentsPage.jsx";
+import Sidebar from "./components/Sidebar.jsx";
+
+const PHONE_QUERY = "(max-width: 700px)";
+
+// True on screens 700px wide or narrower. Follows the window as it resizes.
+function useIsPhone() {
+  const [isPhone, setIsPhone] = useState(() => window.matchMedia?.(PHONE_QUERY).matches ?? false);
+  useEffect(() => {
+    const query = window.matchMedia?.(PHONE_QUERY);
+    if (!query) return;
+    const update = () => setIsPhone(query.matches);
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  return isPhone;
+}
 
 export default function App() {
   const [state, setState] = useState(() => loadState());
@@ -25,6 +41,10 @@ export default function App() {
   const [viewWeek, setViewWeek] = useState(() => weekStart(todayIso));
   // "week" | "accomplishments". Not saved.
   const [page, setPage] = useState("week");
+  const isPhone = useIsPhone();
+  // Phone only: whether ☰ has slid the sidebar in. Not saved.
+  const [phoneOpen, setPhoneOpen] = useState(false);
+  const pinned = state.ui.sidebarPinned;
 
   useEffect(() => {
     saveState(state);
@@ -33,6 +53,15 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = state.theme;
   }, [state.theme]);
+
+  // Tells the CSS how much room to leave on the right for the sidebar.
+  useEffect(() => {
+    document.documentElement.dataset.sidebar = isPhone ? "phone" : pinned ? "pinned" : "tucked";
+  }, [isPhone, pinned]);
+
+  function setPinned(sidebarPinned) {
+    setState((s) => ({ ...s, ui: { ...s.ui, sidebarPinned } }));
+  }
 
   function setTasks(change) {
     setState((s) => ({ ...s, tasks: change(s.tasks) }));
@@ -96,7 +125,7 @@ export default function App() {
     <>
       <TopBar
         page={page}
-        onPage={setPage}
+        onMenu={() => (isPhone ? setPhoneOpen(true) : setPinned(true))}
         viewWeek={viewWeek}
         onPrev={() => setViewWeek((w) => addDays(w, -7))}
         onNext={() => setViewWeek((w) => addDays(w, 7))}
@@ -120,6 +149,16 @@ export default function App() {
           goalActions={goalActions}
         />
       )}
+      <Sidebar
+        page={page}
+        onPage={setPage}
+        pinned={pinned}
+        onPin={() => setPinned(true)}
+        onTuck={() => setPinned(false)}
+        isPhone={isPhone}
+        phoneOpen={phoneOpen}
+        onPhoneClose={() => setPhoneOpen(false)}
+      />
     </>
   );
 }

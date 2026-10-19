@@ -16,7 +16,7 @@ function render(props) {
     root.render(
       <TopBar
         page="week"
-        onPage={() => {}}
+        onMenu={() => {}}
         viewWeek="2026-10-11"
         onPrev={() => {}}
         onNext={() => {}}
@@ -38,7 +38,7 @@ afterEach(() => {
 
 const todayButton = () => container.querySelector("button[aria-label='Go to current week']");
 
-describe("TopBar Today button", () => {
+describe("TopBar This week button", () => {
   it("is hidden on the current week", () => {
     render({ isCurrentWeek: true });
     expect(todayButton()).toBeNull();
@@ -47,8 +47,31 @@ describe("TopBar Today button", () => {
   it("shows on another week and calls onToday when clicked", () => {
     const onToday = vi.fn();
     render({ isCurrentWeek: false, onToday });
-    expect(todayButton().textContent).toBe("Today");
+    expect(todayButton().textContent).toBe("This week");
     act(() => todayButton().click());
     expect(onToday).toHaveBeenCalledOnce();
+  });
+});
+
+describe("TopBar menu", () => {
+  const menuButton = () => container.querySelector("button[aria-label='Open sidebar']");
+
+  it("☰ calls onMenu", () => {
+    const onMenu = vi.fn();
+    render({ onMenu });
+    act(() => menuButton().click());
+    expect(onMenu).toHaveBeenCalledOnce();
+  });
+
+  it("☰ comes after the theme button, at the far right", () => {
+    render();
+    const buttons = [...container.querySelectorAll(".top-bar > button")];
+    expect(buttons.at(-1)).toBe(menuButton());
+    expect(buttons.at(-2).className).toBe("theme-button");
+  });
+
+  it("no longer has the Week | Accomplishments switch", () => {
+    render();
+    expect(container.querySelector(".page-switch")).toBeNull();
   });
 });

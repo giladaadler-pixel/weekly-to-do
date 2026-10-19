@@ -462,26 +462,6 @@ body {
   opacity: 0.5;
 }
 
-.page-switch {
-  display: flex;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.page-switch button {
-  padding: 0.35rem 0.9rem;
-  border: none;
-  background: none;
-  color: var(--text);
-  cursor: pointer;
-}
-
-.page-switch button.active {
-  background: var(--day-bg);
-  font-weight: 600;
-}
-
 .accomplishments-page {
   flex: 1;
   min-height: 0;
@@ -641,11 +621,147 @@ body {
   font-size: 0.95rem;
 }
 
-.theme-button {
-  margin-left: auto;
+.theme-button,
+.menu-button {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: none;
+  color: var(--text);
   font-size: 1.1rem;
   cursor: pointer;
+}
+
+.theme-button {
+  margin-left: auto;
+}
+
+/* Sidebar on the right. Tucked shows only the icon strip; peek slides the full
+   sidebar over the page; pinned pushes the page over so nothing hides behind it. */
+:root {
+  --sidebar-strip: 3rem;
+  --sidebar-full: 14rem;
+}
+
+[data-sidebar="tucked"] #root {
+  margin-right: var(--sidebar-strip);
+}
+
+[data-sidebar="pinned"] #root {
+  margin-right: var(--sidebar-full);
+}
+
+.sidebar {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  box-sizing: border-box;
+  width: var(--sidebar-full);
+  padding: 0.5rem;
+  border-left: 1px solid var(--border);
+  background: var(--card-bg);
+  overflow: hidden;
+  transition: width 0.15s ease, translate 0.2s ease;
+}
+
+.sidebar.tucked {
+  width: var(--sidebar-strip);
+  cursor: pointer;
+}
+
+.sidebar.peek {
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-close {
+  align-self: flex-end;
+  padding: 0.2rem 0.45rem;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.sidebar-close:hover {
+  background: var(--day-bg);
+  opacity: 1;
+}
+
+.sidebar.tucked .sidebar-close,
+.sidebar.tucked .sidebar-label {
+  display: none;
+}
+
+.sidebar-pages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.sidebar-page {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.5rem;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sidebar.tucked .sidebar-page {
+  justify-content: center;
+  padding: 0.45rem 0;
+}
+
+.sidebar-page:hover {
+  background: var(--day-bg);
+}
+
+.sidebar-page[aria-current="page"] {
+  background: var(--day-bg);
+  font-weight: 600;
+}
+
+.sidebar-icon {
+  font-size: 1.1rem;
+}
+
+/* Phones: no strip. ☰ slides the sidebar in over the page. */
+.sidebar.phone {
+  width: min(16rem, 85vw);
+  translate: 100% 0;
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar.phone.open {
+  translate: 0 0;
+}
+
+.sidebar.phone:not(.open) {
+  visibility: hidden;
+  transition: translate 0.2s ease, visibility 0s 0.2s;
+}
+
+/* Phones: tighten the top bar so ☰ stays on screen. */
+@media (max-width: 700px) {
+  .top-bar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .week-range {
+    min-width: 0;
+  }
 }
