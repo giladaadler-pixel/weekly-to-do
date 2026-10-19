@@ -11,7 +11,7 @@ Live at https://giladaadler-pixel.github.io/weekly-to-do/
 - Opens first on a phone or as a home-screen app
 
 ### Week page
-- Sunday to Friday, laid out as a 2×3 grid that fits on one screen
+- Sunday to Friday, laid out as a 2×3 grid that fits on one screen on a laptop, and one scrolling column on a phone
 - ◀ / ▶ to move between weeks, and a **This week** button to jump back to this week
 - A "✅ X of Y done this week" count in the top bar
 

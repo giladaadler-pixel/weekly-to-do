@@ -5,9 +5,7 @@
 **Repo:** giladaadler-pixel/weekly-to-do
 **Live site:** https://giladaadler-pixel.github.io/weekly-to-do/
 **Builds on:** `2026-10-15-weekly-to-do-design.md`
-**Status:** ✅ Round 1 done (2026-10-19), with these still open:
-- 3.3 phone layout for the Week page (one column, page scrolls at 700px and narrower) is not built yet.
-- Section 12's manual checks on a real iPhone (install, offline, badge, calendar reminder, export → import, safe areas, dark mode) still need to be done.
+**Status:** ✅ Round 1 built (2026-10-19). Still to do: section 12's manual checks on a real iPhone (install, offline, badge, calendar reminder, export → import, safe areas, dark mode).
 
 ## 1. Purpose and decisions
 

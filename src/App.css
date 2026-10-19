@@ -1386,3 +1386,27 @@ body {
   color: var(--blue);
   font-weight: 600;
 }
+
+/* Phones (spec 3.3): the one-screen rule is for laptops only. Here the page scrolls,
+   the week is one column of full-width day boxes, and each box grows to fit its tasks
+   instead of scrolling inside itself. */
+@media (max-width: 700px) {
+  #root {
+    height: auto;
+    min-height: calc(100dvh - var(--pad-top) - var(--pad-bottom));
+  }
+
+  .week {
+    flex: none;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+  }
+
+  .day {
+    min-height: 5.5rem;
+  }
+
+  .day-body {
+    overflow-y: visible;
+  }
+}
