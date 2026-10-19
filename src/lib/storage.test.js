@@ -66,6 +66,13 @@ describe("theme", () => {
   });
 });
 
+describe("settings", () => {
+  it("loads an old saved state without settings with an 8:00 reminder time", () => {
+    const old = { tasks: [], repeats: [], goals: [], theme: "light" };
+    expect(loadState(fake({ [STORAGE_KEY]: JSON.stringify(old) })).settings).toEqual({ reminderTime: "08:00" });
+  });
+});
+
 describe("notes", () => {
   it("loads an old saved state without notes as an empty list", () => {
     const old = { tasks: [], repeats: [], goals: [], theme: "light" };

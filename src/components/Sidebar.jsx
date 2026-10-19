@@ -8,7 +8,8 @@ export const PAGES = [
   { id: "notes", icon: "📝", label: "Notes" },
 ];
 
-// Below a divider: backup tools. onImport(file) gets the picked file.
+// Below a divider: daily reminder, Enable badge, and backup. onImport(file) gets the picked
+// file. badgePermission: "unsupported" | "default" | "granted" | "denied".
 // Laptop: a thin icon strip on the left ("tucked"), with ☰ at the top. Hovering slides
 // it open over the page ("peek"); clicking anywhere on it keeps it open ("pinned", saved
 // by the parent). ☰ toggles between pinned and tucked.
@@ -26,6 +27,9 @@ export default function Sidebar({
   onPhoneClose,
   onExport,
   onImport,
+  onReminder,
+  onEnableBadge,
+  badgePermission,
 }) {
   const [peek, setPeek] = useState(false);
   const fileInput = useRef(null);
@@ -112,6 +116,25 @@ export default function Sidebar({
         </nav>
         <hr className="sidebar-divider" />
         <div className="sidebar-pages sidebar-tools">
+          <button className="sidebar-page sidebar-tool" onClick={() => pickTool(onReminder)} title="Daily reminder">
+            <span className="sidebar-icon" aria-hidden="true">
+              ⏰
+            </span>
+            <span className="sidebar-label">Daily reminder</span>
+          </button>
+          {(badgePermission === "default" || badgePermission === "denied") && (
+            <button className="sidebar-page sidebar-tool" onClick={() => pickTool(onEnableBadge)} title="Enable badge">
+              <span className="sidebar-icon" aria-hidden="true">
+                🔔
+              </span>
+              <span className="sidebar-label">Enable badge</span>
+            </button>
+          )}
+          {badgePermission === "denied" && (
+            <p className="sidebar-note sidebar-label">
+              Notifications are blocked. Turn them on in Settings → Notifications → To-Do.
+            </p>
+          )}
           <button className="sidebar-page sidebar-tool" onClick={() => pickTool(onExport)} title="Export backup">
             <span className="sidebar-icon" aria-hidden="true">
               ⬇️

@@ -26,6 +26,9 @@ function render(props) {
         onPhoneClose={() => {}}
         onExport={() => {}}
         onImport={() => {}}
+        onReminder={() => {}}
+        onEnableBadge={() => {}}
+        badgePermission="unsupported"
         {...props}
       />
     )
@@ -154,6 +157,44 @@ describe("Sidebar on a laptop", () => {
 describe("Sidebar backup tools", () => {
   const tool = (name) => [...container.querySelectorAll(".sidebar-tool")].find((b) => b.textContent.includes(name));
   const fileInput = () => container.querySelector("input[type='file']");
+
+  it("puts Daily reminder above Export and Import, below the pages", () => {
+    render();
+    const tools = [...container.querySelectorAll(".sidebar-tool")].map((b) => b.title);
+    expect(tools).toEqual(["Daily reminder", "Export backup", "Import backup"]);
+  });
+
+  it("Daily reminder calls onReminder, and closes the sidebar on a phone", () => {
+    const onReminder = vi.fn();
+    const onPhoneClose = vi.fn();
+    render({ isPhone: true, phoneOpen: true, onReminder, onPhoneClose });
+    act(() => tool("Daily reminder").click());
+    expect(onReminder).toHaveBeenCalledOnce();
+    expect(onPhoneClose).toHaveBeenCalledOnce();
+  });
+
+  it("Enable badge is hidden when notifications are unsupported or already granted", () => {
+    render({ badgePermission: "unsupported" });
+    expect(tool("Enable badge")).toBeUndefined();
+    act(() => root.unmount());
+    container.remove();
+    render({ badgePermission: "granted" });
+    expect(tool("Enable badge")).toBeUndefined();
+  });
+
+  it("Enable badge shows when permission hasn't been asked, and calls onEnableBadge", () => {
+    const onEnableBadge = vi.fn();
+    render({ badgePermission: "default", onEnableBadge });
+    act(() => tool("Enable badge").click());
+    expect(onEnableBadge).toHaveBeenCalledOnce();
+  });
+
+  it("when notifications are blocked, explains how to turn them on", () => {
+    render({ badgePermission: "denied" });
+    expect(container.textContent).toContain(
+      "Notifications are blocked. Turn them on in Settings → Notifications → To-Do."
+    );
+  });
 
   it("shows Export and Import below the pages", () => {
     render();

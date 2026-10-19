@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { todayISO, weekStart, addDays } from "./lib/dates.js";
 import { loadState, saveState } from "./lib/storage.js";
@@ -20,8 +20,12 @@ import AccomplishmentsPage from "./components/AccomplishmentsPage.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import TodayPage from "./components/TodayPage.jsx";
 import { exportBackup, parseBackup, backupFileName } from "./lib/backup.js";
+import { downloadFile } from "./lib/download.js";
 import { makeNote, editNote, deleteNote } from "./lib/notes.js";
 import NotesPage from "./components/NotesPage.jsx";
+import ReminderModal from "./components/ReminderModal.jsx";
+import { todayCounts } from "./lib/today.js";
+import { updateBadge } from "./lib/badge.js";
 
 const PHONE_QUERY = "(max-width: 700px)";
 
@@ -48,9 +52,26 @@ function useIsPhone() {
   return isPhone;
 }
 
+// Today's unfinished tasks: the number on the home-screen icon.
+function unfinishedToday(state, iso) {
+  const { done, total } = todayCounts(state, iso);
+  return total - done;
+}
+
+// "unsupported" | "default" | "granted" | "denied"
+function notificationPermission() {
+  return typeof Notification === "undefined" ? "unsupported" : Notification.permission;
+}
+
 export default function App() {
   const [state, setState] = useState(() => loadState());
+  // Re-render when the app comes back into view, so "today" is right after midnight.
+  const [, setShownAt] = useState(0);
   const todayIso = todayISO();
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  const [badgePermission, setBadgePermission] = useState(notificationPermission);
+  const [reminderOpen, setReminderOpen] = useState(false);
   // The Sunday of the week being viewed. Not saved: the app always opens on this week.
   const [viewWeek, setViewWeek] = useState(() => weekStart(todayIso));
   // "today" | "week" | "accomplishments" | "notes". Not saved.
@@ -61,6 +82,31 @@ export default function App() {
   // Phone only: whether ☰ has slid the sidebar in. Not saved.
   const [phoneOpen, setPhoneOpen] = useState(false);
   const pinned = state.ui.sidebarPinned;
+
+  useEffect(() => {
+    updateBadge(unfinishedToday(state, todayIso));
+  }, [state, todayIso]);
+
+  useEffect(() => {
+    function onVisible() {
+      if (document.visibilityState !== "visible") return;
+      setShownAt(Date.now());
+      updateBadge(unfinishedToday(stateRef.current, todayISO()));
+    }
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, []);
+
+  // 🔔 Enable badge: iPhone only shows badges once notifications are allowed.
+  async function enableBadge() {
+    try {
+      const permission = await Notification.requestPermission();
+      setBadgePermission(permission);
+      if (permission === "granted") updateBadge(unfinishedToday(stateRef.current, todayISO()));
+    } catch {
+      setBadgePermission(notificationPermission());
+    }
+  }
 
   useEffect(() => {
     saveState(state);
@@ -80,12 +126,7 @@ export default function App() {
   }
 
   function downloadBackup() {
-    const url = URL.createObjectURL(new Blob([exportBackup(state)], { type: "application/json" }));
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = backupFileName(todayIso);
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    downloadFile(exportBackup(state), backupFileName(todayIso), "application/json");
   }
 
   async function importBackup(file) {
@@ -242,7 +283,19 @@ export default function App() {
         onPhoneClose={() => setPhoneOpen(false)}
         onExport={downloadBackup}
         onImport={importBackup}
+        onReminder={() => setReminderOpen(true)}
+        onEnableBadge={enableBadge}
+        badgePermission={badgePermission}
       />
+      {reminderOpen && (
+        <ReminderModal
+          time={state.settings.reminderTime}
+          todayIso={todayIso}
+          standalone={Boolean(window.navigator.standalone)}
+          onSave={(reminderTime) => setState((s) => ({ ...s, settings: { ...s.settings, reminderTime } }))}
+          onClose={() => setReminderOpen(false)}
+        />
+      )}
     </>
   );
 }

@@ -1363,3 +1363,26 @@ body {
 .goal-chip-notes {
   margin-left: auto;
 }
+
+.sidebar-note {
+  margin: 0 0.5rem 0.25rem 2.1rem;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  white-space: normal;
+  color: var(--high);
+}
+
+.sidebar.tucked .sidebar-note {
+  display: none;
+}
+
+.modal-note {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.open-in-safari {
+  color: var(--blue);
+  font-weight: 600;
+}

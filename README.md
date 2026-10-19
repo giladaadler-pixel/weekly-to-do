@@ -17,13 +17,16 @@ Live at https://giladaadler-pixel.github.io/weekly-to-do/
 
 ### Tasks
 - Add a task to any day with **Create new task+**, with a priority (high, medium or low)
-- Check off, edit, delete, or drag a task to another day
+- Compact rows: checkbox, a colored priority dot, and the text, so about 8 fit in a day box
+- Tap a task's text to edit it, change its priority or date (which moves it), or delete it
+- Drag a task to another day
 - Repeating tasks that show up on the days you pick
 - An **Overdue** section for unfinished tasks from past days and missed repeats
 
 ### Goals
 - Create goals with a description (checklist, bullets or paragraph), a priority, an optional deadline, and optional days to show the goal as a task
-- Every unfinished goal stays on the Week page until you mark it done
+- Unfinished goals show as slim chips on the Week and Today pages; click one to see its description and edit it
+- Every unfinished goal stays there until you mark it done with ✓
 - Marking a goal done plays a short 🎉 burst (skipped if your system has reduced motion turned on)
 
 ### Accomplishments
@@ -41,8 +44,24 @@ Live at https://giladaadler-pixel.github.io/weekly-to-do/
 - On a laptop it's a thin icon strip: hover to peek, click anywhere on it or ☰ to pin it open (it stays pinned next visit), ☰ again to tuck it away
 - On a phone, ☰ slides it in from the left; ☰ again, tapping outside it, Escape, or picking a page closes it
 
+### Streaks
+- 🔥 counts the days in a row where you finished every task
+- Saturdays and days with no tasks are skipped, and today never breaks a streak until it's over
+
+### App badge
+- The home-screen icon shows how many of today's tasks are left
+- On iPhone, tap **🔔 Enable badge** in the sidebar once to allow it. The number updates while the app is open
+
+### Daily reminder
+- **⏰ Daily reminder** in the sidebar adds a repeating event to your calendar at the time you pick, as a nudge to check your list
+
+### Backup
+- **⬇️ Export backup** / **⬆️ Import backup** in the sidebar save everything to a file and load it back (importing asks first)
+
+### Install on your phone
+- Installs as a home-screen app that opens full screen on Today and works offline (see below)
+
 ### Everything else
-- **⬇️ Export backup** / **⬆️ Import backup** in the sidebar save everything to a file and load it back
 - Light and dark mode
 - Everything is saved in your browser, so it's still there next visit
 

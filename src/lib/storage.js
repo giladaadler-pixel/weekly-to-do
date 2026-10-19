@@ -11,6 +11,7 @@ export const DEFAULT_STATE = {
   ui: { sidebarPinned: false },
   // { id, goalId (null for general notes), text, date "YYYY-MM-DD" }
   notes: [],
+  settings: { reminderTime: "08:00" },
 };
 
 // Saved data from an older version may be missing newer keys: fill them from the defaults.
