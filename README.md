@@ -5,6 +5,11 @@ Live at https://giladaadler-pixel.github.io/weekly-to-do/
 
 ## Features
 
+### Today page
+- Today's date, a 🔥 streak of days where you finished everything, and "X of Y done today"
+- Today's tasks and repeats, Overdue, your goals, and a "This week" box with a dot per day
+- Opens first on a phone or as a home-screen app
+
 ### Week page
 - Sunday to Friday, laid out as a 2×3 grid that fits on one screen
 - ◀ / ▶ to move between weeks, and a **This week** button to jump back to this week

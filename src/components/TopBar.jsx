@@ -16,6 +16,7 @@ export default function TopBar({
 }) {
   return (
     <header className="top-bar">
+      {page === "today" && <span className="page-name">Today</span>}
       {page === "week" && (
         <nav className="week-nav">
           <button onClick={onPrev} aria-label="Previous week">

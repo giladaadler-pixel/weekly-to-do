@@ -894,3 +894,142 @@ body {
     min-width: 0;
   }
 }
+
+/* Today page: one centered column on a laptop, full width on a phone. Scrolls inside
+   itself, since the rest of the app is one screen tall. */
+.today-page {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.today-page > * {
+  box-sizing: border-box;
+  max-width: 40rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.page-name {
+  font-weight: 600;
+}
+
+.today-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.today-date {
+  margin: 0;
+  margin-right: auto;
+  font-size: 1.4rem;
+}
+
+.today-streak {
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.today-count {
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+.today-page .today-create {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.75rem;
+}
+
+.today-list {
+  margin-bottom: 0.75rem;
+}
+
+.today-list .task {
+  padding: 0.2rem 0;
+  font-size: 0.95rem;
+}
+
+.today-empty {
+  margin: 1.5rem 0;
+  text-align: center;
+  opacity: 0.6;
+}
+
+.today-page .overdue {
+  margin: 0 auto 0.75rem;
+}
+
+.today-page .goals-band {
+  max-height: none;
+  overflow: visible;
+}
+
+/* "This week" box: count plus a dot per day, S M T W T F. */
+.this-week {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--day-bg);
+}
+
+.this-week-title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.this-week-count {
+  font-size: 0.9rem;
+}
+
+.week-dots {
+  display: flex;
+  gap: 0.6rem;
+  margin: 0 0 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.week-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.7rem;
+}
+
+.week-dot::before {
+  content: "";
+  box-sizing: border-box;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+}
+
+.week-dot::after {
+  content: attr(data-letter);
+  opacity: 0.7;
+}
+
+.week-dot-done::before {
+  background: var(--green);
+}
+
+.week-dot-missed::before {
+  border: 2px solid var(--text);
+  opacity: 0.6;
+}
+
+.week-dot-empty::before,
+.week-dot-future::before {
+  background: var(--border);
+  opacity: 0.6;
+}

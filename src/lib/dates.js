@@ -82,3 +82,11 @@ export function formatLong(iso) {
   const date = fromISO(iso);
   return `${MONTH_SHORT[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
 }
+
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+// "Monday, Oct 19"
+export function formatDayHeading(iso) {
+  const date = fromISO(iso);
+  return `${DAY_NAMES[date.getDay()]}, ${MONTH_SHORT[date.getMonth()]} ${date.getDate()}`;
+}

@@ -89,6 +89,12 @@ describe("Sidebar on a laptop", () => {
     expect(sidebar().classList.contains("pinned")).toBe(true);
   });
 
+  it("lists Today first, then Week and Accomplishments", () => {
+    render();
+    const labels = [...container.querySelectorAll(".sidebar-page")].map((b) => b.textContent);
+    expect(labels).toEqual(["📅Today", "🗓Week", "🏆Accomplishments"]);
+  });
+
   it("marks the current page", () => {
     render({ page: "accomplishments" });
     expect(pageButton("Accomplishments").getAttribute("aria-current")).toBe("page");

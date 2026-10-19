@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { toISO, weekStart, weekDays, addDays, dayLabel, formatWeekRange, monthKey, endOfWeek, endOfMonth, formatShort, formatLong } from "./dates.js";
+import { toISO, weekStart, weekDays, addDays, dayLabel, formatWeekRange, monthKey, endOfWeek, endOfMonth, formatShort, formatLong, formatDayHeading } from "./dates.js";
 
 describe("toISO", () => {
   it("uses local time, even just after midnight", () => {
@@ -93,5 +93,12 @@ describe("formatLong", () => {
   it("shows month, day and year", () => {
     expect(formatLong("2026-10-15")).toBe("Oct 15, 2026");
     expect(formatLong("2027-01-05")).toBe("Jan 5, 2027");
+  });
+});
+
+describe("formatDayHeading", () => {
+  it("gives the full weekday, short month and day", () => {
+    expect(formatDayHeading("2026-10-19")).toBe("Monday, Oct 19");
+    expect(formatDayHeading("2026-11-01")).toBe("Sunday, Nov 1");
   });
 });

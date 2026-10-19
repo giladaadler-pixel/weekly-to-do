@@ -52,6 +52,20 @@ describe("TopBar This week button", () => {
   });
 });
 
+describe("TopBar on the Today page", () => {
+  it("shows Today on the left, without week arrows or the week count", () => {
+    render({ page: "today", stats: { done: 2, total: 5 } });
+    expect(container.querySelector(".page-name").textContent).toBe("Today");
+    expect(container.querySelector(".week-nav")).toBeNull();
+    expect(container.querySelector(".stats")).toBeNull();
+  });
+
+  it("shows no page name on the Week page", () => {
+    render({ page: "week" });
+    expect(container.querySelector(".page-name")).toBeNull();
+  });
+});
+
 describe("TopBar layout", () => {
   it("has no ☰ or ✕ button (☰ lives in the sidebar now)", () => {
     render();

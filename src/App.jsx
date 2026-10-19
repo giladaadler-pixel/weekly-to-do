@@ -18,8 +18,19 @@ import { weekStats } from "./lib/stats.js";
 import TopBar from "./components/TopBar.jsx";
 import AccomplishmentsPage from "./components/AccomplishmentsPage.jsx";
 import Sidebar from "./components/Sidebar.jsx";
+import TodayPage from "./components/TodayPage.jsx";
 
 const PHONE_QUERY = "(max-width: 700px)";
+
+// Installed to the home screen (any browser, or iPhone Safari's own flag).
+function isHomeScreenApp() {
+  return Boolean(window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone);
+}
+
+// Opens on Today as a home-screen app or on a phone; on Week otherwise.
+function startingPage() {
+  return isHomeScreenApp() || window.matchMedia?.(PHONE_QUERY).matches ? "today" : "week";
+}
 
 // True on screens 700px wide or narrower. Follows the window as it resizes.
 function useIsPhone() {
@@ -39,8 +50,8 @@ export default function App() {
   const todayIso = todayISO();
   // The Sunday of the week being viewed. Not saved: the app always opens on this week.
   const [viewWeek, setViewWeek] = useState(() => weekStart(todayIso));
-  // "week" | "accomplishments". Not saved.
-  const [page, setPage] = useState("week");
+  // "today" | "week" | "accomplishments". Not saved.
+  const [page, setPage] = useState(startingPage);
   const isPhone = useIsPhone();
   // Phone only: whether ☰ has slid the sidebar in. Not saved.
   const [phoneOpen, setPhoneOpen] = useState(false);
@@ -54,7 +65,7 @@ export default function App() {
     document.documentElement.dataset.theme = state.theme;
   }, [state.theme]);
 
-  // Tells the CSS how much room to leave on the right for the sidebar.
+  // Tells the CSS how much room to leave on the left for the sidebar.
   useEffect(() => {
     document.documentElement.dataset.sidebar = isPhone ? "phone" : pinned ? "pinned" : "tucked";
   }, [isPhone, pinned]);
@@ -134,7 +145,15 @@ export default function App() {
         theme={state.theme}
         onToggleTheme={() => setState((s) => ({ ...s, theme: s.theme === "dark" ? "light" : "dark" }))}
       />
-      {page === "accomplishments" ? (
+      {page === "today" ? (
+        <TodayPage
+          state={state}
+          todayIso={todayIso}
+          taskActions={taskActions}
+          repeatActions={repeatActions}
+          goalActions={goalActions}
+        />
+      ) : page === "accomplishments" ? (
         <AccomplishmentsPage goals={state.goals} onMarkNotDone={(id) => goalActions.setDone(id, false)} />
       ) : (
         <WeekView

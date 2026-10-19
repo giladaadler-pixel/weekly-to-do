@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { dayLabel } from "../lib/dates.js";
-import { sortTasks } from "../lib/tasks.js";
-import { occursOn, isDoneOn } from "../lib/repeats.js";
-import TaskItem from "./TaskItem.jsx";
+import { dayRows } from "../lib/today.js";
+import DayTaskList from "./DayTaskList.jsx";
 import TaskModal from "./TaskModal.jsx";
 import OverdueSection from "./OverdueSection.jsx";
 
@@ -12,20 +11,7 @@ export default function DayColumn({ date, isToday, tasks, repeats, overdue, task
   const dayNumber = Number(date.slice(8));
   const className = ["day", isToday && "today", dropTarget && "drop-target"].filter(Boolean).join(" ");
 
-  // Tasks and this day's repeat copies, sorted together by the same rules.
-  const rows = sortTasks([
-    ...tasks,
-    ...repeats
-      .filter((r) => occursOn(r, date))
-      .map((r) => ({ id: r.id, text: r.text, priority: r.priority, done: isDoneOn(r, date), repeat: r })),
-  ]);
-
-  // TaskItem calls these with the repeat's id; they act on this day's copy.
-  const repeatDayActions = {
-    toggle: (id) => repeatActions.toggle(id, date),
-    setPriority: repeatActions.setPriority,
-    edit: repeatActions.edit,
-  };
+  const rows = dayRows(tasks, repeats, date);
 
   function onDrop(e) {
     e.preventDefault();
@@ -55,24 +41,7 @@ export default function DayColumn({ date, isToday, tasks, repeats, overdue, task
         </button>
       </div>
       <div className="day-body">
-        <ul className="task-list">
-          {rows.map((row) =>
-            row.repeat ? (
-              <TaskItem
-                key={row.id}
-                task={row}
-                actions={repeatDayActions}
-                mark={row.repeat.goalId ? "🎯" : "🔁"}
-                deleteChoices={[
-                  { label: "Just this day", onClick: () => repeatActions.deleteOne(row.id, date) },
-                  { label: "This and all future days", onClick: () => repeatActions.deleteFuture(row.id, date) },
-                ]}
-              />
-            ) : (
-              <TaskItem key={row.id} task={row} actions={taskActions} draggable />
-            )
-          )}
-        </ul>
+        <DayTaskList rows={rows} date={date} taskActions={taskActions} repeatActions={repeatActions} draggable />
         {isToday && (
           <OverdueSection
             tasks={overdue}

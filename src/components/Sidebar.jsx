@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 // Every page in the sidebar, in order. A new page is one more line here.
 export const PAGES = [
+  { id: "today", icon: "📅", label: "Today" },
   { id: "week", icon: "🗓", label: "Week" },
   { id: "accomplishments", icon: "🏆", label: "Accomplishments" },
 ];
