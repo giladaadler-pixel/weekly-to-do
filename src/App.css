@@ -111,6 +111,14 @@ body {
   gap: 0.5rem;
 }
 
+/* Wide laptop screens: 3 × 2, so each box gets about half the screen's height. */
+@media (min-width: 1100px) {
+  .week {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .day {
   display: flex;
   flex-direction: column;
@@ -500,6 +508,18 @@ body {
   max-height: 30vh;
   overflow-y: auto;
   margin-bottom: 0.75rem;
+}
+
+/* Laptops: one row of goals, scrolling sideways, so it doesn't take room from the days. */
+@media (min-width: 701px) {
+  .week-page .goals-band {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .week-page .goals-band > * {
+    flex-shrink: 0;
+  }
 }
 
 /* Goal chips sit side by side and wrap. Collapsed, a chip is one line the same
@@ -1617,4 +1637,79 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   color: var(--text);
   font-size: 0.85rem;
   box-shadow: 0 0 24px var(--accent-glow);
+}
+
+/* Week day boxes pack their tasks tighter until they fit (DayColumn, lib/density.js). */
+.day[data-density="compact"] .day-header {
+  margin-bottom: 0.2rem;
+}
+
+.day[data-density="compact"] .task {
+  min-height: 34px;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+}
+
+.day[data-density="tight"] .day-header {
+  margin-bottom: 0.1rem;
+}
+
+.day[data-density="tight"] .task {
+  min-height: 28px;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.day[data-density="compact"] .overdue,
+.day[data-density="tight"] .overdue {
+  margin: 0.3rem 0;
+  padding: 6px 8px;
+}
+
+.fold-button {
+  flex: 1;
+  align-self: stretch;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.72rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.fold-button:hover {
+  color: var(--accent);
+}
+
+/* Last resort: only the rows that fit, a faded bottom edge, and "+N more". */
+.day[data-clipped] .day-body {
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 12px), transparent);
+}
+
+.more-button {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 0.15rem;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--accent-line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--accent);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.more-button:hover {
+  background: var(--accent-soft);
+}
+
+/* Touch screens: rows stay big enough to tap at every density. */
+@media (pointer: coarse) {
+  .day[data-density] .task {
+    min-height: 40px;
+  }
 }

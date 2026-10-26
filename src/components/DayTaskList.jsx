@@ -2,8 +2,9 @@ import TaskItem from "./TaskItem.jsx";
 
 // One day's rows (from dayRows) as TaskItems. Repeat copies get the 🔁/🎯 mark and
 // act on this day's copy; one-off tasks can be dragged when draggable is set.
-// Used by the day boxes and the Today page.
-export default function DayTaskList({ rows, date, taskActions, repeatActions, draggable = false, className = "" }) {
+// Used by the day boxes and the day page. children go at the end of the list (the day
+// box's "✓ N done" row).
+export default function DayTaskList({ rows, date, taskActions, repeatActions, draggable = false, className = "", children }) {
   // TaskItem calls these with the repeat's id; they act on this day's copy.
   const repeatDayActions = {
     toggle: (id) => repeatActions.toggle(id, date),
@@ -29,6 +30,7 @@ export default function DayTaskList({ rows, date, taskActions, repeatActions, dr
           <TaskItem key={row.id} task={row} actions={taskActions} draggable={draggable} />
         )
       )}
+      {children}
     </ul>
   );
 }
