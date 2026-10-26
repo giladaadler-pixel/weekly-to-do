@@ -16,7 +16,6 @@ export default function TopBar({
 }) {
   return (
     <header className="top-bar">
-      {page === "today" && <span className="page-name">Today</span>}
       {page === "gym" && <span className="page-name">Gym</span>}
       {page === "week" && (
         <nav className="week-nav">

@@ -94,10 +94,10 @@ describe("Sidebar on a laptop", () => {
     expect(sidebar().classList.contains("pinned")).toBe(true);
   });
 
-  it("lists Today first, then Week, Gym, Accomplishments and Notes", () => {
+  it("lists Week first, then Gym, Accomplishments and Notes (no Today page)", () => {
     render();
     const labels = [...container.querySelectorAll("nav .sidebar-page")].map((b) => b.textContent);
-    expect(labels).toEqual(["Today", "Week", "Gym", "Accomplishments", "Notes"]);
+    expect(labels).toEqual(["Week", "Gym", "Accomplishments", "Notes"]);
   });
 
   it("marks the current page", () => {

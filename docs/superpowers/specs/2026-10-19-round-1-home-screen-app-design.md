@@ -200,3 +200,7 @@ Saved state (`weekly-to-do:v1`, same key) gains:
 ## 13. Out of scope (later rounds)
 
 Journal (Round 2), gym tracker (Round 3), push notifications and an always-fresh badge (Round 4), App Store or native widget, accounts or sync between devices.
+
+## Update (2026-10-27): Today page replaced by the day calendar
+
+Gilad asked to remove the Today page. Tapping a day box on the Week page (anywhere except a task or button) now opens that day as a full 24-hour calendar, Google Calendar style: hour lines from 12 AM to 11 PM, events placed by start time and length (overlaps sit side by side), a red line at the current time on today, tap an empty spot to add an event there, tap an event to see or delete it. The day's tasks (and Overdue, on today) sit beside it with + Add task. The home-screen app and phones now open on today's day calendar instead of the Today page. Saved data is unchanged.

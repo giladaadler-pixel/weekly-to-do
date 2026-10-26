@@ -3,7 +3,6 @@ import Icon from "./Icons.jsx";
 
 // Every page in the sidebar, in order. A new page is one more line here.
 export const PAGES = [
-  { id: "today", label: "Today" },
   { id: "week", label: "Week" },
   { id: "gym", label: "Gym" },
   { id: "accomplishments", label: "Accomplishments" },

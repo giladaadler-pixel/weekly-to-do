@@ -974,145 +974,6 @@ body {
   }
 }
 
-/* Today page: one centered column on a laptop, full width on a phone. Scrolls inside
-   itself, since the rest of the app is one screen tall. */
-.today-page {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-}
-
-.today-page > * {
-  box-sizing: border-box;
-  max-width: 40rem;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.page-name {
-  font-weight: 600;
-}
-
-.today-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.25rem 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.today-date {
-  margin: 0;
-  margin-right: auto;
-  font-size: 1.4rem;
-}
-
-.today-streak {
-  font-weight: 600;
-  color: var(--gold);
-}
-
-.today-count {
-  font-size: 0.9rem;
-  opacity: 0.75;
-}
-
-.today-page .today-create {
-  display: block;
-  width: 100%;
-  margin-bottom: 0.75rem;
-}
-
-.today-list {
-  margin-bottom: 0.75rem;
-}
-
-.today-list .task {
-  padding: 0.2rem 0;
-  font-size: 0.95rem;
-}
-
-.today-empty {
-  margin: 1.5rem 0;
-  text-align: center;
-  opacity: 0.6;
-}
-
-.today-page .overdue {
-  margin: 0 auto 0.75rem;
-}
-
-.today-page .goals-band {
-  max-height: none;
-  overflow: visible;
-}
-
-/* "This week" box: count plus a dot per day, S M T W T F. */
-.this-week {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 1rem;
-  margin-bottom: 1rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--day-bg);
-}
-
-.this-week-title {
-  margin: 0;
-  font-size: 1rem;
-}
-
-.this-week-count {
-  font-size: 0.9rem;
-}
-
-.week-dots {
-  display: flex;
-  gap: 0.6rem;
-  margin: 0 0 0 auto;
-  padding: 0;
-  list-style: none;
-}
-
-.week-dot {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  font-size: 0.7rem;
-}
-
-.week-dot::before {
-  content: "";
-  box-sizing: border-box;
-  width: 0.8rem;
-  height: 0.8rem;
-  border-radius: 50%;
-}
-
-.week-dot::after {
-  content: attr(data-letter);
-  opacity: 0.7;
-}
-
-.week-dot-done::before {
-  background: var(--green);
-}
-
-.week-dot-missed::before {
-  border: 2px solid var(--text);
-  opacity: 0.6;
-}
-
-.week-dot-empty::before,
-.week-dot-future::before {
-  background: var(--border);
-  opacity: 0.6;
-}
-
 /* Backup tools sit below a divider under the pages. */
 .sidebar-divider {
   margin: 0.5rem 0.25rem;
@@ -1484,7 +1345,7 @@ body {
     linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: 40px 40px;
 }
-.mono, .stats, .week-range, .day-number, .event-time, .hour-label { font-family: "JetBrains Mono", ui-monospace, monospace; }
+.mono, .stats, .week-range, .day-number, .cal-event-time, .cal-hour-label { font-family: "JetBrains Mono", ui-monospace, monospace; }
 .muted { color: var(--muted); }
 .accent { color: var(--accent); }
 .small-text { font-size: 0.78rem; }
@@ -1545,20 +1406,27 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .day-page-nav { display: flex; align-items: center; gap: 0.5rem; }
 .day-page-title { display: flex; flex-direction: column; margin: 0 0.4rem; }
 .day-page-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1.25rem; }
-.hour-grid { flex: 999 1 28rem; min-width: 0; max-height: calc(100dvh - 11rem); padding: 0; overflow-y: auto; }
-.hour-row { display: flex; min-height: 3.5rem; border-bottom: 1px solid var(--border); }
-.hour-row:last-child { border-bottom: 0; }
-.hour-row.selected { background: var(--accent-soft); }
-.hour-label { flex: 0 0 4.75rem; padding: 0.55rem 0.9rem; border: 0; border-right: 1px solid var(--border); background: none; color: var(--muted); font-size: 0.75rem; text-align: left; cursor: pointer; }
-.hour-row.selected .hour-label { color: var(--accent); font-weight: 600; }
-.hour-slot { display: flex; flex: 1; flex-direction: column; justify-content: center; gap: 0.4rem; min-width: 0; padding: 0.35rem 0.6rem; }
-.empty-slot { min-height: 2.5rem; border: 1px dashed transparent; border-radius: 8px; background: none; color: var(--accent); font: inherit; font-size: 0.8rem; text-align: left; cursor: pointer; }
-.hour-row.selected .empty-slot { border-color: var(--accent-line); }
-.event-chip { box-sizing: border-box; display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.4rem 0.45rem 0.75rem; border: 1px solid var(--violet-line); border-radius: 10px; background: var(--violet-soft); }
-.event-text { display: flex; flex: 1; flex-direction: column; min-width: 0; }
-.event-title { font-weight: 600; }
-.event-time { font-size: 0.72rem; color: var(--violet); }
-.event-chip .square-button.small { color: var(--violet); }
+.day-page-actions { display: flex; align-items: center; gap: 0.75rem; }
+.calendar { flex: 999 1 28rem; min-width: 0; max-height: calc(100dvh - 11rem); padding: 0; overflow-y: auto; overscroll-behavior: contain; }
+.cal-inner { position: relative; display: flex; margin: 0.6rem 0; }
+.cal-gutter { position: relative; flex: 0 0 4rem; border-right: 1px solid var(--border); }
+.cal-hour-label { position: absolute; right: 0.55rem; transform: translateY(-50%); color: var(--muted); font-size: 0.68rem; white-space: nowrap; }
+.cal-grid { position: relative; flex: 1; min-width: 0; cursor: pointer; }
+.cal-hour { position: absolute; left: 0; right: 0; box-sizing: border-box; border-top: 1px solid var(--border); }
+.cal-hour::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px dashed var(--grid-line); }
+.cal-hour:hover { background: var(--accent-soft); }
+.cal-ghost { position: absolute; left: 2px; right: 4px; box-sizing: border-box; padding: 0.2rem 0.5rem; border: 1px dashed var(--accent-line); border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-size: 0.75rem; pointer-events: none; }
+.cal-event { position: absolute; box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem; overflow: hidden; padding: 0.25rem 0.5rem; border: 1px solid var(--violet-line); border-left: 3px solid var(--violet); border-radius: 8px; background: var(--violet-soft); color: var(--text); font: inherit; text-align: left; cursor: pointer; backdrop-filter: blur(6px); }
+.cal-event:hover { border-color: var(--violet); }
+.cal-event.short { flex-direction: row; align-items: center; gap: 0.4rem; padding-block: 0; }
+.cal-event-title { overflow: hidden; max-width: 100%; font-size: 0.82rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.cal-event-time { color: var(--violet); font-size: 0.68rem; white-space: nowrap; }
+.cal-now { position: absolute; left: 0; right: 0; z-index: 2; height: 0; border-top: 2px solid var(--high); pointer-events: none; }
+.cal-now-dot { position: absolute; left: -6px; top: -7px; width: 12px; height: 12px; border-radius: 50%; background: var(--high); }
+.day-tasks-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.event-modal .form-field { display: flex; flex-direction: column; gap: 0.35rem; }
+.week .day { cursor: pointer; }
+.week .day .task, .week .day .modal { cursor: auto; }
 .day-page-side { display: flex; flex: 1 1 18rem; flex-direction: column; gap: 1rem; min-width: 0; }
 .schedule-form, .log-form { display: flex; flex-direction: column; gap: 0.85rem; }
 .day-tasks { display: flex; flex-direction: column; gap: 0.4rem; }
@@ -1591,6 +1459,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 @media (max-width: 700px) {
   .day-page, .gym-page { overflow: visible; }
-  .hour-grid { max-height: 70vh; }
+  .calendar { max-height: 72vh; }
   .stats-meter { width: 4rem; }
 }

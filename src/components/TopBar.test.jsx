@@ -52,10 +52,9 @@ describe("TopBar This week button", () => {
   });
 });
 
-describe("TopBar on the Today page", () => {
-  it("shows Today on the left, without week arrows or the week count", () => {
-    render({ page: "today", stats: { done: 2, total: 5 } });
-    expect(container.querySelector(".page-name").textContent).toBe("Today");
+describe("TopBar on the Day page", () => {
+  it("shows no week arrows or week count", () => {
+    render({ page: "day", stats: { done: 2, total: 5 } });
     expect(container.querySelector(".week-nav")).toBeNull();
     expect(container.querySelector(".stats")).toBeNull();
   });

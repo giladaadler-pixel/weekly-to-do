@@ -18,7 +18,6 @@ import { weekStats } from "./lib/stats.js";
 import TopBar from "./components/TopBar.jsx";
 import AccomplishmentsPage from "./components/AccomplishmentsPage.jsx";
 import Sidebar from "./components/Sidebar.jsx";
-import TodayPage from "./components/TodayPage.jsx";
 import { exportBackup, parseBackup, backupFileName } from "./lib/backup.js";
 import { downloadFile } from "./lib/download.js";
 import { makeNote, editNote, deleteNote } from "./lib/notes.js";
@@ -30,6 +29,7 @@ import { makeEvent, deleteEvent } from "./lib/schedule.js";
 import { gymOf, makeLog, makeLiftGoal } from "./lib/gym.js";
 import DayPage from "./components/DayPage.jsx";
 import GymPage from "./components/GymPage.jsx";
+import { streak } from "./lib/streaks.js";
 
 const PHONE_QUERY = "(max-width: 700px)";
 
@@ -38,9 +38,9 @@ function isHomeScreenApp() {
   return Boolean(window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone);
 }
 
-// Opens on Today as a home-screen app or on a phone; on Week otherwise.
+// Opens on today's day calendar as a home-screen app or on a phone; on Week otherwise.
 function startingPage() {
-  return isHomeScreenApp() || window.matchMedia?.(PHONE_QUERY).matches ? "today" : "week";
+  return isHomeScreenApp() || window.matchMedia?.(PHONE_QUERY).matches ? "day" : "week";
 }
 
 // True on screens 700px wide or narrower. Follows the window as it resizes.
@@ -78,7 +78,7 @@ export default function App() {
   const [reminderOpen, setReminderOpen] = useState(false);
   // The Sunday of the week being viewed. Not saved: the app always opens on this week.
   const [viewWeek, setViewWeek] = useState(() => weekStart(todayIso));
-  // "today" | "week" | "day" | "gym" | "accomplishments" | "notes". Not saved.
+  // "week" | "day" | "gym" | "accomplishments" | "notes". Not saved.
   const [page, setPage] = useState(startingPage);
   // Notes page selection: a goal id, "general", or null for its default. Not saved.
   const [notesSelected, setNotesSelected] = useState(null);
@@ -275,21 +275,14 @@ export default function App() {
         theme={state.theme}
         onToggleTheme={() => setState((s) => ({ ...s, theme: s.theme === "dark" ? "light" : "dark" }))}
       />
-      {page === "today" ? (
-        <TodayPage
-          state={state}
-          todayIso={todayIso}
-          taskActions={taskActions}
-          repeatActions={repeatActions}
-          goalActions={goalActions}
-        />
-      ) : page === "day" ? (
+      {page === "day" ? (
         <DayPage
           date={dayDate}
           todayIso={todayIso}
           tasks={state.tasks}
           repeats={activeRepeats(state.repeats, state.goals)}
           events={state.events ?? []}
+          streakDays={streak(state, todayIso)}
           taskActions={taskActions}
           repeatActions={repeatActions}
           eventActions={eventActions}

@@ -49,3 +49,44 @@ export function deleteEvent(events, id) {
 export function scheduledMinutes(dayEvents) {
   return dayEvents.reduce((sum, e) => sum + e.length, 0);
 }
+
+// 0 → "12 AM", 9 → "9 AM", 12 → "12 PM", 23 → "11 PM". The day page's hour labels.
+export function formatHour(h) {
+  const suffix = h < 12 ? "AM" : "PM";
+  return `${h % 12 || 12} ${suffix}`;
+}
+
+// 570 → "9:30 AM", 780 → "1:00 PM", 0 → "12:00 AM"
+export function formatTime12(minutes) {
+  const m = ((minutes % DAY_MINUTES) + DAY_MINUTES) % DAY_MINUTES;
+  const h = Math.floor(m / 60);
+  return `${h % 12 || 12}:${pad(m % 60)} ${h < 12 ? "AM" : "PM"}`;
+}
+
+// Places a day's events side by side when they overlap, like a calendar app.
+// Returns [{ event, col, cols }]: the event sits in column col of cols equal columns.
+export function layoutEvents(dayEvents) {
+  const sorted = [...dayEvents].sort((a, b) => a.start - b.start || b.length - a.length);
+  const placed = [];
+  let group = [];
+  let groupEnd = -1;
+  let colEnds = [];
+
+  function closeGroup() {
+    for (const p of group) p.cols = colEnds.length;
+    placed.push(...group);
+    group = [];
+    colEnds = [];
+  }
+
+  for (const event of sorted) {
+    if (event.start >= groupEnd) closeGroup();
+    let col = colEnds.findIndex((end) => end <= event.start);
+    if (col === -1) col = colEnds.length;
+    colEnds[col] = event.start + event.length;
+    group.push({ event, col, cols: 1 });
+    groupEnd = Math.max(groupEnd, event.start + event.length);
+  }
+  closeGroup();
+  return placed;
+}

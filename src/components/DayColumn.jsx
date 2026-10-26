@@ -13,6 +13,12 @@ export default function DayColumn({ date, isToday, tasks, repeats, overdue, task
 
   const rows = dayRows(tasks, repeats, date);
 
+  // Tapping the box itself (not a task, button or the add-task popup) opens the day calendar.
+  function onBoxClick(e) {
+    if (e.target.closest("button, input, select, textarea, label, a, li, .modal-backdrop")) return;
+    onOpenDay?.(date);
+  }
+
   function onDrop(e) {
     e.preventDefault();
     setDropTarget(false);
@@ -23,6 +29,7 @@ export default function DayColumn({ date, isToday, tasks, repeats, overdue, task
   return (
     <section
       className={className}
+      onClick={onBoxClick}
       onDragOver={(e) => {
         e.preventDefault();
         setDropTarget(true);

@@ -7,6 +7,9 @@ import {
   eventsInHour,
   deleteEvent,
   scheduledMinutes,
+  formatHour,
+  formatTime12,
+  layoutEvents,
 } from "./schedule.js";
 
 describe("schedule", () => {
@@ -44,5 +47,25 @@ describe("schedule", () => {
     expect(eventsInHour(day, 8)).toEqual([]);
     expect(scheduledMinutes(day)).toBe(60);
     expect(deleteEvent(events, "a").map((e) => e.id)).toEqual(["b", "c"]);
+  });
+
+  it("formats 12-hour labels", () => {
+    expect(formatHour(0)).toBe("12 AM");
+    expect(formatHour(9)).toBe("9 AM");
+    expect(formatHour(12)).toBe("12 PM");
+    expect(formatHour(23)).toBe("11 PM");
+    expect(formatTime12(570)).toBe("9:30 AM");
+    expect(formatTime12(780)).toBe("1:00 PM");
+    expect(formatTime12(0)).toBe("12:00 AM");
+  });
+
+  it("lays overlapping events side by side", () => {
+    const ev = (id, start, length) => ({ id, start, length });
+    const placed = layoutEvents([ev("a", 540, 60), ev("b", 570, 60), ev("c", 720, 30), ev("d", 600, 30)]);
+    const by = Object.fromEntries(placed.map((p) => [p.event.id, p]));
+    expect(by.a).toMatchObject({ col: 0, cols: 2 });
+    expect(by.b).toMatchObject({ col: 1, cols: 2 });
+    expect(by.d).toMatchObject({ col: 0, cols: 2 });
+    expect(by.c).toMatchObject({ col: 0, cols: 1 });
   });
 });
