@@ -5,7 +5,7 @@ import DayTaskList from "./DayTaskList.jsx";
 import TaskModal from "./TaskModal.jsx";
 import OverdueSection from "./OverdueSection.jsx";
 
-export default function DayColumn({ date, isToday, tasks, repeats, overdue, taskActions, repeatActions }) {
+export default function DayColumn({ date, isToday, tasks, repeats, overdue, taskActions, repeatActions, onOpenDay }) {
   const [dropTarget, setDropTarget] = useState(false);
   const [creating, setCreating] = useState(false);
   const dayNumber = Number(date.slice(8));
@@ -34,10 +34,16 @@ export default function DayColumn({ date, isToday, tasks, repeats, overdue, task
     >
       <div className="day-header">
         <h2 className="day-title">
-          <span className="day-label">{dayLabel(date)}</span> <span className="day-number">{dayNumber}</span>
+          <button className="day-open" onClick={() => onOpenDay?.(date)} title="Open this day's schedule">
+            <span className="day-label">{dayLabel(date)}</span> <span className="day-number">{dayNumber}</span>
+            {isToday && <span className="today-tag">Today</span>}
+            <span className="day-open-arrow" aria-hidden="true">
+              ›
+            </span>
+          </button>
         </h2>
         <button className="create-button create-task" onClick={() => setCreating(true)}>
-          Create new task+
+          + Add task
         </button>
       </div>
       <div className="day-body">

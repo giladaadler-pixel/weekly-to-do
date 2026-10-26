@@ -26,6 +26,10 @@ import NotesPage from "./components/NotesPage.jsx";
 import ReminderModal from "./components/ReminderModal.jsx";
 import { todayCounts } from "./lib/today.js";
 import { updateBadge } from "./lib/badge.js";
+import { makeEvent, deleteEvent } from "./lib/schedule.js";
+import { gymOf, makeLog, makeLiftGoal } from "./lib/gym.js";
+import DayPage from "./components/DayPage.jsx";
+import GymPage from "./components/GymPage.jsx";
 
 const PHONE_QUERY = "(max-width: 700px)";
 
@@ -74,10 +78,12 @@ export default function App() {
   const [reminderOpen, setReminderOpen] = useState(false);
   // The Sunday of the week being viewed. Not saved: the app always opens on this week.
   const [viewWeek, setViewWeek] = useState(() => weekStart(todayIso));
-  // "today" | "week" | "accomplishments" | "notes". Not saved.
+  // "today" | "week" | "day" | "gym" | "accomplishments" | "notes". Not saved.
   const [page, setPage] = useState(startingPage);
   // Notes page selection: a goal id, "general", or null for its default. Not saved.
   const [notesSelected, setNotesSelected] = useState(null);
+  // The date shown on the day (hourly schedule) page. Not saved.
+  const [dayDate, setDayDate] = useState(todayIso);
   const isPhone = useIsPhone();
   // Phone only: whether ☰ has slid the sidebar in. Not saved.
   const [phoneOpen, setPhoneOpen] = useState(false);
@@ -215,6 +221,41 @@ export default function App() {
     remove: (id) => setNotes((notes) => deleteNote(notes, id)),
   };
 
+  function openDay(date) {
+    setDayDate(date);
+    setPage("day");
+  }
+
+  const eventActions = {
+    add: (fields) => {
+      const event = makeEvent(fields);
+      if (event) setState((s) => ({ ...s, events: [...(s.events ?? []), event] }));
+    },
+    remove: (id) => setState((s) => ({ ...s, events: deleteEvent(s.events ?? [], id) })),
+  };
+
+  function setGym(change) {
+    setState((s) => ({ ...s, gym: change(gymOf(s)) }));
+  }
+
+  // addLog and addLift return false when the input isn't valid, so the page can say so.
+  const gymActions = {
+    addLog: (fields) => {
+      const log = makeLog({ ...fields, date: todayIso });
+      if (!log) return false;
+      setGym((g) => ({ ...g, logs: [...g.logs, log] }));
+      return true;
+    },
+    removeLog: (id) => setGym((g) => ({ ...g, logs: g.logs.filter((l) => l.id !== id) })),
+    addLift: (fields) => {
+      const goal = makeLiftGoal(fields);
+      if (!goal) return false;
+      setGym((g) => ({ ...g, lifts: [...g.lifts, goal] }));
+      return true;
+    },
+    removeLift: (id) => setGym((g) => ({ ...g, lifts: g.lifts.filter((l) => l.id !== id) })),
+  };
+
   // From the sidebar, Notes opens on its default selection.
   function goToPage(next) {
     if (next === "notes") setNotesSelected(null);
@@ -242,6 +283,24 @@ export default function App() {
           repeatActions={repeatActions}
           goalActions={goalActions}
         />
+      ) : page === "day" ? (
+        <DayPage
+          date={dayDate}
+          todayIso={todayIso}
+          tasks={state.tasks}
+          repeats={activeRepeats(state.repeats, state.goals)}
+          events={state.events ?? []}
+          taskActions={taskActions}
+          repeatActions={repeatActions}
+          eventActions={eventActions}
+          onDate={setDayDate}
+          onBack={() => {
+            setViewWeek(weekStart(dayDate));
+            setPage("week");
+          }}
+        />
+      ) : page === "gym" ? (
+        <GymPage gym={gymOf(state)} todayIso={todayIso} gymActions={gymActions} onOpenDay={openDay} />
       ) : page === "notes" ? (
         <NotesPage
           goals={state.goals}
@@ -269,6 +328,7 @@ export default function App() {
           taskActions={taskActions}
           repeatActions={repeatActions}
           goalActions={goalActions}
+          onOpenDay={openDay}
         />
       )}
       <Sidebar

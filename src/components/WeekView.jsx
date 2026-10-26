@@ -14,6 +14,7 @@ export default function WeekView({
   taskActions,
   repeatActions,
   goalActions,
+  onOpenDay,
 }) {
   return (
     <main className="week-page">
@@ -29,6 +30,7 @@ export default function WeekView({
           overdue={overdueTasks(tasks, todayIso)}
           taskActions={taskActions}
           repeatActions={repeatActions}
+          onOpenDay={onOpenDay}
         />
       ))}
       </div>

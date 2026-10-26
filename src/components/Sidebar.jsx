@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
+import Icon from "./Icons.jsx";
 
 // Every page in the sidebar, in order. A new page is one more line here.
 export const PAGES = [
-  { id: "today", icon: "📅", label: "Today" },
-  { id: "week", icon: "🗓", label: "Week" },
-  { id: "accomplishments", icon: "🏆", label: "Accomplishments" },
-  { id: "notes", icon: "📝", label: "Notes" },
+  { id: "today", label: "Today" },
+  { id: "week", label: "Week" },
+  { id: "gym", label: "Gym" },
+  { id: "accomplishments", label: "Accomplishments" },
+  { id: "notes", label: "Notes" },
 ];
 
 // Below a divider: daily reminder, Enable badge, and backup. onImport(file) gets the picked
@@ -108,7 +110,7 @@ export default function Sidebar({
               title={p.label}
             >
               <span className="sidebar-icon" aria-hidden="true">
-                {p.icon}
+                <Icon name={p.id} />
               </span>
               <span className="sidebar-label">{p.label}</span>
             </button>
@@ -118,14 +120,14 @@ export default function Sidebar({
         <div className="sidebar-pages sidebar-tools">
           <button className="sidebar-page sidebar-tool" onClick={() => pickTool(onReminder)} title="Daily reminder">
             <span className="sidebar-icon" aria-hidden="true">
-              ⏰
+              <Icon name="reminder" />
             </span>
             <span className="sidebar-label">Daily reminder</span>
           </button>
           {(badgePermission === "default" || badgePermission === "denied") && (
             <button className="sidebar-page sidebar-tool" onClick={() => pickTool(onEnableBadge)} title="Enable badge">
               <span className="sidebar-icon" aria-hidden="true">
-                🔔
+                <Icon name="badge" />
               </span>
               <span className="sidebar-label">Enable badge</span>
             </button>
@@ -137,7 +139,7 @@ export default function Sidebar({
           )}
           <button className="sidebar-page sidebar-tool" onClick={() => pickTool(onExport)} title="Export backup">
             <span className="sidebar-icon" aria-hidden="true">
-              ⬇️
+              <Icon name="export" />
             </span>
             <span className="sidebar-label">Export backup</span>
           </button>
@@ -147,7 +149,7 @@ export default function Sidebar({
             title="Import backup"
           >
             <span className="sidebar-icon" aria-hidden="true">
-              ⬆️
+              <Icon name="import" />
             </span>
             <span className="sidebar-label">Import backup</span>
           </button>

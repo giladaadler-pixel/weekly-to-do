@@ -17,14 +17,15 @@ export default function TopBar({
   return (
     <header className="top-bar">
       {page === "today" && <span className="page-name">Today</span>}
+      {page === "gym" && <span className="page-name">Gym</span>}
       {page === "week" && (
         <nav className="week-nav">
           <button onClick={onPrev} aria-label="Previous week">
-            ◀
+            ‹
           </button>
           <span className="week-range">{formatWeekRange(viewWeek)}</span>
           <button onClick={onNext} aria-label="Next week">
-            ▶
+            ›
           </button>
           {!isCurrentWeek && (
             <button className="today-button" onClick={onToday} aria-label="Go to current week">
@@ -35,7 +36,12 @@ export default function TopBar({
       )}
       {page === "week" && stats.total > 0 && (
         <span className="stats">
-          ✅ {stats.done} of {stats.total} done this week
+          <span className="stats-text">
+            {stats.done} / {stats.total} done
+          </span>
+          <span className="stats-meter" aria-hidden="true">
+            <span style={{ width: `${Math.round((stats.done / stats.total) * 100)}%` }} />
+          </span>
         </span>
       )}
       <button
@@ -43,7 +49,16 @@ export default function TopBar({
         onClick={onToggleTheme}
         aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
       >
-        {theme === "dark" ? "☀️" : "🌙"}
+        {theme === "dark" ? (
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+          </svg>
+        ) : (
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" />
+          </svg>
+        )}
       </button>
     </header>
   );

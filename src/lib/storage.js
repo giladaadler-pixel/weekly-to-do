@@ -12,6 +12,10 @@ export const DEFAULT_STATE = {
   // { id, goalId (null for general notes), text, date "YYYY-MM-DD" }
   notes: [],
   settings: { reminderTime: "08:00" },
+  // Day page schedule: { id, date, start (minutes), length (minutes), title }
+  events: [],
+  // Gym page: sets logged and strength goals (see lib/gym.js)
+  gym: { logs: [], lifts: [] },
 };
 
 // Saved data from an older version may be missing newer keys: fill them from the defaults.

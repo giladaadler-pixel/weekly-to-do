@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
 const BASE = "/weekly-to-do/";
-const DARK_BG = "#0d1117"; // dark mode --bg
+const DARK_BG = "#070a12"; // dark mode --bg
 
 export default defineConfig({
   plugins: [
