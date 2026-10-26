@@ -34,16 +34,6 @@ import { streak } from "./lib/streaks.js";
 
 const PHONE_QUERY = "(max-width: 700px)";
 
-// Installed to the home screen (any browser, or iPhone Safari's own flag).
-function isHomeScreenApp() {
-  return Boolean(window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone);
-}
-
-// Opens on today's day calendar as a home-screen app or on a phone; on Week otherwise.
-function startingPage() {
-  return isHomeScreenApp() || window.matchMedia?.(PHONE_QUERY).matches ? "day" : "week";
-}
-
 // True on screens 700px wide or narrower. Follows the window as it resizes.
 function useIsPhone() {
   const [isPhone, setIsPhone] = useState(() => window.matchMedia?.(PHONE_QUERY).matches ?? false);
@@ -81,8 +71,8 @@ export default function App() {
   const [toast, setToast] = useState(null);
   // The Sunday of the week being viewed. Not saved: the app always opens on this week.
   const [viewWeek, setViewWeek] = useState(() => weekStart(todayIso));
-  // "week" | "day" | "gym" | "accomplishments" | "notes". Not saved.
-  const [page, setPage] = useState(startingPage);
+  // "week" | "day" | "gym" | "accomplishments" | "notes". Not saved: the app always opens on Week.
+  const [page, setPage] = useState("week");
   // Notes page selection: a goal id, "general", or null for its default. Not saved.
   const [notesSelected, setNotesSelected] = useState(null);
   // The date shown on the day (hourly schedule) page. Not saved.

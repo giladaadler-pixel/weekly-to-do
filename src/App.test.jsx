@@ -72,3 +72,27 @@ describe("backup toasts", () => {
     expect(confirm).not.toHaveBeenCalled();
   });
 });
+
+describe("starting page", () => {
+  const current = () => container.querySelector("nav .sidebar-page[aria-current='page']");
+
+  it("opens on Week, showing the current week", () => {
+    expect(current().textContent).toBe("Week");
+    expect(container.querySelector(".week-page")).not.toBeNull();
+    expect(container.querySelector(".today-button")).toBeNull(); // only shown away from the current week
+  });
+
+  it("opens on Week on a phone-sized screen too", () => {
+    act(() => root.unmount());
+    vi.spyOn(window, "matchMedia").mockImplementation((query) => ({
+      matches: true,
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+    root = createRoot(container);
+    act(() => root.render(<App />));
+    expect(current().textContent).toBe("Week");
+    expect(container.querySelector(".week-page")).not.toBeNull();
+  });
+});
