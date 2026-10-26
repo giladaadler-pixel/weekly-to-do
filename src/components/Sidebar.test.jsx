@@ -164,6 +164,12 @@ describe("Sidebar backup tools", () => {
     expect(tools).toEqual(["Daily reminder", "Export backup", "Import backup"]);
   });
 
+  it("lists Daily reminder, App badge, Export and Import when notifications are supported", () => {
+    render({ badgePermission: "default" });
+    const tools = [...container.querySelectorAll(".sidebar-tool")].map((b) => b.title);
+    expect(tools).toEqual(["Daily reminder", "App badge", "Export backup", "Import backup"]);
+  });
+
   it("Daily reminder calls onReminder, and closes the sidebar on a phone", () => {
     const onReminder = vi.fn();
     const onPhoneClose = vi.fn();
@@ -173,27 +179,47 @@ describe("Sidebar backup tools", () => {
     expect(onPhoneClose).toHaveBeenCalledOnce();
   });
 
-  it("Enable badge is hidden when notifications are unsupported or already granted", () => {
-    render({ badgePermission: "unsupported" });
-    expect(tool("Enable badge")).toBeUndefined();
-    act(() => root.unmount());
-    container.remove();
-    render({ badgePermission: "granted" });
-    expect(tool("Enable badge")).toBeUndefined();
+  it("Daily reminder shows the saved reminder time as a pill", () => {
+    render({ reminderTime: "08:00" });
+    expect(tool("Daily reminder").querySelector(".sidebar-time").textContent).toBe("08:00");
   });
 
-  it("Enable badge shows when permission hasn't been asked, and calls onEnableBadge", () => {
+  it("hides the App badge row when notifications aren't supported", () => {
+    render({ badgePermission: "unsupported" });
+    expect(tool("App badge")).toBeUndefined();
+  });
+
+  it("App badge switch is on when notifications are granted, and clicking does nothing", () => {
+    const onEnableBadge = vi.fn();
+    render({ badgePermission: "granted", onEnableBadge });
+    const row = tool("App badge");
+    expect(row.getAttribute("aria-pressed")).toBe("true");
+    expect(row.querySelector(".switch").classList.contains("on")).toBe(true);
+    act(() => row.click());
+    expect(onEnableBadge).not.toHaveBeenCalled();
+  });
+
+  it("App badge switch is off when permission hasn't been asked, and clicking calls onEnableBadge", () => {
     const onEnableBadge = vi.fn();
     render({ badgePermission: "default", onEnableBadge });
-    act(() => tool("Enable badge").click());
+    const row = tool("App badge");
+    expect(row.getAttribute("aria-pressed")).toBe("false");
+    expect(row.querySelector(".switch").classList.contains("on")).toBe(false);
+    act(() => row.click());
     expect(onEnableBadge).toHaveBeenCalledOnce();
   });
 
-  it("when notifications are blocked, explains how to turn them on", () => {
-    render({ badgePermission: "denied" });
+  it("when notifications are blocked, the switch is off and clicking explains how to turn them on", () => {
+    const onEnableBadge = vi.fn();
+    render({ badgePermission: "denied", onEnableBadge });
+    const row = tool("App badge");
+    expect(row.getAttribute("aria-pressed")).toBe("false");
+    expect(container.textContent).not.toContain("Notifications are blocked");
+    act(() => row.click());
     expect(container.textContent).toContain(
       "Notifications are blocked. Turn them on in Settings → Notifications → To-Do."
     );
+    expect(onEnableBadge).not.toHaveBeenCalled();
   });
 
   it("shows Export and Import below the pages", () => {

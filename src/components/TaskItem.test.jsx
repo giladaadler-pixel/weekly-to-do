@@ -54,26 +54,57 @@ describe("TaskItem", () => {
     expect(container.textContent).not.toContain("🗑");
   });
 
-  it("keeps the mark, done ✓ and overdue label", () => {
+  it("keeps the mark and overdue label, and shows done with the ticked box instead of ✓", () => {
     render({ task: { ...task, done: true }, mark: "🔁", label: "Tue" });
     const text = container.querySelector(".task-text").textContent;
-    expect(text).toContain("✓");
+    expect(text).not.toContain("✓");
     expect(text).toContain("🔁");
     expect(text).toContain("(Tue)");
+    expect(container.querySelector(".check-box input").checked).toBe(true);
   });
 
-  it("checkbox still toggles done", () => {
+  it("keeps a real checkbox inside a label, with the drawn box hidden from screen readers", () => {
+    render();
+    const input = container.querySelector("label.check-box > input[type='checkbox']");
+    expect(input.getAttribute("aria-label")).toBe("Done: Gym");
+    expect(container.querySelector(".check-box-face").getAttribute("aria-hidden")).toBe("true");
+  });
+
+  it("checkbox ticks the task without opening the sheet", () => {
     const actions = render();
     act(() => container.querySelector("input[type='checkbox']").click());
     expect(actions.toggle).toHaveBeenCalledWith("t1", true);
+    expect(sheet()).toBeNull();
   });
 
-  it("clicking the text opens the task sheet", () => {
-    render();
+  it("clicking the drawn box (the label) ticks the task without opening the sheet", () => {
+    const actions = render();
+    act(() => container.querySelector(".check-box-face").click());
+    expect(actions.toggle).toHaveBeenCalledOnce();
+    expect(actions.toggle).toHaveBeenCalledWith("t1", true);
+    expect(sheet()).toBeNull();
+  });
+
+  it("clicking the text opens the task sheet without ticking", () => {
+    const actions = render();
     expect(sheet()).toBeNull();
     act(() => container.querySelector(".task-text").click());
     expect(sheet()).not.toBeNull();
     expect(sheet().querySelector("input[aria-label='Task']").value).toBe("Gym");
+    expect(actions.toggle).not.toHaveBeenCalled();
+  });
+
+  it("clicking elsewhere on the row opens the task sheet", () => {
+    render();
+    act(() => container.querySelector("li").click());
+    expect(sheet()).not.toBeNull();
+  });
+
+  it("closing the sheet by its backdrop doesn't reopen it", () => {
+    render();
+    act(() => container.querySelector(".task-text").click());
+    act(() => document.body.querySelector(".modal-backdrop").click());
+    expect(sheet()).toBeNull();
   });
 
   it("Enter on the focused text opens the task sheet", () => {

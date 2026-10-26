@@ -164,27 +164,32 @@ body {
   padding: 0;
 }
 
-/* Compact row: [checkbox] [priority dot] text. Long text wraps; the checkbox and dot
-   stay level with the first line. */
+/* Row: [checkbox] [priority dot] text. At least 44px tall so it's easy to tap; the
+   whole row is clickable (the checkbox ticks, the rest opens the task sheet). */
 .task {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.35rem;
-  padding: 0;
+  min-height: 44px;
+  padding: 0 4px;
+  border-radius: 8px;
   font-size: 0.85rem;
   line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
-/* Touch screens: taller rows so they're easy to tap. Day boxes scroll there anyway. */
-@media (pointer: coarse) {
-  .task {
-    padding: 0.3rem 0;
-  }
+.task:hover {
+  background: var(--accent-soft);
 }
 
 .task input[type="checkbox"] {
   flex-shrink: 0;
   margin: 0.1rem 0 0;
+}
+
+.task .priority-dot {
+  margin-top: 0;
 }
 
 .task-text {
@@ -194,9 +199,86 @@ body {
   cursor: pointer;
 }
 
-.task-text:hover {
-  text-decoration: underline;
-  text-decoration-color: var(--border);
+/* Done: muted text with a line-through that fades in. The ticked box shows it's done, so
+   the row isn't dimmed. */
+.task .task-text {
+  text-decoration: line-through;
+  text-decoration-color: transparent;
+  transition: color 0.2s, text-decoration-color 0.2s;
+}
+
+.task.done {
+  opacity: 1;
+}
+
+.task.done .task-text {
+  color: var(--muted);
+  text-decoration-color: currentColor;
+}
+
+.task.done .priority-dot {
+  opacity: 0.45;
+}
+
+/* Custom checkbox: a real (visually hidden) checkbox inside a label, drawn as a 20px box. */
+.check-box {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  padding: 0 4px;
+  cursor: pointer;
+}
+
+.check-box input[type="checkbox"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.check-box-face {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: transparent;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.check-box input:checked + .check-box-face {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.check-box-face.pop {
+  animation: check-pop 150ms ease-out;
+}
+
+@keyframes check-pop {
+  50% {
+    transform: scale(1.18);
+  }
+}
+
+.check-box input:focus-visible {
+  outline: none;
+}
+
+.check-box input:focus-visible + .check-box-face {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .priority-dot {
@@ -240,11 +322,6 @@ body {
 .done .task-text,
 .done .done-text {
   text-decoration: line-through;
-}
-
-.check {
-  text-decoration: none;
-  display: inline-block;
 }
 
 .priority {
@@ -910,15 +987,23 @@ body {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  min-height: 42px;
   padding: 0.45rem 0.5rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 9px;
   background: none;
-  color: var(--text);
+  color: var(--muted);
   font: inherit;
   text-align: left;
   white-space: nowrap;
   cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+/* Inset, so the panel's edge never clips the ring. */
+.sidebar button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
 
 .sidebar.tucked .sidebar-page {
@@ -927,12 +1012,67 @@ body {
 }
 
 .sidebar-page:hover {
-  background: var(--day-bg);
+  background: var(--accent-soft);
+  color: var(--text);
 }
 
 .sidebar-page[aria-current="page"] {
-  background: var(--day-bg);
+  background: var(--accent-soft);
+  color: var(--text);
   font-weight: 600;
+  box-shadow: inset 0 0 0 1px var(--accent-line);
+}
+
+.sidebar-page[aria-current="page"] .sidebar-icon {
+  color: var(--accent);
+}
+
+/* Right-edge extras: the reminder time pill and the badge switch. Tucked shows icons only. */
+.sidebar-trail {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.sidebar.tucked .sidebar-trail {
+  display: none;
+}
+
+.sidebar-time {
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.switch {
+  position: relative;
+  box-sizing: border-box;
+  width: 34px;
+  height: 20px;
+  border-radius: 99px;
+  background: var(--border);
+  transition: background 0.15s;
+}
+
+.switch-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: left 0.15s;
+}
+
+.switch.on {
+  background: var(--accent);
+}
+
+.switch.on .switch-knob {
+  left: 17px;
 }
 
 .sidebar-icon {
@@ -1377,8 +1517,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 /* Sidebar */
 .sidebar-icon { display: inline-flex; align-items: center; justify-content: center; color: var(--muted); }
-.sidebar-page[aria-current="page"] { box-shadow: inset 0 0 0 1px var(--accent-line); }
-.sidebar-page[aria-current="page"] .sidebar-icon { color: var(--accent); }
 
 /* Shared building blocks */
 .panel { box-sizing: border-box; padding: 1rem; border: 1px solid var(--border); border-radius: 16px; background: var(--card-bg); }
@@ -1461,4 +1599,22 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .day-page, .gym-page { overflow: visible; }
   .calendar { max-height: 72vh; }
   .stats-meter { width: 4rem; }
+}
+
+/* Toast: a short confirmation at the bottom centre. */
+.toast {
+  position: fixed;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  left: 50%;
+  z-index: 80;
+  translate: -50% 0;
+  max-width: calc(100vw - 2rem);
+  box-sizing: border-box;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--accent-line);
+  border-radius: 10px;
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 0.85rem;
+  box-shadow: 0 0 24px var(--accent-glow);
 }

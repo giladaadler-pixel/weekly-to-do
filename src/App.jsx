@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 import { todayISO, weekStart, addDays } from "./lib/dates.js";
 import { loadState, saveState } from "./lib/storage.js";
@@ -29,6 +29,7 @@ import { makeEvent, deleteEvent } from "./lib/schedule.js";
 import { gymOf, makeLog, makeLiftGoal } from "./lib/gym.js";
 import DayPage from "./components/DayPage.jsx";
 import GymPage from "./components/GymPage.jsx";
+import Toast from "./components/Toast.jsx";
 import { streak } from "./lib/streaks.js";
 
 const PHONE_QUERY = "(max-width: 700px)";
@@ -76,6 +77,8 @@ export default function App() {
   stateRef.current = state;
   const [badgePermission, setBadgePermission] = useState(notificationPermission);
   const [reminderOpen, setReminderOpen] = useState(false);
+  // { id, message } for the toast at the bottom, or null. Not saved.
+  const [toast, setToast] = useState(null);
   // The Sunday of the week being viewed. Not saved: the app always opens on this week.
   const [viewWeek, setViewWeek] = useState(() => weekStart(todayIso));
   // "week" | "day" | "gym" | "accomplishments" | "notes". Not saved.
@@ -131,17 +134,27 @@ export default function App() {
     setState((s) => ({ ...s, ui: { ...s.ui, sidebarPinned } }));
   }
 
+  const closeToast = useCallback(() => setToast(null), []);
+
+  function showToast(message) {
+    setToast({ id: Date.now(), message });
+  }
+
   function downloadBackup() {
     downloadFile(exportBackup(state), backupFileName(todayIso), "application/json");
+    showToast("Backup downloaded");
   }
 
   async function importBackup(file) {
     const backup = parseBackup(await file.text());
     if (!backup) {
-      window.alert("That file isn't a Weekly To-Do backup.");
+      showToast("That file isn't a Weekly To-Do backup");
       return;
     }
-    if (window.confirm("Replace everything on this device with this backup?")) setState(backup);
+    if (window.confirm("Replace everything on this device with this backup?")) {
+      setState(backup);
+      showToast("Backup restored");
+    }
   }
 
   function setTasks(change) {
@@ -339,6 +352,7 @@ export default function App() {
         onReminder={() => setReminderOpen(true)}
         onEnableBadge={enableBadge}
         badgePermission={badgePermission}
+        reminderTime={state.settings.reminderTime}
       />
       {reminderOpen && (
         <ReminderModal
@@ -349,6 +363,7 @@ export default function App() {
           onClose={() => setReminderOpen(false)}
         />
       )}
+      {toast && <Toast key={toast.id} message={toast.message} onDone={closeToast} />}
     </>
   );
 }

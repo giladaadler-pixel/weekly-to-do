@@ -9,8 +9,8 @@ export const PAGES = [
   { id: "notes", label: "Notes" },
 ];
 
-// Below a divider: daily reminder, Enable badge, and backup. onImport(file) gets the picked
-// file. badgePermission: "unsupported" | "default" | "granted" | "denied".
+// Below a divider: daily reminder (with its time), the app badge switch, and backup.
+// onImport(file) gets the picked file. badgePermission: "unsupported" | "default" | "granted" | "denied".
 // Laptop: a thin icon strip on the left ("tucked"), with ☰ at the top. Hovering slides
 // it open over the page ("peek"); clicking anywhere on it keeps it open ("pinned", saved
 // by the parent). ☰ toggles between pinned and tucked.
@@ -31,8 +31,12 @@ export default function Sidebar({
   onReminder,
   onEnableBadge,
   badgePermission,
+  reminderTime,
 }) {
   const [peek, setPeek] = useState(false);
+  // Shown after tapping App badge while notifications are blocked.
+  const [blockedNote, setBlockedNote] = useState(false);
+  const badgeOn = badgePermission === "granted";
   const fileInput = useRef(null);
   const expanded = isPhone ? phoneOpen : pinned;
 
@@ -56,6 +60,13 @@ export default function Sidebar({
   function pickTool(run) {
     run();
     if (isPhone) onPhoneClose();
+  }
+
+  // Asks for permission the first time; when blocked, explains how to unblock instead.
+  // Already on: nothing to do.
+  function onBadge() {
+    if (badgePermission === "default") pickTool(onEnableBadge);
+    else if (badgePermission === "denied") setBlockedNote(true);
   }
 
   function onFilePicked(e) {
@@ -122,16 +133,20 @@ export default function Sidebar({
               <Icon name="reminder" />
             </span>
             <span className="sidebar-label">Daily reminder</span>
+            {reminderTime && <span className="sidebar-trail sidebar-time">{reminderTime}</span>}
           </button>
-          {(badgePermission === "default" || badgePermission === "denied") && (
-            <button className="sidebar-page sidebar-tool" onClick={() => pickTool(onEnableBadge)} title="Enable badge">
+          {badgePermission !== "unsupported" && (
+            <button className="sidebar-page sidebar-tool" onClick={onBadge} title="App badge" aria-pressed={badgeOn}>
               <span className="sidebar-icon" aria-hidden="true">
                 <Icon name="badge" />
               </span>
-              <span className="sidebar-label">Enable badge</span>
+              <span className="sidebar-label">App badge</span>
+              <span className={`sidebar-trail switch${badgeOn ? " on" : ""}`} aria-hidden="true">
+                <span className="switch-knob" />
+              </span>
             </button>
           )}
-          {badgePermission === "denied" && (
+          {badgePermission === "denied" && blockedNote && (
             <p className="sidebar-note sidebar-label">
               Notifications are blocked. Turn them on in Settings → Notifications → To-Do.
             </p>
