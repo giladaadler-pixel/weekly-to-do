@@ -1,6 +1,7 @@
 import { useState } from "react";
 import TaskSheet from "./TaskSheet.jsx";
 import PriorityDot from "./PriorityDot.jsx";
+import { confetti } from "../lib/clickFx.js";
 
 // A compact row: [checkbox] [priority dot] text. The checkbox area ticks it; anywhere
 // else on the row opens the TaskSheet to edit, move or delete it.
@@ -40,6 +41,7 @@ export default function TaskItem({ task, actions, label, mark, deleteChoices, dr
           checked={task.done}
           onChange={(e) => {
             setPop(e.target.checked);
+            if (e.target.checked) confetti(e.target.nextElementSibling);
             actions.toggle(task.id, e.target.checked);
           }}
           aria-label={`Done: ${task.text}`}

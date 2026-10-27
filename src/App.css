@@ -270,16 +270,6 @@ body {
   box-shadow: 0 0 12px var(--accent-glow);
 }
 
-.check-box-face.pop {
-  animation: check-pop 150ms ease-out;
-}
-
-@keyframes check-pop {
-  50% {
-    transform: scale(1.18);
-  }
-}
-
 .check-box input:focus-visible {
   outline: none;
 }
@@ -1711,5 +1701,123 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @media (pointer: coarse) {
   .day[data-density] .task {
     min-height: 40px;
+  }
+}
+
+/* ---- Click feedback (clickFx.js): press-squish, springy bounce, sparks, confetti ---- */
+button,
+a[href],
+[role="button"],
+[role="tab"],
+summary,
+.task {
+  transition-property: scale, background, color, border-color, box-shadow;
+  transition-duration: 0.12s;
+}
+
+button:active:not(:disabled),
+a[href]:active,
+[role="button"]:active,
+summary:active {
+  scale: 0.93;
+}
+
+.fx-bounce {
+  animation: fx-bounce 380ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.task.fx-bounce {
+  animation-name: fx-bounce-soft;
+}
+
+@keyframes fx-bounce {
+  0% { scale: 0.9; }
+  55% { scale: 1.08; }
+  100% { scale: 1; }
+}
+
+@keyframes fx-bounce-soft {
+  0% { scale: 0.98; }
+  55% { scale: 1.015; }
+  100% { scale: 1; }
+}
+
+.fx-burst,
+.fx-confetti {
+  position: fixed;
+  z-index: 1000;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.fx-burst span,
+.fx-confetti span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% -50%;
+}
+
+.fx-ring {
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--accent-glow);
+  animation: fx-ring 450ms ease-out forwards;
+}
+
+.fx-spark {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  animation: fx-spark 550ms cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+
+.fx-confetti-piece {
+  width: 6px;
+  height: 10px;
+  border-radius: 2px;
+  animation: fx-confetti 950ms cubic-bezier(0.15, 0.7, 0.4, 1) forwards;
+}
+
+@keyframes fx-ring {
+  0% { transform: scale(0.2); opacity: 0.9; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+@keyframes fx-spark {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+}
+
+@keyframes fx-confetti {
+  0% { transform: translate(0, 0) rotate(0) scale(0.4); opacity: 1; }
+  60% { opacity: 1; }
+  100% { transform: translate(var(--dx), calc(var(--dy) + 40px)) rotate(var(--spin)) scale(1); opacity: 0; }
+}
+
+/* Done tasks get a quick glow sweep when ticked. */
+.check-box-face.pop {
+  animation: check-pop 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes check-pop {
+  0% { scale: 0.6; }
+  50% { scale: 1.35; }
+  100% { scale: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button:active:not(:disabled),
+  a[href]:active,
+  [role="button"]:active,
+  summary:active {
+    scale: none;
+  }
+  .fx-bounce,
+  .check-box-face.pop {
+    animation: none;
   }
 }
