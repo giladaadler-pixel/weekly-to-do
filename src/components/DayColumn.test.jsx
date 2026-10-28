@@ -135,6 +135,7 @@ describe("DayColumn past days", () => {
     fakeLayout({ available: 300, contentAt: () => 100 });
     render([task("a"), task("b", true)], vi.fn(), { isPast: true });
     expect(box().classList.contains("day--past")).toBe(true);
+    expect(box().classList.contains("day--upcoming")).toBe(false);
     expect(container.querySelector(".day-open").textContent).toContain("(past)");
     expect(texts()).toEqual(["Task a", "Task b"]);
     expect(container.querySelector(".create-task").disabled).toBe(false);
@@ -144,6 +145,7 @@ describe("DayColumn past days", () => {
     fakeLayout({ available: 300, contentAt: () => 100 });
     render([task("a")]);
     expect(box().classList.contains("day--past")).toBe(false);
+    expect(box().classList.contains("day--upcoming")).toBe(true);
     expect(container.querySelector(".day-open").textContent).not.toContain("(past)");
   });
 });

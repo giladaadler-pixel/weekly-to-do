@@ -35,6 +35,9 @@
   --past-text-hover: #3a4558;
   --past-icon-opacity: 0.55;
   --past-icon-opacity-hover: 0.85;
+  /* Upcoming days: a very faint teal tint so they read as "still ahead". */
+  --upcoming-border: rgba(8, 126, 135, 0.22);
+  --upcoming-tint: rgba(8, 126, 135, 0.03);
 }
 
 [data-theme="dark"] {
@@ -75,6 +78,8 @@
   --past-text-hover: #b4c0d2;
   --past-icon-opacity: 0.55;
   --past-icon-opacity-hover: 0.85;
+  --upcoming-border: rgba(62, 230, 240, 0.16);
+  --upcoming-tint: rgba(62, 230, 240, 0.025);
 }
 
 /* Page padding. On iPhones it grows to clear the notch, status bar and home bar
@@ -1867,6 +1872,12 @@ summary:active {
 
 .day--past .task.done .priority-dot {
   opacity: 0.3;
+}
+
+/* Upcoming days: just a whisper of the accent on the border and top edge. */
+.day--upcoming {
+  border-color: var(--upcoming-border);
+  background: linear-gradient(180deg, var(--upcoming-tint), transparent 55%), var(--day-bg);
 }
 
 /* Read by screen readers, not shown. */

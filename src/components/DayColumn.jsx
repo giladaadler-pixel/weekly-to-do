@@ -44,7 +44,7 @@ export default function DayColumn({ date, isToday, isPast, tasks, repeats, overd
   limitRef.current = limit;
 
   const dayNumber = Number(date.slice(8));
-  const className = ["day", isToday && "today", isPast && "day--past", dropTarget && "drop-target"].filter(Boolean).join(" ");
+  const className = ["day", isToday && "today", isPast && "day--past", !isToday && !isPast && "day--upcoming", dropTarget && "drop-target"].filter(Boolean).join(" ");
 
   const rows = dayRows(tasks, repeats, date);
   const clipped = density === "clipped";
