@@ -269,7 +269,8 @@ export default function App() {
       return true;
     },
     removeLift: (id) => setGym((g) => ({ ...g, lifts: g.lifts.filter((l) => l.id !== id) })),
-    // Only takes it out of the dropdowns; its sets and goals stay.
+    addExercise: (name) => setGym((g) => ({ ...g, customLifts: rememberLift(g.customLifts, name) })),
+    // Only takes it out of the dropdowns; its sets, goals and plans stay.
     forgetLift: (name) => setGym((g) => ({ ...g, customLifts: g.customLifts.filter((l) => l !== name) })),
   };
 
