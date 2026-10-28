@@ -68,6 +68,6 @@ describe("buildReminderIcs", () => {
 
 describe("escapeText", () => {
   it("escapes backslashes, commas, semicolons and newlines", () => {
-    expect(escapeText("a,b;c\\d\ne")).toBe("a\\,b\;c\\\\d\\ne");
+    expect(escapeText("a,b;c\\d\ne")).toBe("a\\,b\\;c\\\\d\\ne");
   });
 });

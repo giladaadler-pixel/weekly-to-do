@@ -6,7 +6,7 @@ const SUMMARY = "Check your to-do list ✅";
 
 // Text values escape backslashes, commas, semicolons and newlines.
 export function escapeText(text) {
-  return text.replace(/\\/g, "\\\\").replace(/,/g, "\\,").replace(/;/g, "\;").replace(/\r?\n/g, "\\n");
+  return text.replace(/\\/g, "\\\\").replace(/,/g, "\\,").replace(/;/g, "\\;").replace(/\r?\n/g, "\\n");
 }
 
 // Lines longer than 75 bytes continue on the next line after CRLF + a space.
