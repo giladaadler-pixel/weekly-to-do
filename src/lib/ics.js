@@ -40,6 +40,43 @@ function utcStamp(date) {
   );
 }
 
+function floating(dateIso, minutes) {
+  return `${dateIso.replace(/-/g, "")}T${pad(Math.floor(minutes / 60))}${pad(minutes % 60)}00`;
+}
+
+// A workout plan as a calendar event: date "YYYY-MM-DD", start (minutes after midnight),
+// length (minutes), weekly (repeat every week). Floating time like the reminder, with an
+// alert 15 minutes before.
+export function buildWorkoutIcs({ title, date, start, length, weekly = false, uid, now = new Date() }) {
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Weekly To-Do//EN",
+    "CALSCALE:GREGORIAN",
+    "BEGIN:VEVENT",
+    `UID:${uid}`,
+    `DTSTAMP:${utcStamp(now)}`,
+    `DTSTART:${floating(date, start)}`,
+    `DURATION:PT${length}M`,
+    ...(weekly ? ["RRULE:FREQ=WEEKLY"] : []),
+    `SUMMARY:${escapeText(title)}`,
+    "BEGIN:VALARM",
+    "ACTION:DISPLAY",
+    `DESCRIPTION:${escapeText(title)}`,
+    "TRIGGER:-PT15M",
+    "END:VALARM",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ];
+  return lines.map(fold).join("\r\n") + "\r\n";
+}
+
+// "Push day.ics": the plan name without characters file names can't have.
+export function workoutFileName(name) {
+  const safe = name.replace(/[/\\:*?"<>|]/g, "").trim();
+  return `${safe || "workout"}.ics`;
+}
+
 // time: "HH:MM". todayIso: "YYYY-MM-DD", the first day. now: for DTSTAMP.
 export function buildReminderIcs({ time, url, todayIso, uid, now = new Date() }) {
   const [hours, minutes] = time.split(":");

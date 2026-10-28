@@ -1981,3 +1981,12 @@ summary:active {
 .plan-exercise .muted { font-size: 0.85rem; }
 .plan-chooser-list { display: flex; flex-direction: column; gap: 0.5rem; }
 .plan-chooser-list .ghost-button { justify-content: flex-start; min-height: 2.9rem; }
+
+/* Add a plan to the calendar. */
+.calendar-sheet { width: min(28rem, 92vw); }
+.calendar-fields { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.calendar-fields .form-field { flex: 1 1 7rem; }
+.calendar-repeat { display: flex; align-items: center; gap: 0.5rem; min-height: 2.75rem; }
+.calendar-repeat input { width: 1.1rem; height: 1.1rem; accent-color: var(--accent); }
+.calendar-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.calendar-actions button { flex: 1 1 11rem; min-height: 2.9rem; }

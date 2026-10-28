@@ -6,6 +6,7 @@ import GymPlans from "./GymPlans.jsx";
 import GymExercises from "./GymExercises.jsx";
 import GymHistory from "./GymHistory.jsx";
 import PlanChooser from "./PlanChooser.jsx";
+import CalendarSheet from "./CalendarSheet.jsx";
 
 const TABS = [
   { id: "workout", label: "Workout" },
@@ -21,11 +22,14 @@ const TABS = [
 // gymActions: { addLog({ lift, weight, reps }), removeLog(id), addLift({ lift, target, due }), removeLift(id),
 //   addExercise(name), forgetLift(name), savePlan({ id?, name, exercises }), deletePlan(id) }
 // gymSession: { session, left, actions } from useGymSession
-// onToast(message): the "Push day done — 9 sets" message when a session ends.
-export default function GymPage({ gym, todayIso, gymActions, gymSession, onToast }) {
+// onToast(message): short messages ("Push day done — 9 sets", "Push day added to …").
+// onAddEvent(fields): puts a plan on the Day calendar (see lib/schedule.js makeEvent).
+export default function GymPage({ gym, todayIso, gymActions, gymSession, onToast, onAddEvent }) {
   const ids = TABS.map((t) => t.id);
   const [tab, setTab] = useState(() => loadTab(ids));
   const [choosing, setChoosing] = useState(false);
+  // The plan whose "Add to calendar" sheet is open, or null.
+  const [calendarPlan, setCalendarPlan] = useState(null);
   const options = liftOptions(gym);
   const session = gymSession?.session;
   const active = Boolean(session?.active);
@@ -93,11 +97,25 @@ export default function GymPage({ gym, todayIso, gymActions, gymSession, onToast
           />
         )}
         {tab === "plans" && (
-          <GymPlans gym={gym} gymActions={gymActions} onStart={gymSession && ((p) => startWith(p.id))} />
+          <GymPlans
+            gym={gym}
+            gymActions={gymActions}
+            onStart={gymSession && ((p) => startWith(p.id))}
+            onCalendar={onAddEvent && setCalendarPlan}
+          />
         )}
         {tab === "exercises" && <GymExercises gym={gym} gymActions={gymActions} />}
         {tab === "history" && <GymHistory gym={gym} options={options} gymActions={gymActions} />}
       </div>
+      {calendarPlan && (
+        <CalendarSheet
+          plan={calendarPlan}
+          todayIso={todayIso}
+          onAddEvent={onAddEvent}
+          onToast={(m) => onToast?.(m)}
+          onClose={() => setCalendarPlan(null)}
+        />
+      )}
       {choosing && <PlanChooser plans={gym.plans} onPick={startWith} onClose={() => setChoosing(false)} />}
     </main>
   );

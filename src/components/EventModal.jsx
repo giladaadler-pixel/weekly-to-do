@@ -25,9 +25,10 @@ export default function EventModal({ event, start: initialStart = 540, onSave, o
           <p className="mono muted">
             {formatTime12(event.start)} – {formatTime12(event.start + event.length)} · {formatLength(event.length)}
           </p>
+          {event.repeat === "weekly" && <p className="muted small-text">Every week. Deleting it deletes every week.</p>}
           <div className="modal-buttons">
             <button type="button" className="delete-button" onClick={onDelete}>
-              Delete
+              {event.repeat === "weekly" ? "Delete every week" : "Delete"}
             </button>
             <button type="button" onClick={onCancel}>
               Close

@@ -1,5 +1,6 @@
 // The day page's hour-by-hour schedule. An event is
-// { id, date "YYYY-MM-DD", start (minutes after midnight), length (minutes), title }.
+// { id, date "YYYY-MM-DD", start (minutes after midnight), length (minutes), title,
+//   repeat? "weekly" }. A weekly event also shows on every later date on the same weekday.
 
 export const DAY_MINUTES = 24 * 60;
 export const HOURS = Array.from({ length: 24 }, (_, h) => h);
@@ -23,17 +24,31 @@ export function formatLength(minutes) {
 }
 
 // A new event, or null when the title is blank. Start and length are kept inside the day.
-export function makeEvent({ date, start, length, title }) {
+// repeat: "weekly" for every week on that weekday; anything else is a one-off.
+export function makeEvent({ date, start, length, title, repeat }) {
   const trimmed = (title ?? "").trim();
   if (!trimmed) return null;
   const s = Math.min(Math.max(0, Math.round(start)), DAY_MINUTES - 15);
   const len = Math.min(Math.max(15, Math.round(length)), DAY_MINUTES - s);
-  return { id: crypto.randomUUID(), date, start: s, length: len, title: trimmed };
+  const event = { id: crypto.randomUUID(), date, start: s, length: len, title: trimmed };
+  return repeat === "weekly" ? { ...event, repeat: "weekly" } : event;
+}
+
+function weekday(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d).getDay();
+}
+
+// Whether the event happens on this date: its own date, or (weekly) any later date on
+// the same weekday. Any other repeat value counts as a one-off.
+export function happensOn(event, date) {
+  if (event.date === date) return true;
+  return event.repeat === "weekly" && date > event.date && weekday(date) === weekday(event.date);
 }
 
 // One day's events, earliest first.
 export function eventsOn(events, date) {
-  return events.filter((e) => e.date === date).sort((a, b) => a.start - b.start);
+  return events.filter((e) => happensOn(e, date)).sort((a, b) => a.start - b.start);
 }
 
 // The events that start inside hour h (0–23).

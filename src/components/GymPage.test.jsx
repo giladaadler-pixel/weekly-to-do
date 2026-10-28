@@ -44,7 +44,7 @@ const timerActions = () => ({
   setDuration: vi.fn(),
 });
 
-function renderGym(session = IDLE_SESSION, actions = timerActions(), g = gym, onToast = vi.fn()) {
+function renderGym(session = IDLE_SESSION, actions = timerActions(), g = gym, onToast = vi.fn(), onAddEvent = vi.fn()) {
   act(() =>
     root.render(
       <GymPage
@@ -53,6 +53,7 @@ function renderGym(session = IDLE_SESSION, actions = timerActions(), g = gym, on
         gymActions={gymActions}
         gymSession={{ session, left: 90, actions }}
         onToast={onToast}
+        onAddEvent={onAddEvent}
       />,
     ),
   );
@@ -358,3 +359,43 @@ describe("Week strip", () => {
     expect(container.querySelector(".rest-timer--compact").textContent).toContain("Push day ·1:12");
   });
 });
+
+describe("Add to calendar", () => {
+  const push = { id: "p1", name: "Push day", exercises: [] };
+  function openSheet(onToast, onAddEvent) {
+    localStorage.setItem(TAB_KEY, "plans");
+    renderGym(IDLE_SESSION, timerActions(), { ...gym, plans: [push] }, onToast, onAddEvent);
+    act(() => button("Add to calendar").click());
+    return document.querySelector(".calendar-sheet");
+  }
+  const sheetButton = (sheet, text) => [...sheet.querySelectorAll("button")].find((b) => b.textContent.trim() === text);
+
+  it("adds a one-off block to the Day calendar, defaulting to today at 6 PM for an hour", () => {
+    const onToast = vi.fn();
+    const onAddEvent = vi.fn();
+    const sheet = openSheet(onToast, onAddEvent);
+    act(() => sheetButton(sheet, "Add to Day calendar").click());
+    expect(onAddEvent).toHaveBeenCalledWith({
+      date: "2026-10-28",
+      start: 1080,
+      length: 60,
+      title: "Push day",
+      repeat: undefined,
+    });
+    expect(onToast).toHaveBeenCalledWith("Push day added to Wed, Oct 28");
+    expect(document.querySelector(".calendar-sheet")).not.toBe(null);
+  });
+
+  it("adds a weekly block when Repeat every week is ticked", () => {
+    const onToast = vi.fn();
+    const onAddEvent = vi.fn();
+    const sheet = openSheet(onToast, onAddEvent);
+    act(() => sheet.querySelector('input[type="checkbox"]').click());
+    act(() => sheetButton(sheet, "Add to Day calendar").click());
+    expect(onAddEvent.mock.calls[0][0].repeat).toBe("weekly");
+    expect(onToast).toHaveBeenCalledWith("Push day added to Wed, Oct 28, every week");
+    act(() => sheetButton(sheet, "Close").click());
+    expect(document.querySelector(".calendar-sheet")).toBe(null);
+  });
+});
+

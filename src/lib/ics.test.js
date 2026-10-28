@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildReminderIcs, escapeText } from "./ics.js";
+import { buildReminderIcs, buildWorkoutIcs, escapeText, workoutFileName } from "./ics.js";
 
 const URL_ = "https://giladaadler-pixel.github.io/weekly-to-do/";
 
@@ -71,3 +71,30 @@ describe("escapeText", () => {
     expect(escapeText("a,b;c\\d\ne")).toBe("a\\,b\\;c\\\\d\\ne");
   });
 });
+
+describe("buildWorkoutIcs", () => {
+  const base = { title: "Push; heavy, day", date: "2026-10-28", start: 18 * 60 + 30, length: 60, uid: "u1@x", now: new Date(Date.UTC(2026, 9, 28, 12)) };
+
+  it("is one floating-time event with a 15-minute alert, escaped", () => {
+    const ics = buildWorkoutIcs(base);
+    const lines = ics.split("\r\n");
+    expect(lines).toContain("DTSTART:20261028T183000");
+    expect(lines).toContain("DURATION:PT60M");
+    expect(lines).toContain("TRIGGER:-PT15M");
+    expect(lines).toContain("SUMMARY:Push\\; heavy\\, day");
+    expect(ics).not.toContain("RRULE");
+    expect(ics.match(/BEGIN:VEVENT/g)).toHaveLength(1);
+    expect(ics.endsWith("END:VCALENDAR\r\n")).toBe(true);
+  });
+
+  it("repeats weekly when asked", () => {
+    expect(buildWorkoutIcs({ ...base, weekly: true }).split("\r\n")).toContain("RRULE:FREQ=WEEKLY");
+  });
+
+  it("makes a safe file name", () => {
+    expect(workoutFileName("Push day")).toBe("Push day.ics");
+    expect(workoutFileName('Arms/abs: "max"?')).toBe("Armsabs max.ics");
+    expect(workoutFileName("///")).toBe("workout.ics");
+  });
+});
+

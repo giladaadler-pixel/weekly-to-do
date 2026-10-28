@@ -331,6 +331,7 @@ export default function App() {
           gymActions={gymActions}
           gymSession={gymSession}
           onToast={showToast}
+          onAddEvent={eventActions.add}
         />
       ) : page === "notes" ? (
         <NotesPage

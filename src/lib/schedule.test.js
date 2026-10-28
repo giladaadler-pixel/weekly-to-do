@@ -3,6 +3,7 @@ import {
   formatTime,
   formatLength,
   makeEvent,
+  happensOn,
   eventsOn,
   eventsInHour,
   deleteEvent,
@@ -68,4 +69,21 @@ describe("schedule", () => {
     expect(by.d).toMatchObject({ col: 0, cols: 2 });
     expect(by.c).toMatchObject({ col: 0, cols: 1 });
   });
+
+  it("repeats a weekly event on later dates of the same weekday", () => {
+    const weekly = { ...makeEvent({ date: "2026-10-28", start: 1080, length: 60, title: "Push day", repeat: "weekly" }), id: "w" };
+    const once = { ...makeEvent({ date: "2026-10-28", start: 600, length: 30, title: "Dentist" }), id: "o" };
+    expect(weekly.repeat).toBe("weekly");
+    expect("repeat" in once).toBe(false);
+    expect(makeEvent({ date: "d", start: 0, length: 30, title: "x", repeat: "daily" }).repeat).toBeUndefined();
+    const events = [weekly, once];
+    expect(eventsOn(events, "2026-10-28").map((e) => e.id)).toEqual(["o", "w"]);
+    expect(eventsOn(events, "2026-11-04").map((e) => e.id)).toEqual(["w"]);
+    expect(eventsOn(events, "2027-03-03").map((e) => e.id)).toEqual(["w"]);
+    expect(eventsOn(events, "2026-10-21")).toEqual([]);
+    expect(eventsOn(events, "2026-11-05")).toEqual([]);
+    expect(happensOn({ ...once, repeat: "sometimes" }, "2026-11-04")).toBe(false);
+    expect(deleteEvent(events, "w").map((e) => e.id)).toEqual(["o"]);
+  });
 });
+
