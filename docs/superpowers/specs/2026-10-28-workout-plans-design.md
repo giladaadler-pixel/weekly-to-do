@@ -1,7 +1,8 @@
 # Workout plans — design
 
 Date: 2026-10-28
-Status: approved; review fixes and answers folded in (2026-10-28)
+Status: approved; review fixes and answers folded in (2026-10-28); layout simplified to
+two tabs, plans on Workout, exercises managed in the plan sheet (2026-10-28)
 
 ## Goal
 
@@ -20,7 +21,7 @@ Day calendar and/or the phone's calendar, once or every week.
 | Where do plans live? | On the Gym page. |
 | Calendar | Both: a block on the in-app Day calendar and a downloadable phone-calendar file. |
 | Repeat | One-off, or every week on the chosen day. |
-| Layout | Tabs on the Gym page: Workout · Plans · Exercises · History. |
+| Layout | Two tabs on the Gym page: Workout · History. Plans sit at the top of Workout; exercises are managed in the plan sheet (no Plans or Exercises tab). |
 | Rest timer | Log set starts the rest timer automatically — with a plan, with No plan, and with no session at all. |
 | Exercise removed from your list but still in a plan | Stays in the plan, marked "removed from your list"; it only leaves the plan when you un-tick it. |
 
@@ -36,8 +37,8 @@ All in the existing `weekly-to-do:v1` key; the key is never renamed or wiped.
   `gymOf()` defaults it to `[]`, so data saved before this feature loads unchanged.
   Plan names are trimmed; a blank name is refused. Exercises in a plan are unique
   (case-insensitive, via `canonicalLift`).
-- Exercises: the built-in `LIFTS` plus `state.gym.customLifts` (unchanged). The
-  Exercises tab edits `customLifts`. Removing an exercise from the list keeps its past
+- Exercises: the built-in `LIFTS` plus `state.gym.customLifts` (unchanged). The plan
+  sheet edits `customLifts` ("+ New exercise" adds, ✕ removes). Removing an exercise from the list keeps its past
   sets, goals, and any plan that still lists it (see the decision above).
 - Sets (`state.gym.logs`) are unchanged: `{ id, date, lift, weight, reps }`. PRs,
   strength goals and set history keep working.
@@ -50,44 +51,48 @@ All in the existing `weekly-to-do:v1` key; the key is never renamed or wiped.
 - Export/Import backup already carries `state.gym` and events, so plans and repeating
   events are included with no format change.
 
-## 2. Tabs, Plans and Exercises
+## 2. Tabs, plans and exercises
 
-**Tabs.** A row of four pill buttons under "Gym tracker": Workout · Plans · Exercises ·
-History, built as a `role="tablist"` of `role="tab"` buttons (arrow keys move between
-tabs; each panel is a `role="tabpanel"`). Workout is the default; the last tab is
-remembered (local storage, try/catch, falls back to Workout).
+**Tabs.** A row of two pill buttons under "Gym tracker": Workout · History, built as a
+`role="tablist"` of `role="tab"` buttons (arrow keys move between tabs; each panel is a
+`role="tabpanel"`). Workout is the default; the last tab is remembered (local storage,
+try/catch). A remembered tab that no longer exists — the old "plans" or "exercises" —
+opens Workout.
 
-- Workout: stats, Log a set, rest timer.
-- History: Strength goals panel and Set history panel (moved from the main page as-is).
+- Workout: "Your workout plans" at the top, then stats, Log a set and the rest timer
+  (Log a set and the rest timer unchanged, including "Other…" in Log a set).
+- History: Strength goals panel and Set history panel.
 
-**Plans tab.**
+**Your workout plans** (top of the Workout tab, a labelled section).
 - One card per plan: name, exercises as small chips, and buttons **Start**, **Edit**,
   **Add to calendar**.
-- Empty state and a "Create plan" area: quick-start buttons Push · Pull · Leg · Upper ·
-  Lower · Full body (names "Push day", "Pull day", "Leg day", "Upper day", "Lower day",
-  "Full body day") plus a text box for any name. Each opens the plan sheet on a new plan.
-  A quick-start whose name already exists opens that plan instead of making a duplicate.
-- **Plan sheet** (modal, like TaskSheet; Escape and backdrop close it):
-  - Name field.
-  - All exercises as toggle chips (`aria-pressed`); tapping adds/removes from the plan.
-  - "+ New exercise" field: adds to `customLifts` and to this plan.
-  - Chosen exercises in order with ▲ / ▼ buttons (labelled "Move Bench press up").
-    An exercise no longer in your list still shows here, marked "removed from your
-    list", with a toggle to take it out of the plan; saving keeps it unless un-ticked.
-  - Save, Cancel, Delete plan (asks "Delete Push day? Your logged sets stay.").
-  - Saving with no exercises is allowed (a plan can be filled in later).
+- An **Add workout plan** button opens the plan sheet straight away on a new, empty plan.
+- With no plans yet the section shows "No plans yet" and the Add workout plan button.
 
-**Exercises tab.**
-- Text field + Add. Names tidied by `canonicalLift` (trim, collapse spaces, match an
-  existing spelling ignoring case); duplicates are not added; blank shows
+**Plan sheet** (modal, like TaskSheet; Escape and backdrop close it):
+- For a new plan only: name suggestions above the name field — Push · Pull · Leg ·
+  Upper · Lower · Full body. Tapping one fills in the name ("Push day", "Pull day",
+  "Leg day", "Upper day", "Lower day", "Full body day").
+- Name field. Blank shows "Enter a plan name". A name you already have (ignoring case)
+  shows "You already have Push day. Pick another name, or edit that one." and nothing is
+  saved, so plans aren't duplicated.
+- All exercises as toggle chips (`aria-pressed`); tapping adds/removes from the plan.
+  Each of your own exercises (not the built-ins) has a small ✕ ("Remove Pec fly from
+  your list. Its sets and plans stay.") that removes it from your list — its sets stay,
+  and it stays in any plan that uses it (marked, see below).
+- "+ New exercise" field: tidied by `canonicalLift` (trim, collapse spaces, match an
+  existing spelling ignoring case); adds to `customLifts` and to this plan. Blank shows
   "Enter an exercise name".
-- List: built-ins first (no remove), then the user's own, each with ✕
-  ("Remove Pec fly from your list. Its sets and plans stay.").
+- Chosen exercises in order with ▲ / ▼ buttons (labelled "Move Bench press up").
+  An exercise no longer in your list still shows here, marked "removed from your
+  list", with a toggle to take it out of the plan; saving keeps it unless un-ticked.
+- Save, Cancel, Delete plan (asks "Delete Push day? Your logged sets stay.").
+- Saving with no exercises is allowed (a plan can be filled in later).
 
 ## 3. Doing a workout (Workout tab)
 
-1. **Start gym session** opens a chooser: one button per plan plus **No plan**. A plan
-   card's Start skips the chooser and switches to the Workout tab.
+1. **Start gym session** opens a chooser: one button per plan plus **No plan** (with no
+   plans it starts straight away with No plan). A plan card's Start skips the chooser.
 2. While a session with a plan is on:
    - Header reads "<Plan name> · session on".
    - Log a set shows the plan's exercises as large toggle buttons in plan order (min
@@ -134,15 +139,18 @@ remembered (local storage, try/catch, falls back to Workout).
 - `src/lib/schedule.js`: weekly repeat in `makeEvent` / `eventsOn`.
 - `src/lib/ics.js`: `buildWorkoutIcs`; `escapeText` escapes semicolons (fixed
   2026-10-28: it used `"\;"`, which is just `";"` in JavaScript).
-- Components (new): `GymTabs`, `GymWorkout`, `GymPlans`, `PlanSheet`, `GymExercises`,
-  `GymHistory`, `PlanChooser`, `CalendarSheet`. `GymPage.jsx` becomes the tab shell.
+- Components (new): `GymTabs`, `GymWorkout`, `GymPlans` ("Your workout plans"),
+  `PlanSheet` (also manages exercises), `GymHistory`, `PlanChooser`, `CalendarSheet`.
+  `GymPage.jsx` is the tab shell. (`GymExercises` and the Plans/Exercises tabs were
+  removed when the layout was simplified.)
 - Styles: existing classes (`panel`, `accent-button`, `ghost-button`, `rest-preset`
-  pills, `custom-lift` chips, `modal`); new rules only for the tab row and exercise
+  pills, `modal`); new rules only for the tab row, plan cards, the chip ✕ and exercise
   buttons, using existing tokens.
 
 ## Error handling
 
-- Blank plan or exercise names are refused with a field error; nothing is saved.
+- Blank plan or exercise names, and a new or renamed plan with a name you already have,
+  are refused with a field error; nothing is saved.
 - A plan referencing a removed exercise still shows it; a session whose plan was deleted
   falls back to No plan.
 - Corrupt or missing `plans` / `planId` / `setsLogged` / `repeat` values are treated as
@@ -154,9 +162,11 @@ remembered (local storage, try/catch, falls back to Workout).
 Unit (vitest): plans.js functions; `gymOf` on old data without `plans`; `lastWeight`;
 weekly `eventsOn`; `buildWorkoutIcs` (with and without RRULE, escaping incl. `;`);
 `startSession` keeps `startedAt`; `countSet`.
-Component: tab switching and remembered tab; create plan from a quick-start; edit plan
-(toggle, reorder, new exercise, removed-from-list exercise kept, delete with confirm);
-Exercises add/dupe/remove; session chooser; logging from exercise buttons with
+Component: two tabs, switching and remembered tab (old "plans"/"exercises" open
+Workout); "No plans yet"; plan cards' buttons; Add workout plan with a name suggestion;
+blank and duplicate plan names refused; edit plan (toggle, reorder, new exercise,
+removed-from-list exercise kept, delete with confirm); ✕ removes only your own
+exercises and doesn't change the plan; session chooser; logging from exercise buttons with
 pre-filled weight and timer auto-start (in a session and without one); End session
 toast; Add to Day calendar (single and weekly).
 `npm test` and `npm run build` must pass before each commit.

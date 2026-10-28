@@ -1,44 +1,28 @@
 import { useState } from "react";
-import { STARTER_PLANS, findPlanByName } from "../lib/plans.js";
 import PlanSheet from "./PlanSheet.jsx";
 
-// Plans tab: one card per workout plan, and quick ways to start a new one.
-// A quick-start (or typed name) that matches an existing plan opens that plan instead.
+// "Your workout plans", at the top of the Workout tab: one card per plan, and Add workout
+// plan, which opens the plan sheet on a new, empty plan.
 // onStart(plan) and onCalendar(plan) are optional: their buttons show only when given.
 export default function GymPlans({ gym, gymActions, onStart, onCalendar }) {
   // The plan open in the sheet: { id?, name, exercises }, or null.
   const [editing, setEditing] = useState(null);
-  const [newName, setNewName] = useState("");
-  const [error, setError] = useState(false);
   const { plans } = gym;
 
-  function open(name) {
-    const existing = findPlanByName(plans, name);
-    setEditing(existing ?? { name: name.trim().replace(/\s+/g, " "), exercises: [] });
-  }
-
-  function onCreate(e) {
-    e.preventDefault();
-    if (!newName.trim()) {
-      setError(true);
-      e.currentTarget.querySelector("input")?.focus();
-      return;
-    }
-    open(newName);
-    setNewName("");
-  }
-
   return (
-    <>
-      {plans.length === 0 && (
-        <section className="panel">
-          <h2 className="kicker">Plans</h2>
-          <p className="muted">No plans yet. Make one below — like a push day with bench press and overhead press.</p>
-        </section>
-      )}
+    <section className="panel gym-plans" aria-labelledby="your-plans">
+      <div className="gym-plans-head">
+        <h2 id="your-plans" className="kicker">
+          Your workout plans
+        </h2>
+        <button type="button" className="ghost-button bordered" onClick={() => setEditing({ name: "", exercises: [] })}>
+          Add workout plan
+        </button>
+      </div>
+      {plans.length === 0 && <p className="muted">No plans yet</p>}
       {plans.map((p) => (
-        <section key={p.id} className="panel plan-card" aria-label={p.name}>
-          <h2 className="plan-card-name">{p.name}</h2>
+        <article key={p.id} className="plan-card" aria-label={p.name}>
+          <h3 className="plan-card-name">{p.name}</h3>
           {p.exercises.length > 0 ? (
             <ul className="plan-tags">
               {p.exercises.map((ex) => (
@@ -65,59 +49,21 @@ export default function GymPlans({ gym, gymActions, onStart, onCalendar }) {
               </button>
             )}
           </div>
-        </section>
+        </article>
       ))}
-
-      <section className="panel" aria-labelledby="create-plan">
-        <h2 id="create-plan" className="kicker">
-          Create plan
-        </h2>
-        <div className="plan-starters">
-          {STARTER_PLANS.map((name) => (
-            <button key={name} type="button" className="rest-preset" onClick={() => open(name)}>
-              {name.replace(/ day$/, "")}
-            </button>
-          ))}
-        </div>
-        <form className="inline-form plan-create" onSubmit={onCreate}>
-          <div className="form-field">
-            <label htmlFor="new-plan-name">Or any name</label>
-            <input
-              id="new-plan-name"
-              className="text-input"
-              maxLength={40}
-              placeholder="e.g. Arms and abs"
-              aria-invalid={error || undefined}
-              aria-describedby={error ? "new-plan-error" : undefined}
-              value={newName}
-              onChange={(e) => {
-                setNewName(e.target.value);
-                setError(false);
-              }}
-            />
-            {error && (
-              <span id="new-plan-error" className="field-error" role="alert">
-                Enter a plan name
-              </span>
-            )}
-          </div>
-          <button className="ghost-button bordered" type="submit">
-            Create
-          </button>
-        </form>
-      </section>
 
       {editing && (
         <PlanSheet
-          key={editing.id ?? editing.name}
+          key={editing.id ?? "new"}
           plan={editing}
           gym={gym}
           onSave={gymActions.savePlan}
           onDelete={gymActions.deletePlan}
           onAddExercise={gymActions.addExercise}
+          onForgetExercise={gymActions.forgetLift}
           onClose={() => setEditing(null)}
         />
       )}
-    </>
+    </section>
   );
 }

@@ -1,18 +1,21 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { canonicalLift, liftOptions } from "../lib/gym.js";
-import { movePlanExercise, toggleExercise } from "../lib/plans.js";
+import { STARTER_PLANS, findPlanByName, movePlanExercise, toggleExercise } from "../lib/plans.js";
 import Icon from "./Icons.jsx";
 
 // Create or edit one workout plan: its name, which exercises are in it, and their order.
-// plan: { id?, name, exercises } — no id means a new plan.
+// This is also where you manage your exercises: add new ones, and ✕ removes one of your
+// own from your list (built-ins can't be removed). Removing keeps its sets, and it stays
+// in any plan that uses it, marked, until you take it out here.
+// plan: { id?, name, exercises } — no id means a new plan, with name suggestions
+// (Push day, Pull day…) above the name field.
 // onSave({ id, name, exercises }) returns false when the name is blank.
-// An exercise you've since removed from your list stays in the plan (marked) until you
-// take it out here.
-export default function PlanSheet({ plan, gym, onSave, onDelete, onAddExercise, onClose }) {
+export default function PlanSheet({ plan, gym, onSave, onDelete, onAddExercise, onForgetExercise, onClose }) {
   const [name, setName] = useState(plan.name);
   const [exercises, setExercises] = useState(plan.exercises);
-  const [nameError, setNameError] = useState(false);
+  // "" or the message under the name field.
+  const [nameError, setNameError] = useState("");
   const [newName, setNewName] = useState("");
   const [newError, setNewError] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -29,8 +32,14 @@ export default function PlanSheet({ plan, gym, onSave, onDelete, onAddExercise, 
 
   function onSubmit(e) {
     e.preventDefault();
-    if (!name.trim() || !onSave({ id: plan.id, name, exercises })) {
-      setNameError(true);
+    const twin = findPlanByName(gym.plans, name);
+    const error = !name.trim()
+      ? "Enter a plan name"
+      : twin && twin.id !== plan.id
+        ? `You already have ${twin.name}. Pick another name, or edit that one.`
+        : "";
+    if (error || !onSave({ id: plan.id, name, exercises })) {
+      setNameError(error || "Enter a plan name");
       e.currentTarget.querySelector("#plan-name")?.focus();
       return;
     }
@@ -58,6 +67,24 @@ export default function PlanSheet({ plan, gym, onSave, onDelete, onAddExercise, 
         aria-label={plan.id ? `Edit ${plan.name}` : "New plan"}
       >
         <h2>{plan.id ? "Edit plan" : "New plan"}</h2>
+        {!plan.id && (
+          <div className="plan-starters" role="group" aria-label="Name suggestions">
+            {STARTER_PLANS.map((s) => (
+              <button
+                key={s}
+                type="button"
+                className="rest-preset"
+                aria-pressed={name === s}
+                onClick={() => {
+                  setName(s);
+                  setNameError("");
+                }}
+              >
+                {s.replace(/ day$/, "")}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="form-field">
           <label htmlFor="plan-name">Name</label>
           <input
@@ -70,12 +97,12 @@ export default function PlanSheet({ plan, gym, onSave, onDelete, onAddExercise, 
             aria-describedby={nameError ? "plan-name-error" : undefined}
             onChange={(e) => {
               setName(e.target.value);
-              setNameError(false);
+              setNameError("");
             }}
           />
           {nameError && (
             <span id="plan-name-error" className="field-error" role="alert">
-              Enter a plan name
+              {nameError}
             </span>
           )}
         </div>
@@ -83,17 +110,32 @@ export default function PlanSheet({ plan, gym, onSave, onDelete, onAddExercise, 
         <fieldset className="plan-pick">
           <legend className="muted small-text">Exercises</legend>
           <div className="plan-chips">
-            {options.map((o) => (
-              <button
-                key={o}
-                type="button"
-                className="rest-preset plan-chip"
-                aria-pressed={lower.includes(o.toLowerCase())}
-                onClick={() => setExercises((list) => toggleExercise(list, o))}
-              >
-                {o}
-              </button>
-            ))}
+            {options.map((o) => {
+              const own = gym.customLifts.includes(o);
+              return (
+                <span key={o} className={`plan-chip-wrap${own ? " own" : ""}`}>
+                  <button
+                    type="button"
+                    className="rest-preset plan-chip"
+                    aria-pressed={lower.includes(o.toLowerCase())}
+                    onClick={() => setExercises((list) => toggleExercise(list, o))}
+                  >
+                    {o}
+                  </button>
+                  {own && onForgetExercise && (
+                    <button
+                      type="button"
+                      className="plan-chip-remove"
+                      onClick={() => onForgetExercise(o)}
+                      aria-label={`Remove ${o} from your list. Its sets and plans stay.`}
+                      title="Remove from your list. Its sets and plans stay."
+                    >
+                      <Icon name="close" size={10} />
+                    </button>
+                  )}
+                </span>
+              );
+            })}
           </div>
           <div className="plan-new">
             <input

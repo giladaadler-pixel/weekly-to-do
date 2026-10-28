@@ -1607,10 +1607,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .gym-tab { min-height: 2.5rem; padding: 0 1rem; border: 1px solid var(--border); border-radius: 99px; background: transparent; color: var(--muted); font: inherit; font-size: 0.9rem; font-weight: 500; cursor: pointer; }
 .gym-tab:hover { border-color: var(--accent-line); color: var(--text); }
 .gym-tab[aria-selected="true"] { border-color: var(--accent-line); background: var(--accent-soft); color: var(--accent); }
-.exercise-list { margin: 0; padding: 0; list-style: none; }
-.exercise-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; min-height: 2.75rem; border-bottom: 1px solid var(--border); }
-.exercise-row:last-child { border-bottom: 0; }
-.exercise-add { padding-top: 0; border-top: 0; }
 /* Small stat row: there but quiet, so the log stays the focus. */
 .stat-row { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; padding: 0 0.25rem; }
 .stat-mini { display: flex; align-items: baseline; gap: 0.5rem; }
@@ -1961,8 +1957,13 @@ summary:active {
 .plan-tag { padding: 0.25rem 0.65rem; border: 1px solid var(--border); border-radius: 99px; color: var(--muted); font-size: 0.8rem; }
 .plan-card-actions, .plan-starters, .plan-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .plan-card-actions .accent-button { padding: 0 1.4rem; }
-.plan-create { padding-top: 0; border-top: 0; }
-.plan-chip[aria-pressed="true"] { border-color: var(--accent-line); background: var(--accent-soft); color: var(--accent); }
+.gym-plans-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.plan-card { display: flex; flex-direction: column; gap: 0.6rem; padding-top: 0.9rem; border-top: 1px solid var(--border); }
+.plan-chip-wrap { display: inline-flex; align-items: center; }
+.plan-chip-wrap.own .plan-chip { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.plan-chip-remove { display: inline-flex; align-items: center; justify-content: center; align-self: stretch; min-width: 1.9rem; border: 1px solid var(--border); border-left: 0; border-radius: 0 99px 99px 0; background: transparent; color: var(--muted); cursor: pointer; }
+.plan-chip-remove:hover { border-color: var(--high); color: var(--high); }
+.plan-chip[aria-pressed="true"], .plan-starters .rest-preset[aria-pressed="true"] { border-color: var(--accent-line); background: var(--accent-soft); color: var(--accent); }
 .plan-sheet { width: min(30rem, 92vw); }
 .plan-pick { display: flex; flex-direction: column; gap: 0.5rem; margin: 0; padding: 0; border: 0; }
 .plan-pick legend { margin-bottom: 0.5rem; padding: 0; }

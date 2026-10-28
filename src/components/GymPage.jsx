@@ -3,21 +3,19 @@ import { liftOptions } from "../lib/gym.js";
 import GymTabs, { loadTab, saveTab } from "./GymTabs.jsx";
 import GymWorkout from "./GymWorkout.jsx";
 import GymPlans from "./GymPlans.jsx";
-import GymExercises from "./GymExercises.jsx";
 import GymHistory from "./GymHistory.jsx";
 import PlanChooser from "./PlanChooser.jsx";
 import CalendarSheet from "./CalendarSheet.jsx";
 
 const TABS = [
   { id: "workout", label: "Workout" },
-  { id: "plans", label: "Plans" },
-  { id: "exercises", label: "Exercises" },
   { id: "history", label: "History" },
 ];
 
-// The Gym page: a header with the session button, then tabs — Workout (log a set and the
-// rest timer), Plans (your workout plans), Exercises (your exercise list) and History
-// (strength goals and set history).
+// The Gym page: a header with the session button, then two tabs — Workout (your workout
+// plans, then log a set and the rest timer) and History (strength goals and set history).
+// Exercises are managed in the plan sheet. A remembered tab that no longer exists (the old
+// Plans and Exercises tabs) opens Workout.
 // Starting a session also shows the rest timer on the Week page.
 // gymActions: { addLog({ lift, weight, reps }), removeLog(id), addLift({ lift, target, due }), removeLift(id),
 //   addExercise(name), forgetLift(name), savePlan({ id?, name, exercises }), deletePlan(id) }
@@ -86,6 +84,14 @@ export default function GymPage({ gym, todayIso, gymActions, gymSession, onToast
 
       <div className="gym-panel" role="tabpanel" id={`gym-panel-${tab}`} aria-labelledby={`gym-tab-${tab}`}>
         {tab === "workout" && (
+          <GymPlans
+            gym={gym}
+            gymActions={gymActions}
+            onStart={gymSession && ((p) => startWith(p.id))}
+            onCalendar={onAddEvent && setCalendarPlan}
+          />
+        )}
+        {tab === "workout" && (
           <GymWorkout
             key={plan?.id ?? "no-plan"}
             plan={plan}
@@ -96,15 +102,6 @@ export default function GymPage({ gym, todayIso, gymActions, gymSession, onToast
             gymSession={gymSession}
           />
         )}
-        {tab === "plans" && (
-          <GymPlans
-            gym={gym}
-            gymActions={gymActions}
-            onStart={gymSession && ((p) => startWith(p.id))}
-            onCalendar={onAddEvent && setCalendarPlan}
-          />
-        )}
-        {tab === "exercises" && <GymExercises gym={gym} gymActions={gymActions} />}
         {tab === "history" && <GymHistory gym={gym} options={options} gymActions={gymActions} />}
       </div>
       {calendarPlan && (

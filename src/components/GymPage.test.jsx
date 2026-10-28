@@ -74,10 +74,11 @@ function typeInto(input, value) {
 const button = (text) => [...container.querySelectorAll("button")].find((b) => b.textContent.trim() === text);
 
 describe("GymPage", () => {
-  it("opens on the Workout tab: the log and rest timer, with no Sun–Sat strip", () => {
+  it("has two tabs and opens on Workout: plans, then the log and rest timer", () => {
     renderGym();
+    expect([...container.querySelectorAll('[role="tab"]')].map((t) => t.textContent)).toEqual(["Workout", "History"]);
     expect(tab("Workout").getAttribute("aria-selected")).toBe("true");
-    expect(headings()).toEqual(["Log a set", "Rest timer"]);
+    expect(headings()).toEqual(["Your workout plans", "Log a set", "Rest timer"]);
     expect(container.querySelector(".gym-strip")).toBe(null);
   });
 
@@ -91,16 +92,20 @@ describe("GymPage", () => {
     expect(tab("Workout").getAttribute("aria-selected")).toBe("true");
     expect(document.activeElement).toBe(tab("Workout"));
     act(() => root.unmount());
-    localStorage.setItem(TAB_KEY, "exercises");
+    localStorage.setItem(TAB_KEY, "history");
     root = createRoot(container);
     renderGym();
-    expect(tab("Exercises").getAttribute("aria-selected")).toBe("true");
+    expect(tab("History").getAttribute("aria-selected")).toBe("true");
   });
 
-  it("falls back to Workout when the saved tab is unknown", () => {
-    localStorage.setItem(TAB_KEY, "nope");
-    renderGym();
-    expect(tab("Workout").getAttribute("aria-selected")).toBe("true");
+  it("opens Workout when the remembered tab was the old Plans or Exercises tab", () => {
+    for (const old of ["plans", "exercises", "nope"]) {
+      localStorage.setItem(TAB_KEY, old);
+      renderGym();
+      expect(tab("Workout").getAttribute("aria-selected")).toBe("true");
+      act(() => root.unmount());
+      root = createRoot(container);
+    }
   });
 
   it("shows a 90 second rest timer that starts by hand", () => {
@@ -151,66 +156,49 @@ describe("RestTimer compact (Week page)", () => {
   });
 });
 
-describe("Exercises tab", () => {
-  function openExercises(g) {
-    localStorage.setItem(TAB_KEY, "exercises");
-    renderGym(IDLE_SESSION, timerActions(), g);
-  }
-  const submit = () =>
-    act(() => container.querySelector(".exercise-add").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })));
-
-  it("adds a tidied new exercise, and refuses a blank one", () => {
-    gymActions.addExercise.mockClear();
-    openExercises({ ...gym, customLifts: [] });
-    submit();
-    expect(container.querySelector(".field-error").textContent).toBe("Enter an exercise name");
-    expect(gymActions.addExercise).not.toHaveBeenCalled();
-    typeInto(container.querySelector("#new-exercise"), "  pec   fly ");
-    submit();
-    expect(gymActions.addExercise).toHaveBeenCalledWith("pec fly");
-  });
-
-  it("doesn't add a duplicate, ignoring case", () => {
-    gymActions.addExercise.mockClear();
-    openExercises({ ...gym, customLifts: ["Pec fly"] });
-    typeInto(container.querySelector("#new-exercise"), "BENCH PRESS");
-    submit();
-    typeInto(container.querySelector("#new-exercise"), "pec FLY");
-    submit();
-    expect(gymActions.addExercise).not.toHaveBeenCalled();
-    expect(container.querySelector('[role="status"]').textContent).toBe("Pec fly is already on your list.");
-  });
-
-  it("lists built-ins without remove, and removes your own", () => {
-    gymActions.forgetLift.mockClear();
-    openExercises({ ...gym, customLifts: ["Pec fly"] });
-    const removes = container.querySelectorAll(".exercise-row button");
-    expect(removes).toHaveLength(1);
-    expect(removes[0].getAttribute("aria-label")).toBe("Remove Pec fly from your list. Its sets and plans stay.");
-    act(() => removes[0].click());
-    expect(gymActions.forgetLift).toHaveBeenCalledWith("Pec fly");
-  });
-});
-
-describe("Plans tab", () => {
+describe("Your workout plans", () => {
   const push = { id: "p1", name: "Push day", exercises: ["Bench press", "Overhead press", "Cable fly"] };
-  function openPlans(g) {
-    localStorage.setItem(TAB_KEY, "plans");
-    renderGym(IDLE_SESSION, timerActions(), g);
-  }
   const sheet = () => document.querySelector(".plan-sheet");
   const sheetButton = (text) => [...sheet().querySelectorAll("button")].find((b) => b.textContent.trim() === text);
   const saveSheet = () => act(() => sheet().dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })));
+  const plansSection = () => container.querySelector(".gym-plans");
 
   beforeEach(() => {
     gymActions.savePlan.mockClear();
     gymActions.deletePlan.mockClear();
     gymActions.addExercise.mockClear();
+    gymActions.forgetLift.mockClear();
   });
 
-  it("creates a plan from a quick-start", () => {
-    openPlans(gym);
-    act(() => button("Push").click());
+  it("with no plans, says so and offers Add workout plan", () => {
+    renderGym();
+    expect(plansSection().textContent).toContain("No plans yet");
+    expect(button("Add workout plan")).toBeTruthy();
+    expect(plansSection().querySelector(".plan-card")).toBe(null);
+  });
+
+  it("shows each plan as a card with Start, Edit and Add to calendar", () => {
+    renderGym(IDLE_SESSION, timerActions(), { ...gym, plans: [push] });
+    const card = plansSection().querySelector(".plan-card");
+    expect(card.querySelector("h3").textContent).toBe("Push day");
+    expect([...card.querySelectorAll(".plan-tag")].map((t) => t.textContent)).toEqual(push.exercises);
+    expect([...card.querySelectorAll("button")].map((b) => b.textContent)).toEqual(["Start", "Edit", "Add to calendar"]);
+  });
+
+  it("Add workout plan opens an empty plan; a suggestion fills in the name", () => {
+    renderGym();
+    act(() => button("Add workout plan").click());
+    expect(sheet().getAttribute("aria-label")).toBe("New plan");
+    expect(sheet().querySelector("#plan-name").value).toBe("");
+    expect([...sheet().querySelectorAll('[aria-label="Name suggestions"] button')].map((b) => b.textContent)).toEqual([
+      "Push",
+      "Pull",
+      "Leg",
+      "Upper",
+      "Lower",
+      "Full body",
+    ]);
+    act(() => sheetButton("Push").click());
     expect(sheet().querySelector("#plan-name").value).toBe("Push day");
     act(() => sheetButton("Bench press").click());
     act(() => sheetButton("Overhead press").click());
@@ -224,22 +212,24 @@ describe("Plans tab", () => {
     expect(sheet()).toBe(null);
   });
 
-  it("opens the existing plan instead of making a duplicate", () => {
-    openPlans({ ...gym, plans: [push] });
-    act(() => button("Push").click());
-    expect(sheet().getAttribute("aria-label")).toBe("Edit Push day");
-  });
-
-  it("refuses a blank plan name", () => {
-    openPlans(gym);
-    act(() => container.querySelector(".plan-create").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })));
-    expect(container.querySelector("#new-plan-error").textContent).toBe("Enter a plan name");
-    expect(sheet()).toBe(null);
+  it("refuses a blank name, and a name you already have", () => {
+    renderGym(IDLE_SESSION, timerActions(), { ...gym, plans: [push] });
+    act(() => button("Add workout plan").click());
+    saveSheet();
+    expect(sheet().querySelector("#plan-name-error").textContent).toBe("Enter a plan name");
+    act(() => sheetButton("Push").click());
+    saveSheet();
+    expect(sheet().querySelector("#plan-name-error").textContent).toBe(
+      "You already have Push day. Pick another name, or edit that one.",
+    );
+    expect(gymActions.savePlan).not.toHaveBeenCalled();
   });
 
   it("edits a plan: reorder, new exercise, and keeps one removed from your list", () => {
-    openPlans({ ...gym, plans: [push] });
+    renderGym(IDLE_SESSION, timerActions(), { ...gym, plans: [push] });
     act(() => button("Edit").click());
+    // No name suggestions when editing.
+    expect(sheet().querySelector('[aria-label="Name suggestions"]')).toBe(null);
     // Cable fly isn't built in or in customLifts: it stays, marked.
     expect(sheet().textContent).toContain("Cable fly · removed from your list");
     act(() => sheet().querySelector('[aria-label="Move Overhead press up"]').click());
@@ -254,8 +244,29 @@ describe("Plans tab", () => {
     });
   });
 
+  it("refuses a blank new exercise", () => {
+    renderGym();
+    act(() => button("Add workout plan").click());
+    act(() => sheetButton("Add").click());
+    expect(sheet().textContent).toContain("Enter an exercise name");
+    expect(gymActions.addExercise).not.toHaveBeenCalled();
+  });
+
+  it("✕ removes one of your own exercises from your list, never a built-in", () => {
+    renderGym(IDLE_SESSION, timerActions(), { ...gym, customLifts: ["Pec fly"], plans: [push] });
+    act(() => button("Edit").click());
+    const removes = sheet().querySelectorAll(".plan-chip-remove");
+    expect(removes).toHaveLength(1);
+    expect(removes[0].getAttribute("aria-label")).toBe("Remove Pec fly from your list. Its sets and plans stay.");
+    act(() => removes[0].click());
+    expect(gymActions.forgetLift).toHaveBeenCalledWith("Pec fly");
+    // Removing doesn't change the plan being edited.
+    saveSheet();
+    expect(gymActions.savePlan.mock.calls[0][0].exercises).toEqual(push.exercises);
+  });
+
   it("deletes a plan only after confirming", () => {
-    openPlans({ ...gym, plans: [push] });
+    renderGym(IDLE_SESSION, timerActions(), { ...gym, plans: [push] });
     act(() => button("Edit").click());
     act(() => sheetButton("Delete plan").click());
     expect(sheet().textContent).toContain("Delete Push day? Your logged sets stay.");
@@ -265,7 +276,7 @@ describe("Plans tab", () => {
   });
 
   it("closes the sheet on Escape without saving", () => {
-    openPlans({ ...gym, plans: [push] });
+    renderGym(IDLE_SESSION, timerActions(), { ...gym, plans: [push] });
     act(() => button("Edit").click());
     act(() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" })));
     expect(sheet()).toBe(null);
@@ -300,8 +311,7 @@ describe("Doing a workout", () => {
     expect(document.querySelector(".plan-chooser")).toBe(null);
   });
 
-  it("a plan card's Start skips the chooser and opens the Workout tab", () => {
-    localStorage.setItem(TAB_KEY, "plans");
+  it("a plan card's Start skips the chooser and stays on Workout", () => {
     const actions = renderGym(IDLE_SESSION, timerActions(), withPlan);
     act(() => button("Start").click());
     expect(actions.startSession).toHaveBeenCalledWith("p1");
@@ -363,7 +373,6 @@ describe("Week strip", () => {
 describe("Add to calendar", () => {
   const push = { id: "p1", name: "Push day", exercises: [] };
   function openSheet(onToast, onAddEvent) {
-    localStorage.setItem(TAB_KEY, "plans");
     renderGym(IDLE_SESSION, timerActions(), { ...gym, plans: [push] }, onToast, onAddEvent);
     act(() => button("Add to calendar").click());
     return document.querySelector(".calendar-sheet");
