@@ -29,6 +29,8 @@ import { makeEvent, deleteEvent } from "./lib/schedule.js";
 import { gymOf, makeLog, makeLiftGoal, rememberLift } from "./lib/gym.js";
 import DayPage from "./components/DayPage.jsx";
 import GymPage from "./components/GymPage.jsx";
+import RestTimer from "./components/RestTimer.jsx";
+import useGymSession from "./lib/useGymSession.js";
 import Toast from "./components/Toast.jsx";
 import { streak } from "./lib/streaks.js";
 
@@ -73,6 +75,8 @@ export default function App() {
   const [viewWeek, setViewWeek] = useState(() => weekStart(todayIso));
   // "week" | "day" | "gym" | "accomplishments" | "notes". Not saved: the app always opens on Week.
   const [page, setPage] = useState("week");
+  // Gym session + rest timer (own storage key, not the main saved data).
+  const gymSession = useGymSession();
   // Notes page selection: a goal id, "general", or null for its default. Not saved.
   const [notesSelected, setNotesSelected] = useState(null);
   // The date shown on the day (hourly schedule) page. Not saved.
@@ -306,7 +310,7 @@ export default function App() {
           }}
         />
       ) : page === "gym" ? (
-        <GymPage gym={gymOf(state)} todayIso={todayIso} gymActions={gymActions} onOpenDay={openDay} />
+        <GymPage gym={gymOf(state)} todayIso={todayIso} gymActions={gymActions} gymSession={gymSession} />
       ) : page === "notes" ? (
         <NotesPage
           goals={state.goals}
@@ -335,6 +339,17 @@ export default function App() {
           repeatActions={repeatActions}
           goalActions={goalActions}
           onOpenDay={openDay}
+          banner={
+            gymSession.session.active && (
+              <RestTimer
+                compact
+                session={gymSession.session}
+                left={gymSession.left}
+                actions={gymSession.actions}
+                onOpenGym={() => goToPage("gym")}
+              />
+            )
+          }
         />
       )}
       <Sidebar

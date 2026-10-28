@@ -1597,18 +1597,50 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .day-tasks { display: flex; flex-direction: column; gap: 0.4rem; }
 
 /* Gym page */
-.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 0.75rem; }
-.stat { display: flex; flex-direction: column; gap: 0.25rem; }
+.gym-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 0.75rem; }
+.gym-header .accent-button, .gym-header .ghost-button { padding: 0 1.1rem; }
+.gym-session-note { margin: -0.75rem 0 0; }
+.gym-page > .panel { display: flex; flex-direction: column; gap: 0.9rem; }
+/* Small stat row: there but quiet, so the log stays the focus. */
+.stat-row { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; padding: 0 0.25rem; }
+.stat-mini { display: flex; align-items: baseline; gap: 0.5rem; }
+.stat-mini .stat-value { font-size: 1rem; font-weight: 600; }
 .stat-value { font-size: 1.75rem; font-weight: 600; }
-.gym-strip { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.gym-day { display: flex; flex: 1 1 5rem; flex-direction: column; align-items: center; gap: 0.45rem; padding: 0.75rem 0.5rem; color: var(--text); font: inherit; font-size: 0.8rem; cursor: pointer; }
-.gym-day:hover, .gym-day.is-today { border-color: var(--accent-line); }
-.gym-dot { width: 10px; height: 10px; border-radius: 99px; background: var(--border); }
-.gym-day.trained .gym-dot { background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
-.gym-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1.25rem; }
-.gym-main { display: flex; flex: 999 1 26rem; flex-direction: column; gap: 1rem; min-width: 0; }
-.gym-main .panel { display: flex; flex-direction: column; gap: 0.9rem; }
-.log-form { flex: 1 1 17rem; min-width: 0; }
+/* Log a set (big, main focus) beside the rest timer; they stack on phones. */
+.gym-focus { display: flex; flex-wrap: wrap; align-items: stretch; gap: 1.25rem; }
+.gym-log { flex: 2 1 22rem; min-width: 0; padding: 1.5rem; gap: 1.1rem; }
+.gym-log-title { margin: 0; font-size: 1.35rem; font-weight: 600; }
+.gym-log .text-input { min-height: 3.25rem; font-size: 1.15rem; }
+.gym-log .accent-button { min-height: 3.5rem; font-size: 1.1rem; }
+/* Rest timer */
+.rest-timer { display: flex; flex: 1 1 15rem; flex-direction: column; gap: 0.8rem; min-width: 0; }
+.rest-clock { font-size: 3rem; font-weight: 600; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.rest-timer.is-running .rest-clock { color: var(--accent); text-shadow: 0 0 18px var(--accent-glow); }
+.rest-timer.is-done { border-color: var(--accent-line); animation: rest-flash 0.5s ease-in-out 4; }
+.rest-timer.is-done .rest-clock { color: var(--accent); font-size: 2rem; }
+@keyframes rest-flash { 50% { box-shadow: 0 0 0 2px var(--accent), 0 0 36px var(--accent-glow); } }
+.rest-meter { height: 6px; border-radius: 99px; background: var(--border); overflow: hidden; }
+.rest-meter span { display: block; height: 100%; background: var(--accent); transition: width 0.25s linear; }
+.rest-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.rest-actions .accent-button { flex: 1 1 8rem; }
+.rest-actions .ghost-button { min-height: 2.9rem; padding: 0 1rem; }
+.rest-length { display: flex; flex-direction: column; gap: 0.45rem; padding-top: 0.8rem; border-top: 1px solid var(--border); }
+.rest-length-row { display: flex; align-items: center; gap: 0.5rem; }
+.rest-length-row .square-button.small { border-color: var(--border); color: var(--text); font-size: 1.1rem; }
+.rest-length-value { min-width: 3.5rem; text-align: center; font-weight: 600; }
+.rest-presets { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.rest-preset { padding: 0.35rem 0.7rem; border: 1px solid var(--border); border-radius: 99px; background: transparent; color: var(--muted); font-size: 0.8rem; cursor: pointer; }
+.rest-preset:hover { border-color: var(--accent-line); color: var(--text); }
+.rest-preset.selected { border-color: var(--accent-line); background: var(--accent-soft); color: var(--accent); }
+/* Week page strip while a gym session is on. */
+.rest-timer--compact { flex: 0 0 auto; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; margin-bottom: 0.5rem; padding: 0.6rem 0.9rem; }
+.rest-timer--compact .rest-clock { font-size: 1.6rem; }
+.rest-timer--compact.is-done .rest-clock { font-size: 1.2rem; }
+.rest-timer--compact .rest-actions { margin-left: auto; }
+.rest-timer--compact .rest-actions .accent-button { flex: 0 0 auto; min-height: 2.4rem; padding: 0 1rem; }
+.rest-timer--compact .rest-actions .ghost-button { min-height: 2.4rem; }
+.rest-timer--compact .rest-meter { flex: 1 0 100%; height: 3px; }
+@media (prefers-reduced-motion: reduce) { .rest-timer.is-done { animation: none; box-shadow: 0 0 0 2px var(--accent); } }
 .lift-goal { display: flex; flex-direction: column; gap: 0.4rem; }
 .lift-goal-head { display: flex; align-items: center; gap: 0.6rem; }
 .lift-goal-name { font-weight: 600; }
