@@ -2,6 +2,10 @@
 // [{ id, name, exercises: [string] }], in display order. A plan is just a name and an
 // ordered list of exercise names; exercises are unique, ignoring case.
 
+// The Plans section allows adding up to this many. Only adding is capped: anyone who
+// already has more keeps them all.
+export const MAX_PLANS = 4;
+
 export const STARTER_PLANS = ["Push day", "Pull day", "Leg day", "Upper day", "Lower day", "Full body day"];
 
 // Built-in exercise suggestions for each starter plan name. They use the app's own lift

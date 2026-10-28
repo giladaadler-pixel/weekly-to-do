@@ -78,7 +78,7 @@ describe("GymPage", () => {
     renderGym();
     expect([...container.querySelectorAll('[role="tab"]')].map((t) => t.textContent)).toEqual(["Workout", "History"]);
     expect(tab("Workout").getAttribute("aria-selected")).toBe("true");
-    expect(headings()).toEqual(["Your workout plans", "Log a set", "Rest timer"]);
+    expect(headings()).toEqual(["Your workout plans · 0 / 4", "Log a set", "Rest timer"]);
     expect(container.querySelector(".gym-strip")).toBe(null);
   });
 
@@ -170,24 +170,58 @@ describe("Your workout plans", () => {
     gymActions.forgetLift.mockClear();
   });
 
-  it("with no plans, says so and offers Add workout plan", () => {
+  const plan = (n, exercises = []) => ({ id: `p${n}`, name: `Plan ${n}`, exercises });
+  const addButton = () => button("+ Add workout plan");
+  const placeholder = () => plansSection().querySelector(".plan-new-card");
+
+  it("with no plans, says so and offers Add workout plan and a New plan cell", () => {
     renderGym();
+    expect(plansSection().querySelector("h2").textContent).toBe("Your workout plans · 0 / 4");
     expect(plansSection().textContent).toContain("No plans yet");
-    expect(button("Add workout plan")).toBeTruthy();
+    expect(addButton().disabled).toBe(false);
+    expect(placeholder().textContent).toBe("New plan");
     expect(plansSection().querySelector(".plan-card")).toBe(null);
   });
 
-  it("shows each plan as a card with Start, Edit and Add to calendar", () => {
-    renderGym(IDLE_SESSION, timerActions(), { ...gym, plans: [push] });
-    const card = plansSection().querySelector(".plan-card");
+  it("shows each plan as a card: lift count, name, pills, Start, Edit and Calendar", () => {
+    renderGym(IDLE_SESSION, timerActions(), { ...gym, plans: [push, plan(2, ["Squat"])] });
+    expect(plansSection().querySelector("h2").textContent).toBe("Your workout plans · 2 / 4");
+    const [card, one] = plansSection().querySelectorAll(".plan-card");
+    expect(card.querySelector(".kicker").textContent).toBe("3 lifts");
+    expect(one.querySelector(".kicker").textContent).toBe("1 lift");
     expect(card.querySelector("h3").textContent).toBe("Push day");
     expect([...card.querySelectorAll(".plan-tag")].map((t) => t.textContent)).toEqual(push.exercises);
-    expect([...card.querySelectorAll("button")].map((b) => b.textContent)).toEqual(["Start", "Edit", "Add to calendar"]);
+    expect([...card.querySelectorAll("button")].map((b) => b.textContent)).toEqual(["Start", "Edit", "Calendar"]);
+    expect(card.querySelector('[aria-label="Add Push day to calendar"]')).not.toBe(null);
+  });
+
+  it("the New plan cell opens the new-plan sheet", () => {
+    renderGym(IDLE_SESSION, timerActions(), { ...gym, plans: [push] });
+    act(() => placeholder().click());
+    expect(sheet().getAttribute("aria-label")).toBe("New plan");
+  });
+
+  it("stops adding at 4 plans", () => {
+    renderGym(IDLE_SESSION, timerActions(), { ...gym, plans: [1, 2, 3, 4].map((n) => plan(n)) });
+    expect(plansSection().querySelector("h2").textContent).toBe("Your workout plans · 4 / 4");
+    expect(placeholder()).toBe(null);
+    expect(addButton().disabled).toBe(true);
+    expect(addButton().title).toBe("You can have up to 4 plans");
+    act(() => addButton().click());
+    expect(sheet()).toBe(null);
+  });
+
+  it("still shows every plan when someone already has more than 4", () => {
+    renderGym(IDLE_SESSION, timerActions(), { ...gym, plans: [1, 2, 3, 4, 5].map((n) => plan(n)) });
+    expect(plansSection().querySelectorAll(".plan-card")).toHaveLength(5);
+    expect(plansSection().querySelector("h2").textContent).toBe("Your workout plans · 5 / 4");
+    expect(addButton().disabled).toBe(true);
+    expect(placeholder()).toBe(null);
   });
 
   it("Add workout plan opens an empty plan; a suggestion fills in the name", () => {
     renderGym();
-    act(() => button("Add workout plan").click());
+    act(() => addButton().click());
     expect(sheet().getAttribute("aria-label")).toBe("New plan");
     expect(sheet().querySelector("#plan-name").value).toBe("");
     expect([...sheet().querySelectorAll('[aria-label="Name suggestions"] button')].map((b) => b.textContent)).toEqual([
@@ -234,7 +268,7 @@ describe("Your workout plans", () => {
 
   it("other names show no suggestions, just Other…, which opens every exercise", () => {
     renderGym(IDLE_SESSION, timerActions(), { ...gym, customLifts: ["Pec fly"] });
-    act(() => button("Add workout plan").click());
+    act(() => addButton().click());
     typeInto(sheet().querySelector("#plan-name"), "Arms and abs");
     expect(sheet().querySelector('[aria-labelledby="plan-suggested"]')).toBe(null);
     const other = sheetButton("Other…");
@@ -248,7 +282,7 @@ describe("Your workout plans", () => {
 
   it("a suggestion uses the spelling you already have", () => {
     renderGym(IDLE_SESSION, timerActions(), { ...gym, customLifts: ["chest FLY"] });
-    act(() => button("Add workout plan").click());
+    act(() => addButton().click());
     act(() => sheetButton("Push").click());
     expect(sheetButton("chest FLY")).toBeTruthy();
     expect(sheetButton("Chest fly")).toBeUndefined();
@@ -256,14 +290,14 @@ describe("Your workout plans", () => {
 
   it("Upper day suggests the push and pull lists together", () => {
     renderGym();
-    act(() => button("Add workout plan").click());
+    act(() => addButton().click());
     act(() => sheetButton("Upper").click());
     expect(sheet().querySelectorAll('[aria-labelledby="plan-suggested"] button')).toHaveLength(16);
   });
 
   it("refuses a blank name, and a name you already have", () => {
     renderGym(IDLE_SESSION, timerActions(), { ...gym, plans: [push] });
-    act(() => button("Add workout plan").click());
+    act(() => addButton().click());
     saveSheet();
     expect(sheet().querySelector("#plan-name-error").textContent).toBe("Enter a plan name");
     act(() => sheetButton("Push").click());
@@ -296,7 +330,7 @@ describe("Your workout plans", () => {
 
   it("refuses a blank new exercise", () => {
     renderGym();
-    act(() => button("Add workout plan").click());
+    act(() => addButton().click());
     act(() => sheetButton("Other…").click());
     act(() => sheetButton("Add").click());
     expect(sheet().textContent).toContain("Enter an exercise name");
@@ -426,7 +460,7 @@ describe("Add to calendar", () => {
   const push = { id: "p1", name: "Push day", exercises: [] };
   function openSheet(onToast, onAddEvent) {
     renderGym(IDLE_SESSION, timerActions(), { ...gym, plans: [push] }, onToast, onAddEvent);
-    act(() => button("Add to calendar").click());
+    act(() => container.querySelector('[aria-label="Add Push day to calendar"]').click());
     return document.querySelector(".calendar-sheet");
   }
   const sheetButton = (sheet, text) => [...sheet.querySelectorAll("button")].find((b) => b.textContent.trim() === text);

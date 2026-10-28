@@ -32,6 +32,12 @@ const PATHS = {
   next: <path d="M9 6l6 6-6 6" />,
   close: <path d="M6 6l12 12M18 6L6 18" />,
   plus: <path d="M12 5v14M5 12h14" />,
+  "calendar-plus": (
+    <>
+      <rect x="3" y="4.5" width="18" height="16" rx="2.5" />
+      <path d="M3 9.5h18M8 2.5v4M16 2.5v4M12 12.5v5M9.5 15h5" />
+    </>
+  ),
 };
 
 export default function Icon({ name, size = 18 }) {
