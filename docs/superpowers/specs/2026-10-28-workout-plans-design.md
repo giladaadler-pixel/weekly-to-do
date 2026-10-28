@@ -76,6 +76,28 @@ opens Workout.
 - Name field. Blank shows "Enter a plan name". A name you already have (ignoring case)
   shows "You already have Push day. Pick another name, or edit that one." and nothing is
   saved, so plans aren't duplicated.
+- **Suggested exercises** for a starter name (matched ignoring case and extra spaces),
+  as toggle chips (`aria-pressed`): tapping adds it to the plan, tapping again takes it
+  out. Suggestions only — a new plan starts empty. Any other name shows no suggestions.
+  Built-in lift names are used where one exists (Bench press, Squat, Deadlift, Pull-up,
+  Overhead press) so history and PRs stay together; the rest are sentence case, and a
+  suggestion matching an exercise you already have uses your spelling (`canonicalLift`).
+  - Push day: Bench press, Incline dumbbell press, Chest fly, Overhead press, Lateral
+    raises, Front raises, Triceps pushdowns, Overhead triceps extensions
+  - Pull day: Pull-up, Lat pulldowns, Seated cable rows, Barbell rows, Face pulls,
+    Dumbbell bicep curls, Hammer curls, Preacher curls
+  - Leg day: Squat, Leg press, Romanian deadlifts, Leg extensions, Leg curls, Walking
+    lunges, Standing calf raises, Hip thrusts
+  - Full body day: Deadlift, Squat, Bench press, Pull-up, Overhead press, Dumbbell
+    lunges, Bent-over rows, Push-ups
+  - Upper day: the Push day and Pull day lists together. Lower day: the Leg day list.
+
+  Suggestions are built in (`SUGGESTED_EXERCISES` in `lib/plans.js`) and don't join your
+  exercise list until you save a plan with one, or log a set with it. Only exercises a
+  save newly adds to the plan join the list (`addedExercises`), so one you removed from
+  your list stays removed even if the plan still has it.
+- **Other…** (`aria-expanded`) opens the full exercise list and "+ New exercise"; it's
+  closed when the sheet opens. In it:
 - All exercises as toggle chips (`aria-pressed`); tapping adds/removes from the plan.
   Each of your own exercises (not the built-ins) has a small ✕ ("Remove Pec fly from
   your list. Its sets and plans stay.") that removes it from your list — its sets stay,
@@ -132,7 +154,8 @@ opens Workout.
 ## Code layout
 
 - `src/lib/plans.js` (new): `makePlan`, `updatePlan`, `deletePlan`, `movePlanExercise`,
-  `toggleExercise`, `STARTER_PLANS`, `findPlanByName`.
+  `toggleExercise`, `STARTER_PLANS`, `findPlanByName`, `SUGGESTED_EXERCISES`,
+  `suggestionsFor`, `addedExercises`.
 - `src/lib/gym.js`: `gymOf` adds `plans`; `lastWeight(logs, lift)`; `setsToday`.
 - `src/lib/restTimer.js`: `startSession(s, now, planId = null)` keeps `startedAt` and
   stores `planId`; `countSet(s)` adds 1 to `setsLogged`.
@@ -159,11 +182,14 @@ opens Workout.
 
 ## Testing
 
-Unit (vitest): plans.js functions; `gymOf` on old data without `plans`; `lastWeight`;
+Unit (vitest): plans.js functions (incl. suggestions per name, built-in spellings,
+`addedExercises`); `gymOf` on old data without `plans`; `lastWeight`;
 weekly `eventsOn`; `buildWorkoutIcs` (with and without RRULE, escaping incl. `;`);
 `startSession` keeps `startedAt`; `countSet`.
 Component: two tabs, switching and remembered tab (old "plans"/"exercises" open
 Workout); "No plans yet"; plan cards' buttons; Add workout plan with a name suggestion;
+suggested exercises (start empty, tap in/out, other names show only Other…, your
+spelling wins, Upper = push + pull); Other… opens the full list;
 blank and duplicate plan names refused; edit plan (toggle, reorder, new exercise,
 removed-from-list exercise kept, delete with confirm); ✕ removes only your own
 exercises and doesn't change the plan; session chooser; logging from exercise buttons with

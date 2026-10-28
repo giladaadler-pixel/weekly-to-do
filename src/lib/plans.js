@@ -4,6 +4,66 @@
 
 export const STARTER_PLANS = ["Push day", "Pull day", "Leg day", "Upper day", "Lower day", "Full body day"];
 
+// Built-in exercise suggestions for each starter plan name. They use the app's own lift
+// names where one exists (Bench press, Squat…) so sets and PRs stay together. They aren't
+// on your exercise list until you put one in a plan or log a set with it.
+const PUSH = [
+  "Bench press",
+  "Incline dumbbell press",
+  "Chest fly",
+  "Overhead press",
+  "Lateral raises",
+  "Front raises",
+  "Triceps pushdowns",
+  "Overhead triceps extensions",
+];
+const PULL = [
+  "Pull-up",
+  "Lat pulldowns",
+  "Seated cable rows",
+  "Barbell rows",
+  "Face pulls",
+  "Dumbbell bicep curls",
+  "Hammer curls",
+  "Preacher curls",
+];
+const LEGS = [
+  "Squat",
+  "Leg press",
+  "Romanian deadlifts",
+  "Leg extensions",
+  "Leg curls",
+  "Walking lunges",
+  "Standing calf raises",
+  "Hip thrusts",
+];
+const FULL_BODY = [
+  "Deadlift",
+  "Squat",
+  "Bench press",
+  "Pull-up",
+  "Overhead press",
+  "Dumbbell lunges",
+  "Bent-over rows",
+  "Push-ups",
+];
+
+export const SUGGESTED_EXERCISES = {
+  "Push day": PUSH,
+  "Pull day": PULL,
+  "Leg day": LEGS,
+  "Upper day": [...PUSH, ...PULL],
+  "Lower day": LEGS,
+  "Full body day": FULL_BODY,
+};
+
+// The suggested exercises for a plan name (one of the starter names, ignoring case and
+// extra spaces), or [] for any other name.
+export function suggestionsFor(name) {
+  const key = STARTER_PLANS.find((s) => same(s, tidy(name)));
+  return key ? SUGGESTED_EXERCISES[key] : [];
+}
+
 function same(a, b) {
   return a.toLowerCase() === b.toLowerCase();
 }
@@ -65,6 +125,11 @@ export function toggleExercise(exercises, name) {
   const clean = tidy(name);
   if (!clean) return exercises;
   return exercises.some((e) => same(e, clean)) ? exercises.filter((e) => !same(e, clean)) : [...exercises, clean];
+}
+
+// Exercises in after that weren't in before (ignoring case): the ones a save adds.
+export function addedExercises(before, after) {
+  return after.filter((e) => !before.some((b) => same(b, e)));
 }
 
 // Moves the exercise at index one place up (-1) or down (+1); out of range does nothing.

@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { canonicalLift, liftOptions } from "../lib/gym.js";
-import { STARTER_PLANS, findPlanByName, movePlanExercise, toggleExercise } from "../lib/plans.js";
+import { STARTER_PLANS, findPlanByName, movePlanExercise, suggestionsFor, toggleExercise } from "../lib/plans.js";
 import Icon from "./Icons.jsx";
 
 // Create or edit one workout plan: its name, which exercises are in it, and their order.
+// A starter name (Push day, Leg day…) shows suggested exercises to tap in or out; "Other…"
+// opens the full exercise list and "+ New exercise". A suggestion joins your exercise list
+// only once the plan is saved with it (see savePlan in App.jsx).
 // This is also where you manage your exercises: add new ones, and ✕ removes one of your
 // own from your list (built-ins can't be removed). Removing keeps its sets, and it stays
 // in any plan that uses it, marked, until you take it out here.
@@ -19,8 +22,13 @@ export default function PlanSheet({ plan, gym, onSave, onDelete, onAddExercise, 
   const [newName, setNewName] = useState("");
   const [newError, setNewError] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  // Whether "Other…" (the full exercise list and + New exercise) is open.
+  const [showAll, setShowAll] = useState(false);
   const options = liftOptions(gym);
   const lower = exercises.map((e) => e.toLowerCase());
+  // In the spelling you already use, if any, so sets and PRs stay together.
+  const suggestions = suggestionsFor(name).map((s) => canonicalLift(s, gym));
+  const toggle = (ex) => setExercises((list) => toggleExercise(list, ex));
 
   useEffect(() => {
     function onKey(e) {
@@ -107,72 +115,110 @@ export default function PlanSheet({ plan, gym, onSave, onDelete, onAddExercise, 
           )}
         </div>
 
-        <fieldset className="plan-pick">
-          <legend className="muted small-text">Exercises</legend>
-          <div className="plan-chips">
-            {options.map((o) => {
-              const own = gym.customLifts.includes(o);
-              return (
-                <span key={o} className={`plan-chip-wrap${own ? " own" : ""}`}>
+        <div className="plan-pick">
+          {suggestions.length > 0 && (
+            <>
+              <span className="muted small-text" id="plan-suggested">
+                Suggested for {name.trim().replace(/\s+/g, " ")}
+              </span>
+              <div className="plan-chips" role="group" aria-labelledby="plan-suggested">
+                {suggestions.map((s) => (
                   <button
+                    key={s}
                     type="button"
                     className="rest-preset plan-chip"
-                    aria-pressed={lower.includes(o.toLowerCase())}
-                    onClick={() => setExercises((list) => toggleExercise(list, o))}
+                    aria-pressed={lower.includes(s.toLowerCase())}
+                    onClick={() => toggle(s)}
                   >
-                    {o}
+                    {s}
                   </button>
-                  {own && onForgetExercise && (
+                ))}
+              </div>
+            </>
+          )}
+          <button
+            type="button"
+            className="rest-preset plan-other"
+            aria-expanded={showAll}
+            aria-controls="plan-all-exercises"
+            onClick={() => setShowAll((v) => !v)}
+          >
+            Other…
+          </button>
+        </div>
+
+        {showAll && (
+          <fieldset className="plan-pick" id="plan-all-exercises">
+            <legend className="muted small-text">All exercises</legend>
+            <div className="plan-chips">
+              {options.map((o) => {
+                const own = gym.customLifts.includes(o);
+                return (
+                  <span key={o} className={`plan-chip-wrap${own ? " own" : ""}`}>
                     <button
                       type="button"
-                      className="plan-chip-remove"
-                      onClick={() => onForgetExercise(o)}
-                      aria-label={`Remove ${o} from your list. Its sets and plans stay.`}
-                      title="Remove from your list. Its sets and plans stay."
+                      className="rest-preset plan-chip"
+                      aria-pressed={lower.includes(o.toLowerCase())}
+                      onClick={() => toggle(o)}
                     >
-                      <Icon name="close" size={10} />
+                      {o}
                     </button>
-                  )}
-                </span>
-              );
-            })}
-          </div>
-          <div className="plan-new">
-            <input
-              className="text-input"
-              maxLength={40}
-              placeholder="+ New exercise"
-              aria-label="New exercise"
-              aria-invalid={newError || undefined}
-              value={newName}
-              onChange={(e) => {
-                setNewName(e.target.value);
-                setNewError(false);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addNew();
-                }
-              }}
-            />
-            <button type="button" className="ghost-button bordered" onClick={addNew}>
-              Add
-            </button>
-          </div>
-          {newError && (
-            <span className="field-error" role="alert">
-              Enter an exercise name
-            </span>
-          )}
-        </fieldset>
+                    {own && onForgetExercise && (
+                      <button
+                        type="button"
+                        className="plan-chip-remove"
+                        onClick={() => onForgetExercise(o)}
+                        aria-label={`Remove ${o} from your list. Its sets and plans stay.`}
+                        title="Remove from your list. Its sets and plans stay."
+                      >
+                        <Icon name="close" size={10} />
+                      </button>
+                    )}
+                  </span>
+                );
+              })}
+            </div>
+            <div className="plan-new">
+              <input
+                className="text-input"
+                maxLength={40}
+                placeholder="+ New exercise"
+                aria-label="New exercise"
+                aria-invalid={newError || undefined}
+                value={newName}
+                onChange={(e) => {
+                  setNewName(e.target.value);
+                  setNewError(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addNew();
+                  }
+                }}
+              />
+              <button type="button" className="ghost-button bordered" onClick={addNew}>
+                Add
+              </button>
+            </div>
+            {newError && (
+              <span className="field-error" role="alert">
+                Enter an exercise name
+              </span>
+            )}
+          </fieldset>
+        )}
 
         <div className="plan-order">
           <span className="muted small-text">In this plan, in order</span>
           {exercises.length === 0 && <p className="muted small-text">No exercises yet — you can add them later.</p>}
           <ol className="plan-order-list">
             {exercises.map((ex, i) => {
-              const removed = !options.some((o) => o.toLowerCase() === ex.toLowerCase());
+              // Only one that was already in the plan: a suggestion you just tapped in isn't
+              // on your list yet, and joins it when you save.
+              const removed =
+                !options.some((o) => o.toLowerCase() === ex.toLowerCase()) &&
+                plan.exercises.some((p) => p.toLowerCase() === ex.toLowerCase());
               return (
                 <li key={ex} className="plan-order-row">
                   <span className="plan-order-name">

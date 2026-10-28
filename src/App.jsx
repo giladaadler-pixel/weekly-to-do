@@ -27,7 +27,7 @@ import { todayCounts } from "./lib/today.js";
 import { updateBadge } from "./lib/badge.js";
 import { makeEvent, deleteEvent } from "./lib/schedule.js";
 import { gymOf, makeLog, makeLiftGoal, rememberLift } from "./lib/gym.js";
-import { makePlan, updatePlan, deletePlan } from "./lib/plans.js";
+import { makePlan, updatePlan, deletePlan, addedExercises } from "./lib/plans.js";
 import DayPage from "./components/DayPage.jsx";
 import GymPage from "./components/GymPage.jsx";
 import RestTimer from "./components/RestTimer.jsx";
@@ -272,15 +272,21 @@ export default function App() {
     removeLift: (id) => setGym((g) => ({ ...g, lifts: g.lifts.filter((l) => l.id !== id) })),
     addExercise: (name) => setGym((g) => ({ ...g, customLifts: rememberLift(g.customLifts, name) })),
     // Saves a new plan ({ name, exercises }) or an edited one ({ id, name, exercises }).
-    // Returns false for a blank name on a new plan.
+    // Returns false for a blank name on a new plan. Exercises newly put in the plan (like a
+    // tapped suggestion) join your exercise list; ones already in it are left alone, so
+    // one you removed from your list stays removed.
     savePlan: ({ id, name, exercises }) => {
+      const remember = (g, before) => addedExercises(before, exercises).reduce(rememberLift, g.customLifts);
       if (id) {
-        setGym((g) => ({ ...g, plans: updatePlan(g.plans, id, { name, exercises }) }));
+        setGym((g) => {
+          const before = g.plans.find((p) => p.id === id)?.exercises ?? [];
+          return { ...g, plans: updatePlan(g.plans, id, { name, exercises }), customLifts: remember(g, before) };
+        });
         return true;
       }
       const plan = makePlan(name, exercises);
       if (!plan) return false;
-      setGym((g) => ({ ...g, plans: [...g.plans, plan] }));
+      setGym((g) => ({ ...g, plans: [...g.plans, plan], customLifts: remember(g, []) }));
       return true;
     },
     deletePlan: (id) => setGym((g) => ({ ...g, plans: deletePlan(g.plans, id) })),

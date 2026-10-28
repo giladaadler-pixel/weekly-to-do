@@ -200,16 +200,65 @@ describe("Your workout plans", () => {
     ]);
     act(() => sheetButton("Push").click());
     expect(sheet().querySelector("#plan-name").value).toBe("Push day");
+    // Suggestions show, but the plan starts empty.
+    const suggested = () => [...sheet().querySelectorAll('[aria-labelledby="plan-suggested"] button')];
+    expect(suggested().map((b) => b.textContent)).toEqual([
+      "Bench press",
+      "Incline dumbbell press",
+      "Chest fly",
+      "Overhead press",
+      "Lateral raises",
+      "Front raises",
+      "Triceps pushdowns",
+      "Overhead triceps extensions",
+    ]);
+    expect(suggested().every((b) => b.getAttribute("aria-pressed") === "false")).toBe(true);
+    expect(sheet().textContent).toContain("No exercises yet");
+    // The full list stays closed until Other….
+    expect(sheet().querySelector("#plan-all-exercises")).toBe(null);
     act(() => sheetButton("Bench press").click());
+    act(() => sheetButton("Chest fly").click());
+    act(() => sheetButton("Lateral raises").click());
+    act(() => sheetButton("Lateral raises").click()); // tap again to take it out
     act(() => sheetButton("Overhead press").click());
     expect(sheetButton("Bench press").getAttribute("aria-pressed")).toBe("true");
+    expect(sheetButton("Lateral raises").getAttribute("aria-pressed")).toBe("false");
     saveSheet();
     expect(gymActions.savePlan).toHaveBeenCalledWith({
       id: undefined,
       name: "Push day",
-      exercises: ["Bench press", "Overhead press"],
+      exercises: ["Bench press", "Chest fly", "Overhead press"],
     });
     expect(sheet()).toBe(null);
+  });
+
+  it("other names show no suggestions, just Other…, which opens every exercise", () => {
+    renderGym(IDLE_SESSION, timerActions(), { ...gym, customLifts: ["Pec fly"] });
+    act(() => button("Add workout plan").click());
+    typeInto(sheet().querySelector("#plan-name"), "Arms and abs");
+    expect(sheet().querySelector('[aria-labelledby="plan-suggested"]')).toBe(null);
+    const other = sheetButton("Other…");
+    expect(other.getAttribute("aria-expanded")).toBe("false");
+    act(() => other.click());
+    expect(other.getAttribute("aria-expanded")).toBe("true");
+    const all = [...sheet().querySelectorAll("#plan-all-exercises .plan-chip")].map((b) => b.textContent);
+    expect(all).toEqual(["Bench press", "Squat", "Deadlift", "Overhead press", "Pull-up", "Pec fly"]);
+    expect(sheet().querySelector('[aria-label="New exercise"]')).not.toBe(null);
+  });
+
+  it("a suggestion uses the spelling you already have", () => {
+    renderGym(IDLE_SESSION, timerActions(), { ...gym, customLifts: ["chest FLY"] });
+    act(() => button("Add workout plan").click());
+    act(() => sheetButton("Push").click());
+    expect(sheetButton("chest FLY")).toBeTruthy();
+    expect(sheetButton("Chest fly")).toBeUndefined();
+  });
+
+  it("Upper day suggests the push and pull lists together", () => {
+    renderGym();
+    act(() => button("Add workout plan").click());
+    act(() => sheetButton("Upper").click());
+    expect(sheet().querySelectorAll('[aria-labelledby="plan-suggested"] button')).toHaveLength(16);
   });
 
   it("refuses a blank name, and a name you already have", () => {
@@ -233,6 +282,7 @@ describe("Your workout plans", () => {
     // Cable fly isn't built in or in customLifts: it stays, marked.
     expect(sheet().textContent).toContain("Cable fly · removed from your list");
     act(() => sheet().querySelector('[aria-label="Move Overhead press up"]').click());
+    act(() => sheetButton("Other…").click());
     typeInto(sheet().querySelector('[aria-label="New exercise"]'), "  dips ");
     act(() => sheetButton("Add").click());
     expect(gymActions.addExercise).toHaveBeenCalledWith("dips");
@@ -247,6 +297,7 @@ describe("Your workout plans", () => {
   it("refuses a blank new exercise", () => {
     renderGym();
     act(() => button("Add workout plan").click());
+    act(() => sheetButton("Other…").click());
     act(() => sheetButton("Add").click());
     expect(sheet().textContent).toContain("Enter an exercise name");
     expect(gymActions.addExercise).not.toHaveBeenCalled();
@@ -255,6 +306,7 @@ describe("Your workout plans", () => {
   it("✕ removes one of your own exercises from your list, never a built-in", () => {
     renderGym(IDLE_SESSION, timerActions(), { ...gym, customLifts: ["Pec fly"], plans: [push] });
     act(() => button("Edit").click());
+    act(() => sheetButton("Other…").click());
     const removes = sheet().querySelectorAll(".plan-chip-remove");
     expect(removes).toHaveLength(1);
     expect(removes[0].getAttribute("aria-label")).toBe("Remove Pec fly from your list. Its sets and plans stay.");

@@ -1,6 +1,9 @@
 import { describe, it, expect } from "vitest";
 import {
   STARTER_PLANS,
+  SUGGESTED_EXERCISES,
+  suggestionsFor,
+  addedExercises,
   plansOf,
   makePlan,
   updatePlan,
@@ -9,7 +12,7 @@ import {
   toggleExercise,
   movePlanExercise,
 } from "./plans.js";
-import { gymOf } from "./gym.js";
+import { gymOf, LIFTS, rememberLift } from "./gym.js";
 
 describe("plans", () => {
   it("has the six quick-start names", () => {
@@ -67,4 +70,41 @@ describe("plans", () => {
       { id: "c", name: "Legs", exercises: [] },
     ]);
   });
+
+  it("suggests exercises for the starter names only", () => {
+    expect(suggestionsFor("Push day")).toEqual([
+      "Bench press",
+      "Incline dumbbell press",
+      "Chest fly",
+      "Overhead press",
+      "Lateral raises",
+      "Front raises",
+      "Triceps pushdowns",
+      "Overhead triceps extensions",
+    ]);
+    expect(suggestionsFor("  leg   DAY ")).toEqual(SUGGESTED_EXERCISES["Leg day"]);
+    expect(suggestionsFor("Upper day")).toEqual([...SUGGESTED_EXERCISES["Push day"], ...SUGGESTED_EXERCISES["Pull day"]]);
+    expect(suggestionsFor("Lower day")).toEqual(SUGGESTED_EXERCISES["Leg day"]);
+    expect(suggestionsFor("Full body day")).toHaveLength(8);
+    expect(suggestionsFor("Arms and abs")).toEqual([]);
+    expect(suggestionsFor("")).toEqual([]);
+  });
+
+  it("uses the app's own names for the built-in lifts, so history stays together", () => {
+    const all = Object.values(SUGGESTED_EXERCISES).flat();
+    for (const lift of LIFTS) expect(all).toContain(lift);
+    // No near-duplicates of the built-ins.
+    for (const e of all) {
+      const twin = LIFTS.find((l) => l.toLowerCase() === e.toLowerCase());
+      if (twin) expect(e).toBe(twin);
+    }
+  });
+
+  it("knows which exercises a save adds, so only those join your list", () => {
+    expect(addedExercises(["Squat", "Cable fly"], ["squat", "Cable fly", "Leg press"])).toEqual(["Leg press"]);
+    // Cable fly was removed from the list but is still in the plan: saving doesn't bring it back.
+    const added = addedExercises(["Cable fly"], ["Cable fly", "Bench press", "Hip thrusts"]);
+    expect(added.reduce(rememberLift, [])).toEqual(["Hip thrusts"]);
+  });
 });
+
