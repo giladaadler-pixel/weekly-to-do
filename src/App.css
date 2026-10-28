@@ -1953,3 +1953,22 @@ summary:active {
 @media (prefers-reduced-motion: reduce) {
   .lift-other { animation: none; }
 }
+
+/* Gym plans: cards with exercise tags, and the plan sheet's toggle chips and order list. */
+.plan-card-name { margin: 0; font-size: 1.1rem; font-weight: 600; }
+.plan-tags, .plan-order-list { margin: 0; padding: 0; list-style: none; }
+.plan-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.plan-tag { padding: 0.25rem 0.65rem; border: 1px solid var(--border); border-radius: 99px; color: var(--muted); font-size: 0.8rem; }
+.plan-card-actions, .plan-starters, .plan-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.plan-card-actions .accent-button { padding: 0 1.4rem; }
+.plan-create { padding-top: 0; border-top: 0; }
+.plan-chip[aria-pressed="true"] { border-color: var(--accent-line); background: var(--accent-soft); color: var(--accent); }
+.plan-sheet { width: min(30rem, 92vw); }
+.plan-pick { display: flex; flex-direction: column; gap: 0.5rem; margin: 0; padding: 0; border: 0; }
+.plan-pick legend { margin-bottom: 0.5rem; padding: 0; }
+.plan-new { display: flex; gap: 0.5rem; }
+.plan-new .text-input { flex: 1; min-width: 0; }
+.plan-order { display: flex; flex-direction: column; gap: 0.35rem; }
+.plan-order-row { display: flex; align-items: center; gap: 0.25rem; min-height: 2.5rem; border-bottom: 1px solid var(--border); }
+.plan-order-name { flex: 1; min-width: 0; }
+.plan-order-row .square-button.small:disabled { opacity: 0.3; cursor: default; }

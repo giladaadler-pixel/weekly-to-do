@@ -6,7 +6,7 @@ const log = (id, lift, weight, date = "2026-10-27") => ({ id, date, lift, weight
 
 describe("gym", () => {
   it("fills in a missing or partial gym key", () => {
-    expect(gymOf({})).toEqual({ logs: [], lifts: [], customLifts: [] });
+    expect(gymOf({})).toEqual({ logs: [], lifts: [], customLifts: [], plans: [] });
     expect(gymOf({ gym: { logs: [log("a", "Squat", 100)] } }).lifts).toEqual([]);
   });
 

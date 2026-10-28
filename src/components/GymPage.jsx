@@ -2,20 +2,23 @@ import { useState } from "react";
 import { liftOptions } from "../lib/gym.js";
 import GymTabs, { loadTab, saveTab } from "./GymTabs.jsx";
 import GymWorkout from "./GymWorkout.jsx";
+import GymPlans from "./GymPlans.jsx";
 import GymExercises from "./GymExercises.jsx";
 import GymHistory from "./GymHistory.jsx";
 
 const TABS = [
   { id: "workout", label: "Workout" },
+  { id: "plans", label: "Plans" },
   { id: "exercises", label: "Exercises" },
   { id: "history", label: "History" },
 ];
 
 // The Gym page: a header with the session button, then tabs — Workout (log a set and the
-// rest timer), Exercises (your exercise list) and History (strength goals and set history).
+// rest timer), Plans (your workout plans), Exercises (your exercise list) and History
+// (strength goals and set history).
 // Starting a session also shows the rest timer on the Week page.
 // gymActions: { addLog({ lift, weight, reps }), removeLog(id), addLift({ lift, target, due }), removeLift(id),
-//   addExercise(name), forgetLift(name) }
+//   addExercise(name), forgetLift(name), savePlan({ id?, name, exercises }), deletePlan(id) }
 // gymSession: { session, left, actions } from useGymSession
 export default function GymPage({ gym, todayIso, gymActions, gymSession }) {
   const ids = TABS.map((t) => t.id);
@@ -61,6 +64,7 @@ export default function GymPage({ gym, todayIso, gymActions, gymSession }) {
             gymSession={gymSession}
           />
         )}
+        {tab === "plans" && <GymPlans gym={gym} gymActions={gymActions} />}
         {tab === "exercises" && <GymExercises gym={gym} gymActions={gymActions} />}
         {tab === "history" && <GymHistory gym={gym} options={options} gymActions={gymActions} />}
       </div>

@@ -27,6 +27,7 @@ import { todayCounts } from "./lib/today.js";
 import { updateBadge } from "./lib/badge.js";
 import { makeEvent, deleteEvent } from "./lib/schedule.js";
 import { gymOf, makeLog, makeLiftGoal, rememberLift } from "./lib/gym.js";
+import { makePlan, updatePlan, deletePlan } from "./lib/plans.js";
 import DayPage from "./components/DayPage.jsx";
 import GymPage from "./components/GymPage.jsx";
 import RestTimer from "./components/RestTimer.jsx";
@@ -270,6 +271,19 @@ export default function App() {
     },
     removeLift: (id) => setGym((g) => ({ ...g, lifts: g.lifts.filter((l) => l.id !== id) })),
     addExercise: (name) => setGym((g) => ({ ...g, customLifts: rememberLift(g.customLifts, name) })),
+    // Saves a new plan ({ name, exercises }) or an edited one ({ id, name, exercises }).
+    // Returns false for a blank name on a new plan.
+    savePlan: ({ id, name, exercises }) => {
+      if (id) {
+        setGym((g) => ({ ...g, plans: updatePlan(g.plans, id, { name, exercises }) }));
+        return true;
+      }
+      const plan = makePlan(name, exercises);
+      if (!plan) return false;
+      setGym((g) => ({ ...g, plans: [...g.plans, plan] }));
+      return true;
+    },
+    deletePlan: (id) => setGym((g) => ({ ...g, plans: deletePlan(g.plans, id) })),
     // Only takes it out of the dropdowns; its sets, goals and plans stay.
     forgetLift: (name) => setGym((g) => ({ ...g, customLifts: g.customLifts.filter((l) => l !== name) })),
   };

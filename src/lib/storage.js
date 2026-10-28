@@ -14,8 +14,8 @@ export const DEFAULT_STATE = {
   settings: { reminderTime: "08:00" },
   // Day page schedule: { id, date, start (minutes), length (minutes), title }
   events: [],
-  // Gym page: sets logged, strength goals and the user's own lifts (see lib/gym.js)
-  gym: { logs: [], lifts: [], customLifts: [] },
+  // Gym page: sets logged, strength goals, the user's own lifts and workout plans (see lib/gym.js)
+  gym: { logs: [], lifts: [], customLifts: [], plans: [] },
 };
 
 // Saved data from an older version may be missing newer keys: fill them from the defaults.

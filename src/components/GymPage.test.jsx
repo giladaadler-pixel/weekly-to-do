@@ -23,7 +23,7 @@ afterEach(() => {
   container.remove();
 });
 
-const gym = { logs: [], lifts: [{ id: "g1", lift: "Bench press", target: 225, due: "" }], customLifts: [] };
+const gym = { logs: [], lifts: [{ id: "g1", lift: "Bench press", target: 225, due: "" }], customLifts: [], plans: [] };
 const gymActions = {
   addLog: vi.fn(() => true),
   removeLog: vi.fn(),
@@ -31,6 +31,8 @@ const gymActions = {
   removeLift: vi.fn(),
   addExercise: vi.fn(),
   forgetLift: vi.fn(),
+  savePlan: vi.fn(() => true),
+  deletePlan: vi.fn(),
 };
 const timerActions = () => ({
   startSession: vi.fn(),
@@ -179,5 +181,86 @@ describe("Exercises tab", () => {
     expect(removes[0].getAttribute("aria-label")).toBe("Remove Pec fly from your list. Its sets and plans stay.");
     act(() => removes[0].click());
     expect(gymActions.forgetLift).toHaveBeenCalledWith("Pec fly");
+  });
+});
+
+describe("Plans tab", () => {
+  const push = { id: "p1", name: "Push day", exercises: ["Bench press", "Overhead press", "Cable fly"] };
+  function openPlans(g) {
+    localStorage.setItem(TAB_KEY, "plans");
+    renderGym(IDLE_SESSION, timerActions(), g);
+  }
+  const sheet = () => document.querySelector(".plan-sheet");
+  const sheetButton = (text) => [...sheet().querySelectorAll("button")].find((b) => b.textContent.trim() === text);
+  const saveSheet = () => act(() => sheet().dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })));
+
+  beforeEach(() => {
+    gymActions.savePlan.mockClear();
+    gymActions.deletePlan.mockClear();
+    gymActions.addExercise.mockClear();
+  });
+
+  it("creates a plan from a quick-start", () => {
+    openPlans(gym);
+    act(() => button("Push").click());
+    expect(sheet().querySelector("#plan-name").value).toBe("Push day");
+    act(() => sheetButton("Bench press").click());
+    act(() => sheetButton("Overhead press").click());
+    expect(sheetButton("Bench press").getAttribute("aria-pressed")).toBe("true");
+    saveSheet();
+    expect(gymActions.savePlan).toHaveBeenCalledWith({
+      id: undefined,
+      name: "Push day",
+      exercises: ["Bench press", "Overhead press"],
+    });
+    expect(sheet()).toBe(null);
+  });
+
+  it("opens the existing plan instead of making a duplicate", () => {
+    openPlans({ ...gym, plans: [push] });
+    act(() => button("Push").click());
+    expect(sheet().getAttribute("aria-label")).toBe("Edit Push day");
+  });
+
+  it("refuses a blank plan name", () => {
+    openPlans(gym);
+    act(() => container.querySelector(".plan-create").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })));
+    expect(container.querySelector("#new-plan-error").textContent).toBe("Enter a plan name");
+    expect(sheet()).toBe(null);
+  });
+
+  it("edits a plan: reorder, new exercise, and keeps one removed from your list", () => {
+    openPlans({ ...gym, plans: [push] });
+    act(() => button("Edit").click());
+    // Cable fly isn't built in or in customLifts: it stays, marked.
+    expect(sheet().textContent).toContain("Cable fly · removed from your list");
+    act(() => sheet().querySelector('[aria-label="Move Overhead press up"]').click());
+    typeInto(sheet().querySelector('[aria-label="New exercise"]'), "  dips ");
+    act(() => sheetButton("Add").click());
+    expect(gymActions.addExercise).toHaveBeenCalledWith("dips");
+    saveSheet();
+    expect(gymActions.savePlan).toHaveBeenCalledWith({
+      id: "p1",
+      name: "Push day",
+      exercises: ["Overhead press", "Bench press", "Cable fly", "dips"],
+    });
+  });
+
+  it("deletes a plan only after confirming", () => {
+    openPlans({ ...gym, plans: [push] });
+    act(() => button("Edit").click());
+    act(() => sheetButton("Delete plan").click());
+    expect(sheet().textContent).toContain("Delete Push day? Your logged sets stay.");
+    expect(gymActions.deletePlan).not.toHaveBeenCalled();
+    act(() => sheetButton("Delete").click());
+    expect(gymActions.deletePlan).toHaveBeenCalledWith("p1");
+  });
+
+  it("closes the sheet on Escape without saving", () => {
+    openPlans({ ...gym, plans: [push] });
+    act(() => button("Edit").click());
+    act(() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" })));
+    expect(sheet()).toBe(null);
+    expect(gymActions.savePlan).not.toHaveBeenCalled();
   });
 });

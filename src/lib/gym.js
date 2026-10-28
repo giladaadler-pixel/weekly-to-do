@@ -1,12 +1,15 @@
-// The Gym page. Saved as state.gym = { logs, lifts, customLifts }.
+import { plansOf } from "./plans.js";
+
+// The Gym page. Saved as state.gym = { logs, lifts, customLifts, plans }.
 // A log is one set: { id, date "YYYY-MM-DD", lift, weight (lbs), reps }.
 // A lift goal is { id, lift, target (lbs), due ("" or "YYYY-MM-DD") }.
 // customLifts: exercise names typed in under "Other…", offered in the Lift dropdowns.
-// Removing one from that list leaves its sets and goals alone.
+// Removing one from that list leaves its sets, goals and plans alone.
+// plans: workout plans (see lib/plans.js).
 
 export const LIFTS = ["Bench press", "Squat", "Deadlift", "Overhead press", "Pull-up"];
 
-export const DEFAULT_GYM = { logs: [], lifts: [], customLifts: [] };
+export const DEFAULT_GYM = { logs: [], lifts: [], customLifts: [], plans: [] };
 
 // Saved data from before the Gym page has no gym key, or a partial one.
 export function gymOf(state) {
@@ -15,6 +18,7 @@ export function gymOf(state) {
     logs: Array.isArray(gym.logs) ? gym.logs : [],
     lifts: Array.isArray(gym.lifts) ? gym.lifts : [],
     customLifts: Array.isArray(gym.customLifts) ? gym.customLifts.filter((l) => typeof l === "string" && l.trim()) : [],
+    plans: plansOf(gym),
   };
 }
 
