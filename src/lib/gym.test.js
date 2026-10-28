@@ -1,11 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { gymOf, makeLog, makeLiftGoal, bestWeight, goalProgress, recordIds, trainedOn } from "./gym.js";
+import { gymOf, makeLog, makeLiftGoal, bestWeight, goalProgress, recordIds, trainedOn, liftOptions, canonicalLift, rememberLift, LIFTS } from "./gym.js";
+import { parseBackup, exportBackup } from "./backup.js";
 
 const log = (id, lift, weight, date = "2026-10-27") => ({ id, date, lift, weight, reps: 5 });
 
 describe("gym", () => {
   it("fills in a missing or partial gym key", () => {
-    expect(gymOf({})).toEqual({ logs: [], lifts: [] });
+    expect(gymOf({})).toEqual({ logs: [], lifts: [], customLifts: [] });
     expect(gymOf({ gym: { logs: [log("a", "Squat", 100)] } }).lifts).toEqual([]);
   });
 
@@ -41,5 +42,28 @@ describe("gym", () => {
     const logs = [log("a", "Squat", 100, "2026-10-26")];
     expect(trainedOn(logs, "2026-10-26")).toBe(true);
     expect(trainedOn(logs, "2026-10-27")).toBe(false);
+  });
+
+  it("tidies a typed lift name and reuses the spelling of one it matches", () => {
+    const gym = { logs: [log("a", "Incline DB press", 60)], lifts: [], customLifts: ["Hip thrust"] };
+    expect(canonicalLift("  bench   PRESS ", gym)).toBe("Bench press");
+    expect(canonicalLift("hip thrust", gym)).toBe("Hip thrust");
+    expect(canonicalLift("incline db press", gym)).toBe("Incline DB press");
+    expect(canonicalLift("  Face   pull ", gym)).toBe("Face pull");
+    expect(canonicalLift("   ", gym)).toBe("");
+  });
+
+  it("remembers only new custom lifts, after the built-in ones", () => {
+    expect(rememberLift([], "Squat")).toEqual([]);
+    expect(rememberLift(["Hip thrust"], "hip thrust")).toEqual(["Hip thrust"]);
+    expect(rememberLift(["Hip thrust"], "Face pull")).toEqual(["Hip thrust", "Face pull"]);
+    expect(liftOptions({ customLifts: ["Face pull"] })).toEqual([...LIFTS, "Face pull"]);
+  });
+
+  it("keeps custom lifts through a backup, and imports older backups without them", () => {
+    const state = { tasks: [], gym: { logs: [], lifts: [], customLifts: ["Face pull"] } };
+    expect(gymOf(parseBackup(exportBackup(state))).customLifts).toEqual(["Face pull"]);
+    const old = parseBackup(JSON.stringify({ tasks: [], gym: { logs: [log("a", "Squat", 100)], lifts: [] } }));
+    expect(gymOf(old)).toMatchObject({ customLifts: [], logs: [{ lift: "Squat" }] });
   });
 });

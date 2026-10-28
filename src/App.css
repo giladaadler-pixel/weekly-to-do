@@ -1878,3 +1878,25 @@ summary:active {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* Gym: "Other…" in a Lift dropdown opens a name box under it, sliding in rather than
+   jumping. A blank name gets the error border and "Enter an exercise name". */
+.lift-field label { color: var(--muted); }
+.lift-other { display: flex; flex-direction: column; gap: 0.3rem; animation: lift-other-in 0.18s ease-out; }
+@keyframes lift-other-in {
+  from { opacity: 0; max-height: 0; transform: translateY(-4px); }
+  to { opacity: 1; max-height: 5rem; transform: none; }
+}
+.text-input[aria-invalid="true"] { border-color: var(--high); }
+.text-input[aria-invalid="true"]:focus { border-color: var(--high); box-shadow: 0 0 0 3px color-mix(in srgb, var(--high) 18%, transparent); }
+.field-error { color: var(--high); font-size: 0.75rem; }
+.custom-lifts { display: flex; flex-direction: column; gap: 0.4rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
+.custom-lifts ul { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+.custom-lift { display: inline-flex; align-items: center; gap: 0.1rem; padding-left: 0.65rem; border: 1px solid var(--border); border-radius: 99px; color: var(--text); font-size: 0.8rem; }
+.custom-lift .square-button.small { width: 1.75rem; height: 1.75rem; border-radius: 99px; }
+@media (max-width: 700px) {
+  .inline-form .lift-field { flex-basis: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lift-other { animation: none; }
+}

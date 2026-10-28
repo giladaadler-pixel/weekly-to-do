@@ -26,7 +26,7 @@ import ReminderModal from "./components/ReminderModal.jsx";
 import { todayCounts } from "./lib/today.js";
 import { updateBadge } from "./lib/badge.js";
 import { makeEvent, deleteEvent } from "./lib/schedule.js";
-import { gymOf, makeLog, makeLiftGoal } from "./lib/gym.js";
+import { gymOf, makeLog, makeLiftGoal, rememberLift } from "./lib/gym.js";
 import DayPage from "./components/DayPage.jsx";
 import GymPage from "./components/GymPage.jsx";
 import Toast from "./components/Toast.jsx";
@@ -254,17 +254,19 @@ export default function App() {
     addLog: (fields) => {
       const log = makeLog({ ...fields, date: todayIso });
       if (!log) return false;
-      setGym((g) => ({ ...g, logs: [...g.logs, log] }));
+      setGym((g) => ({ ...g, logs: [...g.logs, log], customLifts: rememberLift(g.customLifts, log.lift) }));
       return true;
     },
     removeLog: (id) => setGym((g) => ({ ...g, logs: g.logs.filter((l) => l.id !== id) })),
     addLift: (fields) => {
       const goal = makeLiftGoal(fields);
       if (!goal) return false;
-      setGym((g) => ({ ...g, lifts: [...g.lifts, goal] }));
+      setGym((g) => ({ ...g, lifts: [...g.lifts, goal], customLifts: rememberLift(g.customLifts, goal.lift) }));
       return true;
     },
     removeLift: (id) => setGym((g) => ({ ...g, lifts: g.lifts.filter((l) => l.id !== id) })),
+    // Only takes it out of the dropdowns; its sets and goals stay.
+    forgetLift: (name) => setGym((g) => ({ ...g, customLifts: g.customLifts.filter((l) => l !== name) })),
   };
 
   // From the sidebar, Notes opens on its default selection.

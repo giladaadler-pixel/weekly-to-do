@@ -1,10 +1,12 @@
-// The Gym page. Saved as state.gym = { logs, lifts }.
+// The Gym page. Saved as state.gym = { logs, lifts, customLifts }.
 // A log is one set: { id, date "YYYY-MM-DD", lift, weight (lbs), reps }.
 // A lift goal is { id, lift, target (lbs), due ("" or "YYYY-MM-DD") }.
+// customLifts: exercise names typed in under "Other…", offered in the Lift dropdowns.
+// Removing one from that list leaves its sets and goals alone.
 
 export const LIFTS = ["Bench press", "Squat", "Deadlift", "Overhead press", "Pull-up"];
 
-export const DEFAULT_GYM = { logs: [], lifts: [] };
+export const DEFAULT_GYM = { logs: [], lifts: [], customLifts: [] };
 
 // Saved data from before the Gym page has no gym key, or a partial one.
 export function gymOf(state) {
@@ -12,7 +14,28 @@ export function gymOf(state) {
   return {
     logs: Array.isArray(gym.logs) ? gym.logs : [],
     lifts: Array.isArray(gym.lifts) ? gym.lifts : [],
+    customLifts: Array.isArray(gym.customLifts) ? gym.customLifts.filter((l) => typeof l === "string" && l.trim()) : [],
   };
+}
+
+// Built-in lifts, then the user's own: the Lift dropdown options.
+export function liftOptions(gym) {
+  return [...LIFTS, ...gym.customLifts];
+}
+
+// A typed exercise name, tidied: spaces trimmed, and the spelling of a lift already known
+// (built-in, saved, or used by a set or goal) if it matches ignoring case. "" if blank.
+export function canonicalLift(name, gym) {
+  const clean = String(name ?? "").trim().replace(/\s+/g, " ");
+  if (!clean) return "";
+  const known = [...liftOptions(gym), ...gym.logs.map((l) => l.lift), ...gym.lifts.map((g) => g.lift)];
+  return known.find((l) => l.toLowerCase() === clean.toLowerCase()) ?? clean;
+}
+
+// customLifts with this lift added, unless it's built-in or already there.
+export function rememberLift(customLifts, lift) {
+  const known = [...LIFTS, ...customLifts].map((l) => l.toLowerCase());
+  return known.includes(lift.toLowerCase()) ? customLifts : [...customLifts, lift];
 }
 
 // A new set, or null unless weight and reps are positive numbers.

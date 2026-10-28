@@ -1,20 +1,23 @@
 import { useState } from "react";
 import { weekDays, weekStart, dayLabel, formatShort } from "../lib/dates.js";
-import { LIFTS, bestWeight, goalProgress, recordIds, trainedOn } from "../lib/gym.js";
+import { bestWeight, goalProgress, liftOptions, recordIds, trainedOn } from "../lib/gym.js";
 import Icon from "./Icons.jsx";
+import LiftField, { OTHER, resolveLift, useLiftChoice } from "./LiftField.jsx";
 
 // Strength goals, this week's training days, logging sets and the set history.
-// gymActions: { addLog({ lift, weight, reps }), removeLog(id), addLift({ lift, target, due }), removeLift(id) }
+// gymActions: { addLog({ lift, weight, reps }), removeLog(id), addLift({ lift, target, due }), removeLift(id),
+//   forgetLift(name) }
 export default function GymPage({ gym, todayIso, gymActions, onOpenDay }) {
-  const [lift, setLift] = useState(LIFTS[0]);
+  const logLift = useLiftChoice();
   const [weight, setWeight] = useState("");
   const [reps, setReps] = useState("");
-  const [goalLift, setGoalLift] = useState(LIFTS[0]);
+  const goalLift = useLiftChoice();
   const [target, setTarget] = useState("");
   const [due, setDue] = useState("");
   const [message, setMessage] = useState("");
 
-  const { logs, lifts } = gym;
+  const { logs, lifts, customLifts } = gym;
+  const options = liftOptions(gym);
   const days = weekDays(weekStart(todayIso));
   const sessions = days.filter((d) => trainedOn(logs, d)).length;
   const bestBench = bestWeight(logs, "Bench press");
@@ -23,6 +26,8 @@ export default function GymPage({ gym, todayIso, gymActions, onOpenDay }) {
 
   function logSet(e) {
     e.preventDefault();
+    const lift = resolveLift(logLift, gym, e.currentTarget);
+    if (!lift) return;
     const before = bestWeight(logs, lift);
     const ok = gymActions.addLog({ lift, weight, reps });
     if (!ok) {
@@ -32,13 +37,17 @@ export default function GymPage({ gym, todayIso, gymActions, onOpenDay }) {
     setMessage(Number(weight) > before ? `New PR — ${lift} ${Number(weight)} lbs` : `Logged ${lift} ${weight} × ${reps}`);
     setWeight("");
     setReps("");
+    if (logLift.choice === OTHER) logLift.pick(lift);
   }
 
   function addGoal(e) {
     e.preventDefault();
-    if (gymActions.addLift({ lift: goalLift, target, due })) {
+    const lift = resolveLift(goalLift, gym, e.currentTarget);
+    if (!lift) return;
+    if (gymActions.addLift({ lift, target, due })) {
       setTarget("");
       setDue("");
+      if (goalLift.choice === OTHER) goalLift.pick(lift);
     }
   }
 
@@ -119,14 +128,7 @@ export default function GymPage({ gym, todayIso, gymActions, onOpenDay }) {
               );
             })}
             <form className="inline-form" onSubmit={addGoal}>
-              <label className="form-field">
-                <span>Lift</span>
-                <select className="text-input" value={goalLift} onChange={(e) => setGoalLift(e.target.value)}>
-                  {LIFTS.map((l) => (
-                    <option key={l}>{l}</option>
-                  ))}
-                </select>
-              </label>
+              <LiftField field={goalLift} options={options} />
               <label className="form-field narrow">
                 <span>Target lbs</span>
                 <input
@@ -179,14 +181,7 @@ export default function GymPage({ gym, todayIso, gymActions, onOpenDay }) {
 
         <form className="panel glow-panel log-form" onSubmit={logSet}>
           <h2 className="kicker accent">Log a set</h2>
-          <label className="form-field">
-            <span>Lift</span>
-            <select className="text-input" value={lift} onChange={(e) => setLift(e.target.value)}>
-              {LIFTS.map((l) => (
-                <option key={l}>{l}</option>
-              ))}
-            </select>
-          </label>
+          <LiftField field={logLift} options={options} />
           <div className="stepper-row">
             <label className="form-field">
               <span>Weight (lbs)</span>
@@ -217,6 +212,27 @@ export default function GymPage({ gym, todayIso, gymActions, onOpenDay }) {
           <p className="muted small-text" role="status">
             {message || "Sets are saved to today and update your goal progress."}
           </p>
+          {customLifts.length > 0 && (
+            <div className="custom-lifts">
+              <span className="kicker">Your lifts</span>
+              <ul>
+                {customLifts.map((l) => (
+                  <li key={l} className="custom-lift">
+                    <span>{l}</span>
+                    <button
+                      type="button"
+                      className="square-button small"
+                      onClick={() => gymActions.forgetLift(l)}
+                      aria-label={`Remove ${l} from the lift list (keeps its sets and goals)`}
+                      title="Remove from the list. Sets and goals stay."
+                    >
+                      <Icon name="close" size={12} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </form>
       </div>
     </main>
