@@ -23,7 +23,7 @@ function rowsThatFit(body) {
   return count;
 }
 
-export default function DayColumn({ date, isToday, tasks, repeats, overdue, taskActions, repeatActions, onOpenDay }) {
+export default function DayColumn({ date, isToday, isPast, tasks, repeats, overdue, taskActions, repeatActions, onOpenDay }) {
   const [dropTarget, setDropTarget] = useState(false);
   const [creating, setCreating] = useState(false);
   // Fit-to-box density (see lib/density.js). Not saved: re-worked out from the layout.
@@ -44,7 +44,7 @@ export default function DayColumn({ date, isToday, tasks, repeats, overdue, task
   limitRef.current = limit;
 
   const dayNumber = Number(date.slice(8));
-  const className = ["day", isToday && "today", dropTarget && "drop-target"].filter(Boolean).join(" ");
+  const className = ["day", isToday && "today", isPast && "day--past", dropTarget && "drop-target"].filter(Boolean).join(" ");
 
   const rows = dayRows(tasks, repeats, date);
   const clipped = density === "clipped";
@@ -157,6 +157,7 @@ export default function DayColumn({ date, isToday, tasks, repeats, overdue, task
           <button className="day-open" onClick={() => onOpenDay?.(date)} title="Open this day's schedule">
             <span className="day-label">{dayLabel(date)}</span> <span className="day-number">{dayNumber}</span>
             {isToday && <span className="today-tag">Today</span>}
+            {isPast && <span className="visually-hidden"> (past)</span>}
             <span className="day-open-arrow" aria-hidden="true">
               ›
             </span>

@@ -29,6 +29,12 @@
   --violet-line: rgba(91, 69, 214, 0.35);
   --grid-line: rgba(8, 126, 135, 0.05);
   --field-bg: #f7f9fc;
+  /* Past days in the week: greyed but still AA on --day-bg (5.7:1 and 4.6:1). */
+  --past-text: #5c6779;
+  --past-muted: #6b7687;
+  --past-text-hover: #3a4558;
+  --past-icon-opacity: 0.55;
+  --past-icon-opacity-hover: 0.85;
 }
 
 [data-theme="dark"] {
@@ -63,6 +69,12 @@
   --violet-line: rgba(160, 139, 255, 0.4);
   --grid-line: rgba(62, 230, 240, 0.035);
   --field-bg: #070a12;
+  /* Past days: 5.3:1 and 4.8:1 on --day-bg. */
+  --past-text: #7d899c;
+  --past-muted: #758196;
+  --past-text-hover: #b4c0d2;
+  --past-icon-opacity: 0.55;
+  --past-icon-opacity-hover: 0.85;
 }
 
 /* Page padding. On iPhones it grows to clear the notch, status bar and home bar
@@ -1820,4 +1832,49 @@ summary:active {
   .check-box-face.pop {
     animation: none;
   }
+}
+
+/* Past days in the week: the same box and controls, just lower contrast. The greys
+   swap in through --text/--muted so every part of the box follows; done tasks keep
+   their tick and line-through. Hover or focus brings it most of the way back. */
+.day--past .day-header,
+.day--past .day-body,
+.day--past .more-button {
+  --text: var(--past-text);
+  --muted: var(--past-muted);
+  color: var(--text);
+}
+
+.day--past:hover .day-header,
+.day--past:hover .day-body,
+.day--past:hover .more-button,
+.day--past:focus-within .day-header,
+.day--past:focus-within .day-body,
+.day--past:focus-within .more-button {
+  --text: var(--past-text-hover);
+  --muted: var(--past-text);
+}
+
+.day--past .priority-dot {
+  opacity: var(--past-icon-opacity);
+  transition: opacity 0.15s;
+}
+
+.day--past:hover .priority-dot,
+.day--past:focus-within .priority-dot {
+  opacity: var(--past-icon-opacity-hover);
+}
+
+.day--past .task.done .priority-dot {
+  opacity: 0.3;
+}
+
+/* Read by screen readers, not shown. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }

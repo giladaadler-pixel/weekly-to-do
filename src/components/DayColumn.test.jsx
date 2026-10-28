@@ -50,12 +50,13 @@ function fakeLayout({ available, contentAt }) {
   });
 }
 
-function render(tasks, onOpenDay = vi.fn()) {
+function render(tasks, onOpenDay = vi.fn(), props = {}) {
   act(() =>
     root.render(
       <DayColumn
         date={DATE}
         isToday={false}
+        {...props}
         tasks={tasks}
         repeats={[]}
         overdue={[]}
@@ -126,5 +127,23 @@ describe("DayColumn fitting", () => {
     expect(more.textContent).toBe("+3 more");
     act(() => more.click());
     expect(onOpenDay).toHaveBeenCalledWith(DATE);
+  });
+});
+
+describe("DayColumn past days", () => {
+  it("greys out a past day and tells screen readers, but stays usable", () => {
+    fakeLayout({ available: 300, contentAt: () => 100 });
+    render([task("a"), task("b", true)], vi.fn(), { isPast: true });
+    expect(box().classList.contains("day--past")).toBe(true);
+    expect(container.querySelector(".day-open").textContent).toContain("(past)");
+    expect(texts()).toEqual(["Task a", "Task b"]);
+    expect(container.querySelector(".create-task").disabled).toBe(false);
+  });
+
+  it("leaves other days alone", () => {
+    fakeLayout({ available: 300, contentAt: () => 100 });
+    render([task("a")]);
+    expect(box().classList.contains("day--past")).toBe(false);
+    expect(container.querySelector(".day-open").textContent).not.toContain("(past)");
   });
 });

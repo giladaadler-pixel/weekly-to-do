@@ -96,6 +96,14 @@ export default function App() {
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, []);
 
+  // Re-render just after midnight too, so past days grey out while the app stays open.
+  useEffect(() => {
+    const now = new Date();
+    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const timer = setTimeout(() => setShownAt(Date.now()), midnight - now + 1000);
+    return () => clearTimeout(timer);
+  }, [todayIso]);
+
   // 🔔 Enable badge: iPhone only shows badges once notifications are allowed.
   async function enableBadge() {
     try {

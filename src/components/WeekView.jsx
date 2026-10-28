@@ -25,6 +25,7 @@ export default function WeekView({
           key={date}
           date={date}
           isToday={date === todayIso}
+          isPast={date < todayIso}
           tasks={tasks.filter((t) => t.date === date)}
           repeats={repeats}
           overdue={overdueTasks(tasks, todayIso)}
