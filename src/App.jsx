@@ -325,7 +325,13 @@ export default function App() {
           }}
         />
       ) : page === "gym" ? (
-        <GymPage gym={gymOf(state)} todayIso={todayIso} gymActions={gymActions} gymSession={gymSession} />
+        <GymPage
+          gym={gymOf(state)}
+          todayIso={todayIso}
+          gymActions={gymActions}
+          gymSession={gymSession}
+          onToast={showToast}
+        />
       ) : page === "notes" ? (
         <NotesPage
           goals={state.goals}
@@ -358,6 +364,7 @@ export default function App() {
             gymSession.session.active && (
               <RestTimer
                 compact
+                title={gymOf(state).plans.find((p) => p.id === gymSession.session.planId)?.name}
                 session={gymSession.session}
                 left={gymSession.left}
                 actions={gymSession.actions}

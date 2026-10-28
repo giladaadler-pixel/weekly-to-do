@@ -3,7 +3,8 @@ import { REST_PRESETS, MIN_REST, MAX_REST, formatClock, isRunning, isPaused } fr
 // Rest timer between sets. Full size on the Gym page; `compact` is the strip shown on
 // the Week page while a gym session is on.
 // actions: { start, pause, reset, setDuration(secs) }
-export default function RestTimer({ session, left, actions, compact = false, onOpenGym }) {
+// title: the session's plan name for the Week strip ("Push day · 1:12").
+export default function RestTimer({ session, left, actions, compact = false, onOpenGym, title }) {
   const running = isRunning(session);
   const paused = isPaused(session);
   const done = !running && !paused && session.doneAt != null;
@@ -29,7 +30,7 @@ export default function RestTimer({ session, left, actions, compact = false, onO
   if (compact) {
     return (
       <section className={`panel rest-timer rest-timer--compact is-${state}`} aria-label="Gym session rest timer">
-        <span className="kicker accent">Gym session</span>
+        <span className="kicker accent">{title ? `${title} ·` : "Gym session"}</span>
         {clock}
         <div className="rest-actions">
           {mainButton}

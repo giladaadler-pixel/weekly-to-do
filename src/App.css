@@ -1972,3 +1972,12 @@ summary:active {
 .plan-order-row { display: flex; align-items: center; gap: 0.25rem; min-height: 2.5rem; border-bottom: 1px solid var(--border); }
 .plan-order-name { flex: 1; min-width: 0; }
 .plan-order-row .square-button.small:disabled { opacity: 0.3; cursor: default; }
+
+/* Workout tab with a plan: big exercise buttons (at least 44px tall to tap mid-set). */
+.plan-exercises { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.plan-exercise { min-height: 2.9rem; padding: 0.4rem 1rem; border: 1px solid var(--border); border-radius: 12px; background: var(--field-bg); color: var(--text); font: inherit; font-size: 1rem; text-align: left; cursor: pointer; }
+.plan-exercise:hover { border-color: var(--accent-line); }
+.plan-exercise[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
+.plan-exercise .muted { font-size: 0.85rem; }
+.plan-chooser-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.plan-chooser-list .ghost-button { justify-content: flex-start; min-height: 2.9rem; }

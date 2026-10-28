@@ -38,15 +38,22 @@ const timerActions = () => ({
   startSession: vi.fn(),
   endSession: vi.fn(),
   start: vi.fn(),
+  afterSet: vi.fn(),
   pause: vi.fn(),
   reset: vi.fn(),
   setDuration: vi.fn(),
 });
 
-function renderGym(session = IDLE_SESSION, actions = timerActions(), g = gym) {
+function renderGym(session = IDLE_SESSION, actions = timerActions(), g = gym, onToast = vi.fn()) {
   act(() =>
     root.render(
-      <GymPage gym={g} todayIso="2026-10-28" gymActions={gymActions} gymSession={{ session, left: 90, actions }} />,
+      <GymPage
+        gym={g}
+        todayIso="2026-10-28"
+        gymActions={gymActions}
+        gymSession={{ session, left: 90, actions }}
+        onToast={onToast}
+      />,
     ),
   );
   return actions;
@@ -102,10 +109,10 @@ describe("GymPage", () => {
     expect(actions.start).toHaveBeenCalled();
   });
 
-  it("logging a set does not start the timer", () => {
+  it("logging a set starts the rest timer, even with no session", () => {
     const actions = renderGym();
     act(() => container.querySelector(".log-form").dispatchEvent(new Event("submit", { bubbles: true })));
-    expect(actions.start).not.toHaveBeenCalled();
+    expect(actions.afterSet).toHaveBeenCalled();
   });
 
   it("starts and ends a gym session", () => {
@@ -262,5 +269,92 @@ describe("Plans tab", () => {
     act(() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" })));
     expect(sheet()).toBe(null);
     expect(gymActions.savePlan).not.toHaveBeenCalled();
+  });
+});
+
+describe("Doing a workout", () => {
+  const push = { id: "p1", name: "Push day", exercises: ["Bench press", "Overhead press"] };
+  const logs = [
+    { id: "a", date: "2026-10-27", lift: "Bench press", weight: 150, reps: 5 },
+    { id: "b", date: "2026-10-28", lift: "Bench press", weight: 155, reps: 5 },
+    { id: "c", date: "2026-10-28", lift: "Bench press", weight: 160, reps: 3 },
+  ];
+  const withPlan = { ...gym, logs, plans: [push] };
+  const exerciseButton = (start) =>
+    [...container.querySelectorAll(".plan-exercise")].find((b) => b.textContent.startsWith(start));
+  const weightInput = () => container.querySelectorAll(".gym-log input[type=number]")[0];
+
+  beforeEach(() => gymActions.addLog.mockClear());
+
+  it("Start gym session asks which plan, then starts it", () => {
+    const actions = renderGym(IDLE_SESSION, timerActions(), withPlan);
+    act(() => button("Start gym session").click());
+    const chooser = document.querySelector(".plan-chooser");
+    expect([...chooser.querySelectorAll(".plan-chooser-list button")].map((b) => b.textContent)).toEqual([
+      "Push day",
+      "No plan",
+    ]);
+    act(() => [...chooser.querySelectorAll("button")].find((b) => b.textContent === "Push day").click());
+    expect(actions.startSession).toHaveBeenCalledWith("p1");
+    expect(document.querySelector(".plan-chooser")).toBe(null);
+  });
+
+  it("a plan card's Start skips the chooser and opens the Workout tab", () => {
+    localStorage.setItem(TAB_KEY, "plans");
+    const actions = renderGym(IDLE_SESSION, timerActions(), withPlan);
+    act(() => button("Start").click());
+    expect(actions.startSession).toHaveBeenCalledWith("p1");
+    expect(tab("Workout").getAttribute("aria-selected")).toBe("true");
+  });
+
+  it("logs from the plan's exercise buttons with the last weight filled in", () => {
+    const actions = renderGym(startSession(IDLE_SESSION, 0, "p1"), timerActions(), withPlan);
+    expect(container.textContent).toContain("Push day · session on");
+    expect(exerciseButton("Bench press").textContent).toBe("Bench press · 2 sets");
+    expect(exerciseButton("Bench press").getAttribute("aria-pressed")).toBe("true");
+    expect(weightInput().value).toBe("160");
+    expect(container.querySelector(".lift-field")).toBe(null);
+    act(() => exerciseButton("Overhead press").click());
+    expect(weightInput().value).toBe("");
+    act(() => exerciseButton("Bench press").click());
+    typeInto(container.querySelectorAll(".gym-log input[type=number]")[1], "5");
+    act(() => container.querySelector(".log-form").dispatchEvent(new Event("submit", { bubbles: true })));
+    expect(gymActions.addLog).toHaveBeenCalledWith({ lift: "Bench press", weight: "160", reps: "5" });
+    expect(actions.afterSet).toHaveBeenCalled();
+    act(() => exerciseButton("Other exercise").click());
+    expect(container.querySelector(".lift-field")).not.toBe(null);
+  });
+
+  it("a session whose plan was deleted carries on as No plan", () => {
+    renderGym(startSession(IDLE_SESSION, 0, "gone"), timerActions(), withPlan);
+    expect(container.querySelector(".plan-exercise")).toBe(null);
+    expect(container.querySelector(".lift-field")).not.toBe(null);
+  });
+
+  it("End session shows how many sets were logged", () => {
+    const onToast = vi.fn();
+    const session = { ...startSession(IDLE_SESSION, 0, "p1"), setsLogged: 9 };
+    const actions = renderGym(session, timerActions(), withPlan, onToast);
+    act(() => button("End session").click());
+    expect(onToast).toHaveBeenCalledWith("Push day done — 9 sets");
+    expect(actions.endSession).toHaveBeenCalled();
+  });
+
+  it("End session with no sets shows no message", () => {
+    const onToast = vi.fn();
+    renderGym(startSession(IDLE_SESSION, 0), timerActions(), withPlan, onToast);
+    act(() => button("End session").click());
+    expect(onToast).not.toHaveBeenCalled();
+  });
+});
+
+describe("Week strip", () => {
+  it("shows the plan name", () => {
+    act(() =>
+      root.render(
+        <RestTimer compact title="Push day" session={startTimer(IDLE_SESSION, 0)} left={72} actions={timerActions()} />,
+      ),
+    );
+    expect(container.querySelector(".rest-timer--compact").textContent).toContain("Push day ·1:12");
   });
 });

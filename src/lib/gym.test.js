@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { gymOf, makeLog, makeLiftGoal, bestWeight, goalProgress, recordIds, trainedOn, liftOptions, canonicalLift, rememberLift, LIFTS } from "./gym.js";
+import { gymOf, makeLog, makeLiftGoal, lastWeight, setsToday, bestWeight, goalProgress, recordIds, trainedOn, liftOptions, canonicalLift, rememberLift, LIFTS } from "./gym.js";
 import { parseBackup, exportBackup } from "./backup.js";
 
 const log = (id, lift, weight, date = "2026-10-27") => ({ id, date, lift, weight, reps: 5 });
@@ -65,5 +65,13 @@ describe("gym", () => {
     expect(gymOf(parseBackup(exportBackup(state))).customLifts).toEqual(["Face pull"]);
     const old = parseBackup(JSON.stringify({ tasks: [], gym: { logs: [log("a", "Squat", 100)], lifts: [] } }));
     expect(gymOf(old)).toMatchObject({ customLifts: [], logs: [{ lift: "Squat" }] });
+  });
+
+  it("knows the last weight and today's sets for a lift", () => {
+    const logs = [log("a", "Squat", 200, "2026-10-27"), log("b", "Squat", 185), log("c", "Squat", 190, "2026-10-28")];
+    expect(lastWeight(logs, "Squat")).toBe(190);
+    expect(lastWeight(logs, "Deadlift")).toBe(null);
+    expect(setsToday(logs, "Squat", "2026-10-27")).toBe(2);
+    expect(setsToday(logs, "Squat", "2026-10-29")).toBe(0);
   });
 });

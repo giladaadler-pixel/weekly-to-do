@@ -80,6 +80,17 @@ export function recordIds(logs) {
   return ids;
 }
 
+// The weight of the last set logged for this lift, or null.
+export function lastWeight(logs, lift) {
+  for (let i = logs.length - 1; i >= 0; i--) if (logs[i].lift === lift) return logs[i].weight;
+  return null;
+}
+
+// How many sets of this lift were logged on this date.
+export function setsToday(logs, lift, date) {
+  return logs.filter((l) => l.lift === lift && l.date === date).length;
+}
+
 // Whether any set was logged on this date.
 export function trainedOn(logs, date) {
   return logs.some((l) => l.date === date);

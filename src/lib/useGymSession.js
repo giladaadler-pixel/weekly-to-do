@@ -9,6 +9,7 @@ import {
   resetTimer,
   finishTimer,
   setDuration,
+  countSet,
   secondsLeft,
 } from "./restTimer.js";
 import { playRestOver, unlockAudio } from "./restAlert.js";
@@ -41,13 +42,20 @@ export default function useGymSession() {
   }, [session.endsAt]);
 
   const actions = {
-    startSession: () => setSession((s) => startSession(s, Date.now())),
+    startSession: (planId = null) => setSession((s) => startSession(s, Date.now(), planId)),
     endSession: () => setSession((s) => endSession(s)),
     start: () => {
       unlockAudio();
       const t = Date.now();
       setNow(t);
       setSession((s) => startTimer(s, t));
+    },
+    // After logging a set: count it and start the rest from the full length.
+    afterSet: () => {
+      unlockAudio();
+      const t = Date.now();
+      setNow(t);
+      setSession((s) => startTimer(resetTimer(countSet(s)), t));
     },
     pause: () => setSession((s) => pauseTimer(s, Date.now())),
     reset: () => setSession((s) => resetTimer(s)),

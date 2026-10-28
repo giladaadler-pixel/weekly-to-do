@@ -2,8 +2,10 @@
 // Kept under its own key, apart from the main saved data (weekly-to-do:v1), so a running
 // timer never touches users' tasks.
 //
-// Shape: { active, startedAt, duration, endsAt, remaining, doneAt }
+// Shape: { active, startedAt, planId, setsLogged, duration, endsAt, remaining, doneAt }
 //   active     — a gym session is going (the timer then shows on the Week page too)
+//   planId     — the workout plan the session follows, or null for No plan
+//   setsLogged — sets logged since the session started (sets only store a date)
 //   duration   — rest length in seconds (default 90)
 //   endsAt     — ms timestamp while counting down, else null
 //   remaining  — seconds left while paused, else null
@@ -18,6 +20,8 @@ export const REST_PRESETS = [60, 90, 120, 180];
 export const IDLE_SESSION = {
   active: false,
   startedAt: null,
+  planId: null,
+  setsLogged: 0,
   duration: DEFAULT_REST,
   endsAt: null,
   remaining: null,
@@ -34,7 +38,13 @@ export function loadSession(storage = globalThis.localStorage) {
   try {
     const saved = JSON.parse(storage?.getItem(SESSION_KEY) ?? "null");
     if (!saved || typeof saved !== "object") return { ...IDLE_SESSION };
-    return { ...IDLE_SESSION, ...saved, duration: clampRest(saved.duration ?? DEFAULT_REST) };
+    return {
+      ...IDLE_SESSION,
+      ...saved,
+      planId: typeof saved.planId === "string" ? saved.planId : null,
+      setsLogged: Number.isInteger(saved.setsLogged) && saved.setsLogged > 0 ? saved.setsLogged : 0,
+      duration: clampRest(saved.duration ?? DEFAULT_REST),
+    };
   } catch {
     return { ...IDLE_SESSION };
   }
@@ -48,8 +58,16 @@ export function saveSession(session, storage = globalThis.localStorage) {
   }
 }
 
-export function startSession(s, now) {
-  return { ...s, active: true, startedAt: now, endsAt: null, remaining: null, doneAt: null };
+// Starts a session following a plan (or null for No plan). During a session it only
+// switches the plan, keeping the start time, the set count and the timer.
+export function startSession(s, now, planId = null) {
+  if (s.active) return { ...s, planId };
+  return { ...s, active: true, startedAt: now, planId, setsLogged: 0, endsAt: null, remaining: null, doneAt: null };
+}
+
+// One more set logged in this session (nothing to count outside a session).
+export function countSet(s) {
+  return s.active ? { ...s, setsLogged: s.setsLogged + 1 } : s;
 }
 
 // Ending the session stops the timer but keeps the chosen rest length.

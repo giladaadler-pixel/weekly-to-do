@@ -6,6 +6,7 @@ import {
   loadSession,
   saveSession,
   startSession,
+  countSet,
   endSession,
   startTimer,
   pauseTimer,
@@ -87,5 +88,23 @@ describe("rest timer", () => {
     expect(BEEPS).toBeGreaterThanOrEqual(3);
     expect(BEEPS).toBeLessThanOrEqual(5);
     expect(vibrationPattern().filter((_, i) => i % 2 === 0)).toHaveLength(BEEPS);
+  });
+
+  it("starts a session with a plan, keeps its start time, and counts its sets", () => {
+    let s = startSession(IDLE_SESSION, 1000, "plan-1");
+    expect(s).toMatchObject({ active: true, startedAt: 1000, planId: "plan-1", setsLogged: 0 });
+    s = countSet(countSet(s));
+    expect(s.setsLogged).toBe(2);
+    // Switching plan mid-session keeps the start time and the count.
+    s = startSession(s, 9999, "plan-2");
+    expect(s).toMatchObject({ startedAt: 1000, planId: "plan-2", setsLogged: 2 });
+    expect(startSession(IDLE_SESSION, 0).planId).toBe(null);
+    expect(countSet(IDLE_SESSION).setsLogged).toBe(0);
+    expect(endSession(s)).toEqual(IDLE_SESSION);
+  });
+
+  it("treats a broken planId or set count as absent", () => {
+    const s = loadSession(memoryStorage({ [SESSION_KEY]: JSON.stringify({ active: true, planId: 5, setsLogged: -2 }) }));
+    expect(s).toMatchObject({ active: true, planId: null, setsLogged: 0 });
   });
 });
