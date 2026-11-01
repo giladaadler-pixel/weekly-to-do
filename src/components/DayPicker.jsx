@@ -1,6 +1,6 @@
-const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-// Checkboxes Sun–Fri. days = picked weekday numbers (0 = Sun … 5 = Fri).
+// Checkboxes Sun–Sat. days = picked weekday numbers (0 = Sun … 6 = Sat).
 export default function DayPicker({ days, onChange }) {
   function toggle(n) {
     onChange(days.includes(n) ? days.filter((d) => d !== n) : [...days, n].sort());

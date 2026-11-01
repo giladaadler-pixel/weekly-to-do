@@ -32,8 +32,8 @@ describe("dayStatus", () => {
     expect(dayStatus(state({ tasks: [task("2026-10-15", false)] }), "2026-10-16")).toBe("empty");
   });
 
-  it("is empty on a Saturday, even with tasks", () => {
-    expect(dayStatus(state({ tasks: [task("2026-10-17", false)] }), "2026-10-17")).toBe("empty");
+  it("counts Saturday like any other day", () => {
+    expect(dayStatus(state({ tasks: [task("2026-10-17", false)] }), "2026-10-17")).toBe("missed");
   });
 
   it("counts repeat copies", () => {
@@ -55,16 +55,16 @@ describe("dayStatus", () => {
 });
 
 describe("streak", () => {
-  it("counts done days, skipping empty days and Saturdays", () => {
+  it("counts done days, skipping empty days", () => {
     const s = state({
       tasks: [
         task("2026-10-15", true), // Thu
         task("2026-10-16", true), // Fri
-        task("2026-10-17", false), // Sat: skipped even though unfinished
+        task("2026-10-17", true), // Sat
         // Sun 18: no tasks, skipped
       ],
     });
-    expect(streak(s, TODAY)).toBe(2);
+    expect(streak(s, TODAY)).toBe(3);
   });
 
   it("counts today once it's done", () => {
@@ -107,14 +107,14 @@ describe("streak", () => {
 });
 
 describe("weekDots", () => {
-  it("gives Sun–Fri statuses, with later days as future", () => {
+  it("gives Sun–Sat statuses, with later days as future", () => {
     const s = state({ tasks: [task("2026-10-18", true)] });
-    expect(weekDots(s, TODAY)).toEqual(["done", "future", "future", "future", "future", "future"]);
+    expect(weekDots(s, TODAY)).toEqual(["done", "future", "future", "future", "future", "future", "future"]);
   });
 
   it("shows today as done once finished", () => {
     const s = state({ tasks: [task("2026-10-18", false), task(TODAY, true)] });
-    expect(weekDots(s, TODAY)).toEqual(["missed", "done", "future", "future", "future", "future"]);
+    expect(weekDots(s, TODAY)).toEqual(["missed", "done", "future", "future", "future", "future", "future"]);
   });
 
   it("shows an unfinished today as future, since today never counts as missed", () => {
@@ -123,6 +123,6 @@ describe("weekDots", () => {
   });
 
   it("shows days with no tasks as empty", () => {
-    expect(weekDots(state(), "2026-10-21")).toEqual(["empty", "empty", "empty", "future", "future", "future"]);
+    expect(weekDots(state(), "2026-10-21")).toEqual(["empty", "empty", "empty", "future", "future", "future", "future"]);
   });
 });

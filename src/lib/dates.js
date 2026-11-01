@@ -30,8 +30,8 @@ export function weekStart(iso) {
   return addDays(iso, -fromISO(iso).getDay());
 }
 
-// The week is Sunday to Friday. There is no Saturday.
-export const WEEK_LENGTH = 6;
+// The week is Sunday to Saturday.
+export const WEEK_LENGTH = 7;
 
 export function weekDays(startIso) {
   return Array.from({ length: WEEK_LENGTH }, (_, i) => addDays(startIso, i));
@@ -67,9 +67,9 @@ export function monthKey(iso) {
   return iso.slice(0, 7);
 }
 
-// The coming Friday (the day itself if it is a Friday; a Saturday rolls to the next one).
+// The coming Saturday (the day itself if it is a Saturday).
 export function endOfWeek(iso) {
-  return addDays(weekStart(addDays(iso, 1)), WEEK_LENGTH - 1);
+  return addDays(weekStart(iso), WEEK_LENGTH - 1);
 }
 
 export function endOfMonth(iso) {
