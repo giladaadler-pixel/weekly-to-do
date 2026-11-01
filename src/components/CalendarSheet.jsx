@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { dayLabel, formatShort } from "../lib/dates.js";
 import { buildWorkoutIcs, workoutFileName } from "../lib/ics.js";
 import { downloadFile } from "../lib/download.js";
+import ReminderSelect from "./ReminderSelect.jsx";
 
 // "Add to calendar" for a workout plan: a block on the app's Day calendar and/or a
 // phone-calendar file, once or every week. Stays open so both can be used.
@@ -12,6 +13,7 @@ export default function CalendarSheet({ plan, todayIso, onAddEvent, onToast, onC
   const [time, setTime] = useState("18:00");
   const [length, setLength] = useState("60");
   const [weekly, setWeekly] = useState(false);
+  const [reminder, setReminder] = useState(15);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -37,14 +39,14 @@ export default function CalendarSheet({ plan, todayIso, onAddEvent, onToast, onC
   function addToDay() {
     const f = fields();
     if (!f) return;
-    onAddEvent({ ...f, title: plan.name, repeat: weekly ? "weekly" : undefined });
+    onAddEvent({ ...f, title: plan.name, repeat: weekly ? "weekly" : undefined, reminder });
     onToast(`${plan.name} added to ${dayLabel(f.date)}, ${formatShort(f.date)}${weekly ? ", every week" : ""}`);
   }
 
   function sendToPhone() {
     const f = fields();
     if (!f) return;
-    const ics = buildWorkoutIcs({ ...f, title: plan.name, weekly, uid: `${crypto.randomUUID()}@weekly-to-do` });
+    const ics = buildWorkoutIcs({ ...f, title: plan.name, weekly, reminder, uid: `${crypto.randomUUID()}@weekly-to-do` });
     downloadFile(ics, workoutFileName(plan.name), "text/calendar");
   }
 
@@ -83,6 +85,7 @@ export default function CalendarSheet({ plan, todayIso, onAddEvent, onToast, onC
           <input type="checkbox" checked={weekly} onChange={(e) => setWeekly(e.target.checked)} />
           Repeat every week
         </label>
+        <ReminderSelect value={reminder} onChange={setReminder} />
         {error && (
           <span className="field-error" role="alert">
             {error}

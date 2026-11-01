@@ -1,6 +1,7 @@
 // The day page's hour-by-hour schedule. An event is
 // { id, date "YYYY-MM-DD", start (minutes after midnight), length (minutes), title,
-//   repeat? "weekly" }. A weekly event also shows on every later date on the same weekday.
+//   repeat? "weekly", reminder? (minutes before the start to notify; 0 = at the start) }.
+// A weekly event also shows on every later date on the same weekday.
 
 export const DAY_MINUTES = 24 * 60;
 export const HOURS = Array.from({ length: 24 }, (_, h) => h);
@@ -25,13 +26,101 @@ export function formatLength(minutes) {
 
 // A new event, or null when the title is blank. Start and length are kept inside the day.
 // repeat: "weekly" for every week on that weekday; anything else is a one-off.
-export function makeEvent({ date, start, length, title, repeat }) {
+// reminder: minutes before to notify (see REMINDER_OPTIONS); left out for no reminder.
+export function makeEvent({ date, start, length, title, repeat, reminder }) {
   const trimmed = (title ?? "").trim();
   if (!trimmed) return null;
   const s = Math.min(Math.max(0, Math.round(start)), DAY_MINUTES - 15);
   const len = Math.min(Math.max(15, Math.round(length)), DAY_MINUTES - s);
-  const event = { id: crypto.randomUUID(), date, start: s, length: len, title: trimmed };
-  return repeat === "weekly" ? { ...event, repeat: "weekly" } : event;
+  let event = { id: crypto.randomUUID(), date, start: s, length: len, title: trimmed };
+  if (repeat === "weekly") event = { ...event, repeat: "weekly" };
+  return withReminder(event, reminder);
+}
+
+// The "Notify me" choices, like Google Calendar. null = no notification.
+export const REMINDER_OPTIONS = [
+  { value: null, label: "No notification" },
+  { value: 0, label: "At start time" },
+  { value: 5, label: "5 minutes before" },
+  { value: 10, label: "10 minutes before" },
+  { value: 15, label: "15 minutes before" },
+  { value: 30, label: "30 minutes before" },
+  { value: 60, label: "1 hour before" },
+  { value: 120, label: "2 hours before" },
+  { value: 1440, label: "1 day before" },
+];
+
+// A valid reminder in minutes, or null for none.
+export function cleanReminder(reminder) {
+  if (reminder === null || reminder === undefined || reminder === "") return null;
+  const n = Math.round(Number(reminder));
+  return Number.isFinite(n) && n >= 0 && n <= 7 * DAY_MINUTES ? n : null;
+}
+
+function withReminder(event, reminder) {
+  const r = cleanReminder(reminder);
+  const { reminder: _old, ...rest } = event;
+  return r === null ? rest : { ...rest, reminder: r };
+}
+
+// Changes (or removes, with null) one event's reminder.
+export function setReminder(events, id, reminder) {
+  return events.map((e) => (e.id === id ? withReminder(e, reminder) : e));
+}
+
+// 10 → "10 minutes before", 60 → "1 hour before", 0 → "At start time".
+export function formatReminder(reminder) {
+  const r = cleanReminder(reminder);
+  const preset = REMINDER_OPTIONS.find((o) => o.value === r);
+  if (preset) return preset.label;
+  if (r % DAY_MINUTES === 0) return `${r / DAY_MINUTES} days before`;
+  if (r % 60 === 0) return `${r / 60} hours before`;
+  return `${r} minutes before`;
+}
+
+function isoOf(d) {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+// Notifications that should go off now. Looks at every day from (now − the longest reminder)
+// up to the next week, so a "1 day before" reminder for tomorrow is found too.
+// An alert is due from its alert time until the event starts, so one missed while the app
+// was closed still shows when it opens (if the event hasn't started yet).
+// fired: a Set of keys already shown. Returns [{ key, event, date, startsAt (Date), minutesLeft }].
+export function dueReminders(events, now = new Date(), fired = new Set()) {
+  const due = [];
+  const withReminders = events.filter((e) => cleanReminder(e.reminder) !== null);
+  if (!withReminders.length) return due;
+  for (let offset = 0; offset <= 7; offset++) {
+    const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
+    const date = isoOf(day);
+    for (const event of withReminders) {
+      if (!happensOn(event, date)) continue;
+      const startsAt = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 0, event.start);
+      const alertAt = new Date(startsAt.getTime() - event.reminder * 60 * 1000);
+      const key = `${event.id}@${date}`;
+      // Due from the alert time; "at start time" alerts stay due for the first minute.
+      const end = startsAt.getTime() + (event.reminder === 0 ? 60 * 1000 : 0);
+      if (now >= alertAt && now.getTime() < end && !fired.has(key)) {
+        const minutesLeft = Math.max(0, Math.round((startsAt - now) / 60000));
+        due.push({ key, event, date, startsAt, minutesLeft });
+      }
+    }
+  }
+  return due;
+}
+
+// "Gym starts in 10 minutes · 6:00 PM", "Gym is starting now · 6:00 PM"
+export function reminderMessage({ event, minutesLeft }) {
+  const when = formatTime12(event.start);
+  if (minutesLeft <= 0) return `${event.title} is starting now · ${when}`;
+  let left;
+  if (minutesLeft >= DAY_MINUTES - 30) left = "tomorrow";
+  else if (minutesLeft >= 60) {
+    const h = Math.round(minutesLeft / 60);
+    left = `in ${h} ${h === 1 ? "hour" : "hours"}`;
+  } else left = `in ${minutesLeft} ${minutesLeft === 1 ? "minute" : "minutes"}`;
+  return `${event.title} starts ${left} · ${when}`;
 }
 
 function weekday(iso) {

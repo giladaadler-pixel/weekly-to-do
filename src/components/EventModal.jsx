@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { DAY_MINUTES, formatLength, formatTime12 } from "../lib/schedule.js";
+import ReminderSelect from "./ReminderSelect.jsx";
 
 // New event: title, start and length, opened from a tapped slot on the day page.
 // With `event` set, shows that event instead, with a Delete button.
-// onSave({ start, length, title }), onDelete(), onCancel()
-export default function EventModal({ event, start: initialStart = 540, onSave, onDelete, onCancel }) {
+// onSave({ start, length, title, reminder }), onReminder(reminder) (existing event),
+// onDelete(), onCancel()
+export default function EventModal({ event, start: initialStart = 540, onSave, onReminder, onDelete, onCancel }) {
   const [title, setTitle] = useState("");
   const [start, setStart] = useState(initialStart);
   const [length, setLength] = useState(60);
+  const [reminder, setReminder] = useState(10);
 
   useEffect(() => {
     function onKey(e) {
@@ -26,6 +29,7 @@ export default function EventModal({ event, start: initialStart = 540, onSave, o
             {formatTime12(event.start)} – {formatTime12(event.start + event.length)} · {formatLength(event.length)}
           </p>
           {event.repeat === "weekly" && <p className="muted small-text">Every week. Deleting it deletes every week.</p>}
+          {onReminder && <ReminderSelect value={event.reminder ?? null} onChange={onReminder} />}
           <div className="modal-buttons">
             <button type="button" className="delete-button" onClick={onDelete}>
               {event.repeat === "weekly" ? "Delete every week" : "Delete"}
@@ -42,7 +46,7 @@ export default function EventModal({ event, start: initialStart = 540, onSave, o
   function onSubmit(e) {
     e.preventDefault();
     if (!title.trim()) return;
-    onSave({ start, length, title });
+    onSave({ start, length, title, reminder });
   }
 
   return (
@@ -89,6 +93,7 @@ export default function EventModal({ event, start: initialStart = 540, onSave, o
         <span className="mono muted small-text">
           {formatTime12(start)} → {formatTime12(Math.min(start + length, DAY_MINUTES))}
         </span>
+        <ReminderSelect value={reminder} onChange={setReminder} />
         <div className="modal-buttons">
           <button type="button" onClick={onCancel}>
             Cancel

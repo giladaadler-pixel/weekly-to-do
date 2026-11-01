@@ -46,8 +46,8 @@ function floating(dateIso, minutes) {
 
 // A workout plan as a calendar event: date "YYYY-MM-DD", start (minutes after midnight),
 // length (minutes), weekly (repeat every week). Floating time like the reminder, with an
-// alert 15 minutes before.
-export function buildWorkoutIcs({ title, date, start, length, weekly = false, uid, now = new Date() }) {
+// alert `reminder` minutes before (15 by default; null for no alert).
+export function buildWorkoutIcs({ title, date, start, length, weekly = false, reminder = 15, uid, now = new Date() }) {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -60,11 +60,15 @@ export function buildWorkoutIcs({ title, date, start, length, weekly = false, ui
     `DURATION:PT${length}M`,
     ...(weekly ? ["RRULE:FREQ=WEEKLY"] : []),
     `SUMMARY:${escapeText(title)}`,
-    "BEGIN:VALARM",
-    "ACTION:DISPLAY",
-    `DESCRIPTION:${escapeText(title)}`,
-    "TRIGGER:-PT15M",
-    "END:VALARM",
+    ...(reminder === null
+      ? []
+      : [
+          "BEGIN:VALARM",
+          "ACTION:DISPLAY",
+          `DESCRIPTION:${escapeText(title)}`,
+          `TRIGGER:-PT${reminder}M`,
+          "END:VALARM",
+        ]),
     "END:VEVENT",
     "END:VCALENDAR",
   ];

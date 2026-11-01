@@ -476,6 +476,7 @@ describe("Add to calendar", () => {
       length: 60,
       title: "Push day",
       repeat: undefined,
+      reminder: 15,
     });
     expect(onToast).toHaveBeenCalledWith("Push day added to Wed, Oct 28");
     expect(document.querySelector(".calendar-sheet")).not.toBe(null);

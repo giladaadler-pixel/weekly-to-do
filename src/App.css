@@ -2012,3 +2012,42 @@ summary:active {
 /* Home-screen widget setup */
 .widget-steps { margin: 0.25rem 0 1rem; padding-left: 1.2rem; display: grid; gap: 0.45rem; font-size: 0.9rem; line-height: 1.4; }
 .day-page-actions a.ghost-button { text-decoration: none; }
+
+/* Event "Notify me" dropdown: spans the full width under the Start and Length boxes. */
+.reminder-field { flex: 0 0 auto; width: 100%; margin-top: 0.25rem; }
+.reminder-select { width: 100%; cursor: pointer; }
+.cal-event-bell { font-size: 0.7em; margin-left: 0.25rem; opacity: 0.8; }
+/* Start and Length boxes share the row evenly. */
+.event-modal .stepper-row > .form-field { flex: 1 1 0; }
+/* Tall popups scroll inside instead of crowding the screen. */
+.event-modal, .calendar-sheet { max-height: min(90vh, 90dvh); overflow-y: auto; overscroll-behavior: contain; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+
+/* Calendar reminders: a stack at the top that stays until closed. Scrolls past three. */
+.event-alerts {
+  position: fixed;
+  top: max(1rem, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(32rem, calc(100vw - 2rem));
+  max-height: 13.5rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+.event-alert {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.75rem 0.75rem 1rem;
+  border: 1px solid var(--accent-line);
+  border-radius: 12px;
+  background: var(--card-bg);
+  color: var(--text);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+.event-alert-text { flex: 1; font-weight: 600; }

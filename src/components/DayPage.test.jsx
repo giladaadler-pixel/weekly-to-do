@@ -87,7 +87,7 @@ describe("DayPage calendar", () => {
       input.dispatchEvent(new Event("input", { bubbles: true }));
     });
     act(() => dialog.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })));
-    expect(eventActions.add).toHaveBeenCalledWith({ date: "2026-10-28", start: 870, length: 60, title: "Study" });
+    expect(eventActions.add).toHaveBeenCalledWith({ date: "2026-10-28", start: 870, length: 60, title: "Study", reminder: 10 });
   });
 
   it("tapping an event lets you delete it", () => {

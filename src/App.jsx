@@ -26,7 +26,10 @@ import ReminderModal from "./components/ReminderModal.jsx";
 import WidgetModal from "./components/WidgetModal.jsx";
 import { todayCounts } from "./lib/today.js";
 import { updateBadge } from "./lib/badge.js";
-import { makeEvent, deleteEvent } from "./lib/schedule.js";
+import { makeEvent, deleteEvent, setReminder, dueReminders, reminderMessage } from "./lib/schedule.js";
+import { loadFired, saveFired, askNotificationPermission, showSystemNotification } from "./lib/eventAlerts.js";
+import { playRestOver } from "./lib/restAlert.js";
+import EventAlert from "./components/EventAlert.jsx";
 import { gymOf, makeLog, makeLiftGoal, rememberLift } from "./lib/gym.js";
 import { makePlan, updatePlan, deletePlan, addedExercises } from "./lib/plans.js";
 import DayPage from "./components/DayPage.jsx";
@@ -88,6 +91,8 @@ export default function App() {
   // Phone only: whether ☰ has slid the sidebar in. Not saved.
   const [phoneOpen, setPhoneOpen] = useState(false);
   const pinned = state.ui.sidebarPinned;
+  // Calendar reminders showing in the app right now: [{ key, message }]. Not saved.
+  const [eventAlerts, setEventAlerts] = useState([]);
 
   useEffect(() => {
     updateBadge(unfinishedToday(state, todayIso));
@@ -125,6 +130,44 @@ export default function App() {
   useEffect(() => {
     saveState(state);
   }, [state]);
+
+  // Calendar reminders: every 15 seconds, and whenever the app comes back into view, look
+  // for events whose "Notify me" time has come. Each shows once: a phone/computer
+  // notification (if allowed), a beep, and a banner in the app.
+  useEffect(() => {
+    const fired = loadFired();
+    function check() {
+      const due = dueReminders(stateRef.current.events ?? [], new Date(), fired);
+      if (!due.length) return;
+      for (const alert of due) {
+        fired.add(alert.key);
+        const message = reminderMessage(alert);
+        showSystemNotification(alert.event.title, message, alert.key);
+        setEventAlerts((list) => [...list.filter((a) => a.key !== alert.key), { key: alert.key, message }]);
+      }
+      playRestOver(2);
+      saveFired(fired);
+    }
+    check();
+    const timer = setInterval(check, 15 * 1000);
+    function onVisible() {
+      if (document.visibilityState === "visible") check();
+    }
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, []);
+
+  // First time an event gets a reminder, ask to allow notifications (needs the tap).
+  function askForEventNotifications(reminder) {
+    if (reminder === null || reminder === undefined) return;
+    askNotificationPermission().then((permission) => {
+      if (permission !== "unsupported") setBadgePermission(permission);
+      if (permission === "denied") showToast("Notifications are blocked — you'll only see reminders inside the app");
+    });
+  }
 
   useEffect(() => {
     document.documentElement.dataset.theme = state.theme;
@@ -248,8 +291,13 @@ export default function App() {
     add: (fields) => {
       const event = makeEvent(fields);
       if (event) setState((s) => ({ ...s, events: [...(s.events ?? []), event] }));
+      if (event) askForEventNotifications(event.reminder);
     },
     remove: (id) => setState((s) => ({ ...s, events: deleteEvent(s.events ?? [], id) })),
+    setReminder: (id, reminder) => {
+      setState((s) => ({ ...s, events: setReminder(s.events ?? [], id, reminder) }));
+      askForEventNotifications(reminder);
+    },
   };
 
   function setGym(change) {
@@ -411,6 +459,17 @@ export default function App() {
         />
       )}
       {widgetOpen && <WidgetModal onClose={() => setWidgetOpen(false)} />}
+      {eventAlerts.length > 0 && (
+        <div className="event-alerts" aria-label="Event reminders">
+          {eventAlerts.map((a) => (
+            <EventAlert
+              key={a.key}
+              message={a.message}
+              onClose={() => setEventAlerts((list) => list.filter((x) => x.key !== a.key))}
+            />
+          ))}
+        </div>
+      )}
       {toast && <Toast key={toast.id} message={toast.message} onDone={closeToast} />}
     </>
   );

@@ -29,7 +29,7 @@ function nowMinutes() {
 
 // One day as a full 24-hour calendar, like Google Calendar. Tap an empty spot to add an
 // event there; tap an event to see or delete it. The day's tasks sit beside it.
-// eventActions: { add({ date, start, length, title }), remove(id) }
+// eventActions: { add({ date, start, length, title, reminder }), remove(id), setReminder(id, minutes | null) }
 export default function DayPage({
   date,
   todayIso,
@@ -154,7 +154,14 @@ export default function DayPage({
                     onClick={() => setOpenEvent(event)}
                     aria-label={`${event.title}, ${formatTime12(event.start)}`}
                   >
-                    <span className="cal-event-title">{event.title}</span>
+                    <span className="cal-event-title">
+                      {event.title}
+                      {event.reminder != null && (
+                        <span className="cal-event-bell" aria-hidden="true">
+                          🔔
+                        </span>
+                      )}
+                    </span>
                     <span className="cal-event-time mono">
                       {formatTime12(event.start)}
                       {!short && ` – ${formatTime12(event.start + event.length)}`}
@@ -211,7 +218,8 @@ export default function DayPage({
       )}
       {openEvent && (
         <EventModal
-          event={openEvent}
+          event={events.find((e) => e.id === openEvent.id) ?? openEvent}
+          onReminder={(reminder) => eventActions.setReminder?.(openEvent.id, reminder)}
           onCancel={() => setOpenEvent(null)}
           onDelete={() => {
             eventActions.remove(openEvent.id);
