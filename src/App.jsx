@@ -23,6 +23,7 @@ import { downloadFile } from "./lib/download.js";
 import { makeNote, editNote, deleteNote } from "./lib/notes.js";
 import NotesPage from "./components/NotesPage.jsx";
 import ReminderModal from "./components/ReminderModal.jsx";
+import WidgetModal from "./components/WidgetModal.jsx";
 import { todayCounts } from "./lib/today.js";
 import { updateBadge } from "./lib/badge.js";
 import { makeEvent, deleteEvent } from "./lib/schedule.js";
@@ -70,6 +71,7 @@ export default function App() {
   stateRef.current = state;
   const [badgePermission, setBadgePermission] = useState(notificationPermission);
   const [reminderOpen, setReminderOpen] = useState(false);
+  const [widgetOpen, setWidgetOpen] = useState(false);
   // { id, message } for the toast at the bottom, or null. Not saved.
   const [toast, setToast] = useState(null);
   // The Sunday of the week being viewed. Not saved: the app always opens on this week.
@@ -394,6 +396,7 @@ export default function App() {
         onExport={downloadBackup}
         onImport={importBackup}
         onReminder={() => setReminderOpen(true)}
+        onWidget={() => setWidgetOpen(true)}
         onEnableBadge={enableBadge}
         badgePermission={badgePermission}
         reminderTime={state.settings.reminderTime}
@@ -407,6 +410,7 @@ export default function App() {
           onClose={() => setReminderOpen(false)}
         />
       )}
+      {widgetOpen && <WidgetModal onClose={() => setWidgetOpen(false)} />}
       {toast && <Toast key={toast.id} message={toast.message} onDone={closeToast} />}
     </>
   );

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { addDays, formatDayHeading } from "../lib/dates.js";
 import { dayRows } from "../lib/today.js";
 import { overdueTasks } from "../lib/tasks.js";
+import { widgetLink } from "../lib/widget.js";
 import {
   HOURS,
   DAY_MINUTES,
@@ -110,6 +111,9 @@ export default function DayPage({
           <span className="mono muted">
             {dayEvents.length} {dayEvents.length === 1 ? "event" : "events"} · {minutes ? formatLength(minutes) : "0h"}
           </span>
+          <a className="ghost-button" href={widgetLink(rows, date)} title="Show this day's tasks in the home-screen widget">
+            <Icon name="widget" size={16} /> Send to widget
+          </a>
           <button className="accent-button" onClick={createNow}>
             + Event
           </button>

@@ -2008,3 +2008,7 @@ summary:active {
 /* Plan sheet: "Other…" opens the full exercise list. */
 .plan-other { align-self: flex-start; }
 .plan-other[aria-expanded="true"] { border-color: var(--accent-line); color: var(--text); }
+
+/* Home-screen widget setup */
+.widget-steps { margin: 0.25rem 0 1rem; padding-left: 1.2rem; display: grid; gap: 0.45rem; font-size: 0.9rem; line-height: 1.4; }
+.day-page-actions a.ghost-button { text-decoration: none; }

@@ -29,6 +29,7 @@ export default function Sidebar({
   onExport,
   onImport,
   onReminder,
+  onWidget,
   onEnableBadge,
   badgePermission,
   reminderTime,
@@ -135,6 +136,14 @@ export default function Sidebar({
             <span className="sidebar-label">Daily reminder</span>
             {reminderTime && <span className="sidebar-trail sidebar-time">{reminderTime}</span>}
           </button>
+          {onWidget && (
+            <button className="sidebar-page sidebar-tool" onClick={() => pickTool(onWidget)} title="Home-screen widget">
+              <span className="sidebar-icon" aria-hidden="true">
+                <Icon name="widget" />
+              </span>
+              <span className="sidebar-label">Home-screen widget</span>
+            </button>
+          )}
           {badgePermission !== "unsupported" && (
             <button className="sidebar-page sidebar-tool" onClick={onBadge} title="App badge" aria-pressed={badgeOn}>
               <span className="sidebar-icon" aria-hidden="true">

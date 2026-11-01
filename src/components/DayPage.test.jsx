@@ -47,6 +47,15 @@ function renderDay(props = {}) {
 }
 
 describe("DayPage calendar", () => {
+  it("Send to widget links to Scriptable with that day's tasks", () => {
+    renderDay({ tasks: [{ id: "t1", text: "Call Ari", date: "2026-10-28", done: false, priority: "high" }] });
+    const link = [...container.querySelectorAll("a")].find((a) => a.textContent.includes("Send to widget"));
+    const href = link.getAttribute("href");
+    expect(href.startsWith("scriptable:///run/To-Do%20Widget?data=")).toBe(true);
+    expect(decodeURIComponent(href)).toContain('"x":"Call Ari"');
+    expect(decodeURIComponent(href)).toContain('"d":"2026-10-28"');
+  });
+
   it("shows all 24 hours", () => {
     renderDay();
     expect(container.querySelectorAll(".cal-hour")).toHaveLength(24);

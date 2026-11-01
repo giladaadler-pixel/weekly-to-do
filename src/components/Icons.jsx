@@ -26,6 +26,13 @@ const PATHS = {
       <circle cx="18" cy="6" r="3" />
     </>
   ),
+  widget: (
+    <>
+      <rect x="3" y="3" width="8" height="8" rx="2" />
+      <rect x="13" y="3" width="8" height="8" rx="2" />
+      <rect x="3" y="13" width="18" height="8" rx="2" />
+    </>
+  ),
   export: <path d="M12 4v11M7 10l5 5 5-5M4 20h16" />,
   import: <path d="M12 15V4M7 9l5-5 5 5M4 20h16" />,
   prev: <path d="M15 6l-6 6 6 6" />,
