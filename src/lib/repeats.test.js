@@ -102,11 +102,17 @@ describe("Saturday", () => {
   const weekdays = makeRepeat({ text: "Read", days: [0, 1, 2, 3, 4, 5], startDate: "2026-10-11" });
 
   it("occurs on a Saturday when picked", () => {
-    expect(occursOn(everyDay, "2026-10-17")).toBe(true);
-    expect(occursOn(weekdays, "2026-10-17")).toBe(false);
+    expect(occursOn(everyDay, "2026-11-07")).toBe(true);
+    expect(occursOn(weekdays, "2026-11-07")).toBe(false);
   });
 
   it("can be missed on a Saturday", () => {
-    expect(missedDates(everyDay, "2026-10-19")).toContain("2026-10-17");
+    expect(missedDates(everyDay, "2026-11-09")).toContain("2026-11-07");
+  });
+
+  it("never lands on a Saturday before Saturdays were added", () => {
+    expect(occursOn(everyDay, "2026-10-31")).toBe(false);
+    expect(missedDates(everyDay, "2026-11-02")).not.toContain("2026-10-17");
+    expect(missedDates(everyDay, "2026-11-02")).not.toContain("2026-10-31");
   });
 });

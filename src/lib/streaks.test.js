@@ -33,7 +33,11 @@ describe("dayStatus", () => {
   });
 
   it("counts Saturday like any other day", () => {
-    expect(dayStatus(state({ tasks: [task("2026-10-17", false)] }), "2026-10-17")).toBe("missed");
+    expect(dayStatus(state({ tasks: [task("2026-11-07", false)] }), "2026-11-07")).toBe("missed");
+  });
+
+  it("is empty on a Saturday before Saturdays were added, even with tasks", () => {
+    expect(dayStatus(state({ tasks: [task("2026-10-17", false)] }), "2026-10-17")).toBe("empty");
   });
 
   it("counts repeat copies", () => {
@@ -55,16 +59,21 @@ describe("dayStatus", () => {
 });
 
 describe("streak", () => {
-  it("counts done days, skipping empty days", () => {
+  it("counts done days, skipping empty days and old Saturdays", () => {
     const s = state({
       tasks: [
         task("2026-10-15", true), // Thu
         task("2026-10-16", true), // Fri
-        task("2026-10-17", true), // Sat
+        task("2026-10-17", false), // Sat before Saturdays were added: skipped even though unfinished
         // Sun 18: no tasks, skipped
       ],
     });
-    expect(streak(s, TODAY)).toBe(3);
+    expect(streak(s, TODAY)).toBe(2);
+  });
+
+  it("counts Saturdays from Nov 7 on", () => {
+    const s = state({ tasks: [task("2026-11-06", true), task("2026-11-07", true)] });
+    expect(streak(s, "2026-11-08")).toBe(2);
   });
 
   it("counts today once it's done", () => {

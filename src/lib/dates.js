@@ -33,6 +33,14 @@ export function weekStart(iso) {
 // The week is Sunday to Saturday.
 export const WEEK_LENGTH = 7;
 
+// Saturday joined the week on Nov 7, 2026. Saturdays before that stay off: no repeats land
+// on them and they never count for or against a streak.
+export const FIRST_SATURDAY = "2026-11-07";
+
+export function isOldSaturday(iso) {
+  return fromISO(iso).getDay() === 6 && iso < FIRST_SATURDAY;
+}
+
 export function weekDays(startIso) {
   return Array.from({ length: WEEK_LENGTH }, (_, i) => addDays(startIso, i));
 }
